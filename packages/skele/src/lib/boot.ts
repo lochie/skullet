@@ -1,0 +1,68 @@
+import { ATTR_BONES, ATTR_GHOST, BOOT, GHOSTED, UNCOVER } from "./constants";
+import { measureBones } from "./measure";
+import { drawBones } from "./shimmer";
+
+/*
+ * Inlined after a server-rendered skeleton (see build-inline.mjs), so it runs
+ * as the HTML is parsed: the skeleton's first paint already has its bones. It
+ * touches nothing a framework will hydrate — the bones live in a shadow root.
+ * Sent once a page where a provider can tell; the skeletons after it carry a
+ * stub that calls the `boot` this leaves on window, or queues until it lands.
+ */
+
+// A path from the document root, so a painted chip's colour is hidden without an attribute hydration would see as a mismatch
+const pathOf = (element: Element): string =>
+  element.parentElement
+    ? `${pathOf(element.parentElement)} > :nth-child(${[...element.parentElement.children].indexOf(element) + 1})`
+    : ":root";
+
+type Root = HTMLElement & { [GHOSTED]?: boolean; [UNCOVER]?: () => void };
+
+function boot(script: Element | null) {
+  const root = script?.previousElementSibling as Root | null | undefined;
+  const ghost = root?.querySelector<HTMLElement>(`:scope > [${ATTR_GHOST}]`);
+  const layer = root?.querySelector<HTMLElement>(`:scope > [${ATTR_BONES}]`);
+  if (!root || !ghost || !layer) return;
+
+  const sheet =
+    typeof CSSStyleSheet === "function" &&
+    "replaceSync" in CSSStyleSheet.prototype
+      ? new CSSStyleSheet()
+      : null;
+  if (sheet) {
+    document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+    root[UNCOVER] = () => {
+      document.adoptedStyleSheets = document.adoptedStyleSheets.filter(
+        (adopted) => adopted !== sheet,
+      );
+    };
+  }
+  const cover = (covered: Set<Element>) =>
+    sheet?.replaceSync(
+      covered.size
+        ? `${[...covered].map(pathOf).join(", ")} { visibility: hidden !important; }`
+        : "",
+    );
+
+  const draw = () => {
+    if (!layer.isConnected || root[GHOSTED]) return observer.disconnect();
+    // Streamed HTML is parsed into a hidden container first: nothing to measure until it's moved into place
+    if (!ghost.getClientRects().length) return;
+    drawBones(
+      layer,
+      measureBones(ghost, layer, { mark: false, onCovered: cover }),
+    );
+  };
+  // Its first callback measures, after layout and before paint — measured here instead, every skeleton forces a layout mid-parse, and the page paints in pieces.
+  // Then until the framework's Ghost takes over: the skeleton can be shown, resized, or re-set by a web font
+  const observer = new ResizeObserver(draw);
+  observer.observe(root);
+  document.fonts?.ready.then(draw);
+}
+
+const host = self as unknown as Record<symbol, unknown>;
+const key = Symbol.for(BOOT);
+const queued = host[key];
+host[key] = boot;
+if (Array.isArray(queued)) queued.forEach(boot);
+boot(document.currentScript);

@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "skele-site",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--filter=site",
+        "exec",
+        "next",
+        "dev",
+        "-p",
+        "3123"
+      ],
+      "port": 3123
+    }
+  ]
+}

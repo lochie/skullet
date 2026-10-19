@@ -1,0 +1,26 @@
+@use "sass:list";
+@use "sass:math";
+
+$steps: 12; // Stops per ramp, as skele's own STEPS — enough for an eased curve to read as one, with no banding
+
+// A linear gradient eased between each pair of stops, so no stop shows as a hard line
+@function scrim($angle, $stops...) {
+  $out: ();
+  @for $i from 1 to list.length($stops) {
+    $from: list.nth($stops, $i);
+    $to: list.nth($stops, $i + 1);
+    $start: list.nth($from, 2);
+    $end: list.nth($to, 2);
+    @for $step from if($i == 1, 0, 1) through $steps {
+      $t: math.div($step, $steps);
+      $eased: math.div(1 - math.cos(math.$pi * $t), 2);
+      $color: color-mix(
+        in oklab,
+        #{list.nth($to, 1)} #{math.round($eased * 1000) * 0.1%},
+        #{list.nth($from, 1)}
+      );
+      $out: list.append($out, $color ($start + ($end - $start) * $t), comma);
+    }
+  }
+  @return linear-gradient($angle, $out);
+}

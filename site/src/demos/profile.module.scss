@@ -1,0 +1,41 @@
+.card {
+  border-radius: 1rem;
+  background: var(--body-light);
+  padding: 1rem;
+
+  &[data-loading="true"] {
+    cursor: default;
+  }
+
+  .cardInner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+}
+
+.details {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  .meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+}
+
+.name {
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.handle {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
+
+.follow {
+  margin-left: 1rem;
+}

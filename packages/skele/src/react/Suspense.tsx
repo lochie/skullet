@@ -1,0 +1,150 @@
+"use client";
+
+import React from "react";
+import {
+  ATTR_LOADING,
+  ATTR_PANE,
+  ATTR_REVEAL,
+  boxOf,
+  fadeIn,
+  fadeOut,
+  Ghost,
+  Memory,
+} from "../lib";
+import { useReveal } from "./config";
+import { Loading, Styles, useIsomorphicLayoutEffect, useStyles } from "./parts";
+
+type Waited = React.MutableRefObject<boolean>;
+
+const Fallback = ({
+  children,
+  id,
+  label,
+  waited,
+}: {
+  children: React.ReactNode;
+  id?: string;
+  label?: string;
+  waited: Waited;
+}) => {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const mode = useReveal();
+
+  useIsomorphicLayoutEffect(() => {
+    const pane = ref.current;
+    const reveal = pane?.parentElement;
+    if (!pane || !reveal) return;
+    waited.current = true;
+    fadeIn(pane, mode, { initial: true });
+    reveal.setAttribute("aria-busy", "true");
+
+    return () => {
+      reveal.removeAttribute("aria-busy");
+      if (!pane.isConnected) return;
+
+      // React drops a fallback the moment its content resolves; a copy stays behind to fade out over it.
+      // Measured now, while the fallback still stands — but only placed once React has really removed
+      // it: StrictMode rehearses this cleanup with the fallback staying put.
+      const box = boxOf(pane);
+      const copy = pane.cloneNode(true) as HTMLElement;
+      queueMicrotask(() => {
+        if (pane.isConnected) return;
+        Object.assign(copy.style, {
+          position: "absolute",
+          top: `${box.top}px`,
+          left: `${box.left}px`,
+          width: `${box.width}px`,
+        });
+        reveal.prepend(copy);
+
+        // A clone leaves its bones' shadow root behind; draw them again
+        const loading = copy.querySelector<HTMLElement>(`[${ATTR_LOADING}]`);
+        if (loading) new Ghost(loading, { id, exact: true }).destroy();
+        fadeOut(copy, box).then(() => copy.remove());
+      });
+    };
+    // Mount only — this fallback is gone the moment the content resolves
+  }, []);
+
+  return (
+    <div ref={ref} {...{ [ATTR_PANE]: "" }}>
+      {/* A skeleton given is what the content will be — drawn as given, not swapped for a remembered shape */}
+      <Loading id={id} exact={children != null} label={label}>
+        {children}
+      </Loading>
+    </div>
+  );
+};
+
+const Content = ({
+  children,
+  id,
+  waited,
+}: {
+  children: React.ReactNode;
+  id?: string;
+  waited: Waited;
+}) => {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const mode = useReveal();
+
+  useIsomorphicLayoutEffect(() => {
+    if (!ref.current) return;
+    fadeIn(ref.current, mode, { initial: !waited.current });
+    const memory = new Memory(ref.current, { id });
+    return () => memory.destroy();
+    // Mount only — React keeps resolved content mounted, hiding it if it suspends again
+  }, []);
+
+  return (
+    <div ref={ref} {...{ [ATTR_PANE]: "" }}>
+      {children}
+    </div>
+  );
+};
+
+export type SkeletonSuspenseProps = {
+  children: React.ReactNode;
+  /**
+   * What the content will look like, rendered from sample data — measured
+   * into the fallback. Without it, the shape remembered from the last time
+   * the content showed is drawn.
+   */
+  skeleton?: React.ReactNode;
+  /** Remembers the shape under this key across visits. */
+  id?: string;
+  /** Read to screen readers while suspended, in place of the skeleton. */
+  label?: string;
+  className?: string;
+  style?: React.CSSProperties;
+};
+
+/** A Suspense boundary whose fallback is a measured skeleton, crossfading into the content. */
+export function SkeletonSuspense({
+  children,
+  skeleton,
+  id,
+  label,
+  className,
+  style,
+}: SkeletonSuspenseProps) {
+  useStyles();
+  const waited = React.useRef(false);
+
+  return (
+    <div {...{ [ATTR_REVEAL]: "" }} className={className} style={style}>
+      <Styles />
+      <React.Suspense
+        fallback={
+          <Fallback id={id} label={label} waited={waited}>
+            {skeleton}
+          </Fallback>
+        }
+      >
+        <Content id={id} waited={waited}>
+          {children}
+        </Content>
+      </React.Suspense>
+    </div>
+  );
+}

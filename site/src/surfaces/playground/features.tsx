@@ -1,0 +1,976 @@
+import {
+  type ComponentProps,
+  type CSSProperties,
+  type ReactNode,
+  use,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import {
+  forgetShapes,
+  themeVariables,
+  type RevealMode,
+  type SkeleAnimation,
+  type SkeleSpeed,
+} from "skele";
+import { SkeleProvider, SkeletonReveal, SkeletonSuspense } from "skele/react";
+
+import styles from "./styles.module.scss";
+
+type Post = { id: number; name: string; meta: string; text: string };
+
+const AUTHORS = [
+  ["Lochie Axon", "Design engineering"],
+  ["Alex Vanderzon", "Design"],
+  ["Jack Skellington", "Design"],
+  ["Pugson", "Engineering"],
+] as const;
+
+const TEXTS = [
+  "Shipped the new shimmer. It finally moves at one pace on a wide monitor.",
+  "Pushed the new site design, have a look when you get a sec.",
+  "The skeletons are shimmering in sync now??",
+  "Naming things is the hardest part, as always.",
+  "Draft of the docs is ready for a second pair of eyes.",
+];
+
+// A different feed on every load, so each reveal has something new to replace
+const feed = (seed: number): Post[] =>
+  Array.from({ length: 3 }, (_, i) => {
+    const n = seed * 3 + i;
+    const [name, team] = AUTHORS[n % AUTHORS.length]!;
+    return {
+      id: n,
+      name,
+      meta: `${team} · ${(n % 7) + 1}h`,
+      text: TEXTS[(n * 2) % TEXTS.length]!,
+    };
+  });
+
+const SAMPLE_FEED = feed(0);
+
+const Feed = ({ posts }: { posts: Post[] }) => (
+  <ul className={styles.feed}>
+    {posts.map((post) => (
+      <li key={post.id}>
+        <span className={styles.avatar} data-hue={post.id % 4} />
+        <div>
+          <p className={styles.feedName}>{post.name}</p>
+          <p className={styles.feedMeta}>{post.meta}</p>
+          <p className={styles.feedText}>{post.text}</p>
+        </div>
+      </li>
+    ))}
+  </ul>
+);
+
+const Button = ({ children, ...props }: ComponentProps<"button">) => (
+  <button className={styles.pill} {...props}>
+    {children}
+  </button>
+);
+
+const Choice = <T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: readonly T[];
+  value: T;
+  onChange: (value: T) => void;
+}) => (
+  <div className={styles.segmented}>
+    {options.map((option) => (
+      <button
+        key={option}
+        data-active={option === value}
+        onClick={() => onChange(option)}
+      >
+        {option}
+      </button>
+    ))}
+  </div>
+);
+
+// How far a frame's height moved between its skeleton and the content that replaced it
+function useMovement(loading: boolean) {
+  const frame = useRef<HTMLDivElement>(null);
+  const before = useRef<number | null>(null);
+  const [moved, setMoved] = useState<number | null>(null);
+
+  useLayoutEffect(() => {
+    const height = frame.current?.offsetHeight ?? 0;
+    if (loading) {
+      before.current = height;
+      return;
+    }
+    if (before.current === null) return;
+    const delta = height - before.current;
+    before.current = null;
+    // Measurement only — the result is what this effect exists to render
+    setMoved(delta);
+  }, [loading]);
+
+  return { frame, moved };
+}
+
+const Moved = ({
+  moved,
+  loading,
+}: {
+  moved: number | null;
+  loading: boolean;
+}) => (
+  <span
+    className={styles.moved}
+    data-jump={loading || moved === null ? undefined : moved !== 0}
+  >
+    {loading || moved === null
+      ? "loading…"
+      : moved === 0
+        ? "no movement"
+        : `moved ${moved}px`}
+  </span>
+);
+
+/* Reveal modes */
+
+const MODES: RevealMode[] = ["together", "sequence", "smart", "sweep"];
+const DELAYS = { fast: 80, typical: 1200, slow: 2800 } as const;
+type Delay = keyof typeof DELAYS;
+
+export const RevealModes = () => {
+  const [delay, setDelay] = useState<Delay>("typical");
+  const [seed, setSeed] = useState(1);
+  const [posts, setPosts] = useState<Post[] | null>(null);
+  const [fetching, setFetching] = useState(true);
+  const timer = useRef<number>(undefined);
+
+  const load = (keep: boolean, after = DELAYS[delay]) => {
+    window.clearTimeout(timer.current);
+    if (!keep) setPosts(null);
+    setFetching(true);
+    const next = seed + 1;
+    setSeed(next);
+    timer.current = window.setTimeout(() => {
+      setPosts(feed(next));
+      setFetching(false);
+    }, after);
+  };
+
+  // The first load, on its own — not answering a click
+  useEffect(() => {
+    timer.current = window.setTimeout(() => {
+      setPosts(feed(1));
+      setFetching(false);
+    }, DELAYS.typical);
+    return () => window.clearTimeout(timer.current);
+  }, []);
+
+  return (
+    <div className={styles.featureStack}>
+      <div className={styles.toolbar}>
+        <label>
+          Response
+          <Choice
+            options={Object.keys(DELAYS) as Delay[]}
+            value={delay}
+            onChange={setDelay}
+          />
+        </label>
+        <div className={styles.toolbarActions}>
+          <Button onClick={() => load(false)} disabled={fetching}>
+            Load
+          </Button>
+          <Button onClick={() => load(true)} disabled={fetching}>
+            Refetch, keeping data
+          </Button>
+        </div>
+      </div>
+      <div className={styles.columns} data-count={MODES.length}>
+        {MODES.map((mode) => (
+          <div key={mode} className={styles.column}>
+            <h4>
+              <code>{mode}</code>
+            </h4>
+            <SkeleProvider reveal={mode}>
+              <div className={styles.frame}>
+                <SkeletonReveal
+                  data={posts}
+                  loading={fetching}
+                  sample={SAMPLE_FEED}
+                >
+                  {(posts) => <Feed posts={posts} />}
+                </SkeletonReveal>
+              </div>
+            </SkeleProvider>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* Where a skeleton comes from */
+
+type Profile = { name: string; role: string; bio: string };
+
+const SAMPLE_PROFILE: Profile = {
+  name: "Jack",
+  role: "Design",
+  bio: "A short bio.",
+};
+
+const PROFILES: Profile[] = [
+  {
+    name: "Lochie Axon",
+    role: "Design engineer",
+    bio: "Builds the libraries behind the interface — skeletons, text morphs and the small motion details that hold a page together.",
+  },
+  {
+    name: "Jack Skellington",
+    role: "Designer",
+    bio: "Sweats every interaction. Has strong opinions about easing curves and corner radii.",
+  },
+];
+
+const ProfileCard = ({ profile }: { profile: Profile }) => (
+  <div className={styles.profile}>
+    <span className={styles.avatar} data-hue={profile.name.length % 4} />
+    <div>
+      <p className={styles.feedName}>{profile.name}</p>
+      <p className={styles.feedMeta}>{profile.role}</p>
+    </div>
+    <p className={styles.feedText}>{profile.bio}</p>
+  </div>
+);
+
+const SOURCES = [
+  {
+    key: "markup",
+    title: "Markup",
+    detail:
+      "Plain children with a loading prop — the content is its own skeleton.",
+  },
+  {
+    key: "auto",
+    title: "Remembered by place",
+    detail:
+      "Mounted fresh with no id: the shape last seen at this spot on the page.",
+  },
+  {
+    key: "id",
+    title: "Remembered by id",
+    detail:
+      "Mounted fresh with an id: the shape saved under it, wherever it renders.",
+  },
+  {
+    key: "last",
+    title: "Last data",
+    detail:
+      "The same reveal loading again: drawn from the data it showed before.",
+  },
+] as const;
+
+type SourceKey = (typeof SOURCES)[number]["key"];
+
+const Source = ({
+  source,
+  round,
+  loading,
+}: {
+  source: SourceKey;
+  round: number;
+  loading: boolean;
+}) => {
+  const profile = PROFILES[0]!;
+  const data = loading ? null : profile;
+  const { frame, moved } = useMovement(loading);
+
+  let reveal: ReactNode;
+  if (source === "markup") {
+    reveal = (
+      <SkeletonReveal loading={loading}>
+        <ProfileCard profile={profile} />
+      </SkeletonReveal>
+    );
+  } else if (source === "last") {
+    reveal = (
+      <SkeletonReveal data={data} sample={SAMPLE_PROFILE}>
+        {(profile) => <ProfileCard profile={profile} />}
+      </SkeletonReveal>
+    );
+  } else {
+    // Keyed by the round, so each load is a reveal that has never shown anything
+    reveal = (
+      <SkeletonReveal
+        key={round}
+        id={source === "id" ? "playground-profile" : undefined}
+        data={data}
+        sample={SAMPLE_PROFILE}
+      >
+        {(profile) => <ProfileCard profile={profile} />}
+      </SkeletonReveal>
+    );
+  }
+
+  return (
+    <>
+      <div ref={frame} className={styles.frame}>
+        {reveal}
+      </div>
+      <Moved moved={moved} loading={loading} />
+    </>
+  );
+};
+
+export const Sources = () => {
+  const [round, setRound] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const load = () => {
+    setRound((r) => r + 1);
+    setLoading(true);
+  };
+
+  useEffect(() => {
+    if (!loading) return;
+    const timeout = window.setTimeout(() => setLoading(false), 1600);
+    return () => window.clearTimeout(timeout);
+  }, [loading, round]);
+
+  return (
+    <div className={styles.featureStack}>
+      <div className={styles.toolbar}>
+        <div className={styles.toolbarActions}>
+          <Button onClick={load} disabled={loading}>
+            Load again
+          </Button>
+          <Button
+            onClick={() => {
+              forgetShapes();
+              load();
+            }}
+            disabled={loading}
+          >
+            Forget shapes and load
+          </Button>
+        </div>
+      </div>
+      <div className={styles.columns} data-count={4}>
+        {SOURCES.map((source) => (
+          <div key={source.key} className={styles.column}>
+            <h4>{source.title}</h4>
+            <p>{source.detail}</p>
+            <Source source={source.key} round={round} loading={loading} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* Animation */
+
+const ANIMATIONS: SkeleAnimation[] = [
+  "shimmer",
+  "group-shimmer",
+  "pulse",
+  "none",
+];
+const SPEEDS: SkeleSpeed[] = ["slow", "fast"];
+
+export const Animations = () => {
+  const [speed, setSpeed] = useState<SkeleSpeed>("slow");
+
+  return (
+    <div className={styles.featureStack}>
+      <div className={styles.toolbar}>
+        <label>
+          Speed
+          <Choice options={SPEEDS} value={speed} onChange={setSpeed} />
+        </label>
+      </div>
+      <div className={styles.columns} data-count={2}>
+        {ANIMATIONS.map((animation) => (
+          <div key={animation} className={styles.column}>
+            <h4>
+              <code>{animation}</code>
+            </h4>
+            <div
+              className={styles.frame}
+              style={themeVariables({ animation, speed }) as CSSProperties}
+            >
+              {/* Keyed by speed: the animation is read from the theme as it starts */}
+              <SkeletonReveal key={speed} loading>
+                <ProfileCard profile={PROFILES[1]!} />
+              </SkeletonReveal>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* Suspense */
+
+type Quote = { text: string; author: string };
+
+const QUOTES: Quote[] = [
+  { text: "Nothing should move when it loads.", author: "Lochie Axon" },
+  {
+    text: "A loading state is the first impression — design it like the rest of the product.",
+    author: "Alex Vanderzon",
+  },
+  {
+    text: "Make the wait feel shorter than it is.",
+    author: "Jack Skellington",
+  },
+];
+
+const QuoteCard = ({ quote }: { quote: Quote }) => (
+  <figure className={styles.quote}>
+    <blockquote>{quote.text}</blockquote>
+    <figcaption>{quote.author}</figcaption>
+  </figure>
+);
+
+// Suspends until its quote arrives — no loading state of its own
+const LoadedQuote = ({ quote }: { quote: Promise<Quote> }) => (
+  <QuoteCard quote={use(quote)} />
+);
+
+const subscribe = () => () => {};
+
+export const Suspense = () => {
+  // A promise made while rendering on the server can't reach the browser,
+  // so quotes are fetched once hydrated; until then, the same skeleton
+  const hydrated = useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
+  const [round, setRound] = useState(0);
+  const [quotes] = useState(() => new Map<string, Promise<Quote>>());
+  const quoteFor = (key: string) => {
+    if (!quotes.has(key)) {
+      quotes.set(
+        key,
+        new Promise((resolve) =>
+          window.setTimeout(
+            () => resolve(QUOTES[round % QUOTES.length]!),
+            1400,
+          ),
+        ),
+      );
+    }
+    return quotes.get(key)!;
+  };
+
+  return (
+    <div className={styles.featureStack}>
+      <div className={styles.toolbar}>
+        <div className={styles.toolbarActions}>
+          <Button onClick={() => setRound(round + 1)}>Suspend again</Button>
+        </div>
+      </div>
+      <div className={styles.columns} data-count={2}>
+        <div className={styles.column}>
+          <h4>
+            With <code>skeleton</code>
+          </h4>
+          <p>Measured from a quote rendered with sample data.</p>
+          <div className={styles.frame}>
+            {hydrated ? (
+              <SkeletonSuspense
+                key={round}
+                skeleton={<QuoteCard quote={QUOTES[0]!} />}
+                label="Loading quote"
+              >
+                <LoadedQuote quote={quoteFor(`given-${round}`)} />
+              </SkeletonSuspense>
+            ) : (
+              <SkeletonReveal
+                data={null}
+                sample={QUOTES[0]!}
+                label="Loading quote"
+              >
+                {(quote) => <QuoteCard quote={quote} />}
+              </SkeletonReveal>
+            )}
+          </div>
+        </div>
+        <div className={styles.column}>
+          <h4>
+            With <code>id</code> only
+          </h4>
+          <p>
+            Drawn from the shape remembered last time — nothing on a first
+            visit, then the last quote&apos;s shape.
+          </p>
+          <div className={styles.frame}>
+            {hydrated ? (
+              <SkeletonSuspense
+                key={round}
+                id="playground-quote"
+                label="Loading quote"
+              >
+                <LoadedQuote quote={quoteFor(`remembered-${round}`)} />
+              </SkeletonSuspense>
+            ) : (
+              <SkeletonReveal
+                data={null}
+                sample={QUOTES[0]!}
+                label="Loading quote"
+              >
+                {(quote) => <QuoteCard quote={quote} />}
+              </SkeletonReveal>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* Accessibility */
+
+type Readout = {
+  busy: boolean;
+  status: string;
+  hidden: boolean;
+  inert: boolean;
+};
+
+const observeReadout = (frame: HTMLElement, onChange: (r: Readout) => void) => {
+  const read = () => {
+    const reveal = frame.querySelector("[skele-reveal]");
+    const loading = frame.querySelector(
+      "[skele-loading]:not([skele-exiting] *)",
+    );
+    onChange({
+      busy: reveal?.getAttribute("aria-busy") === "true",
+      status: frame.querySelector("[skele-status]")?.textContent ?? "",
+      hidden: loading?.getAttribute("aria-hidden") === "true",
+      inert: !!loading?.hasAttribute("inert"),
+    });
+  };
+  read();
+  const observer = new MutationObserver(read);
+  observer.observe(frame, { subtree: true, childList: true, attributes: true });
+  return () => observer.disconnect();
+};
+
+export const Accessibility = () => {
+  const [loading, setLoading] = useState(true);
+  const [readout, setReadout] = useState<Readout | null>(null);
+  const frame = useRef<HTMLDivElement>(null);
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    if (!loading) return;
+    const timeout = window.setTimeout(() => setLoading(false), 2400);
+    return () => window.clearTimeout(timeout);
+  }, [loading]);
+
+  useEffect(
+    () =>
+      frame.current ? observeReadout(frame.current, setReadout) : undefined,
+    [],
+  );
+
+  useEffect(() => {
+    const query = matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduced(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+
+  return (
+    <div className={styles.featureStack}>
+      <div className={styles.toolbar}>
+        <div className={styles.toolbarActions}>
+          <Button onClick={() => setLoading(true)} disabled={loading}>
+            Load again
+          </Button>
+        </div>
+      </div>
+      <div className={styles.columns} data-count={2}>
+        <div className={styles.column}>
+          <div ref={frame} className={styles.frame}>
+            <SkeletonReveal
+              data={loading ? null : PROFILES[0]!}
+              sample={SAMPLE_PROFILE}
+              label="Loading profile"
+            >
+              {(profile) => <ProfileCard profile={profile} />}
+            </SkeletonReveal>
+          </div>
+        </div>
+        <dl className={styles.readout}>
+          <dt>aria-busy</dt>
+          <dd data-on={readout?.busy}>{readout?.busy ? "true" : "—"}</dd>
+          <dt>Announced</dt>
+          <dd data-on={!!readout?.busy}>
+            {readout?.busy ? `“${readout.status}”` : "the content"}
+          </dd>
+          <dt>Skeleton</dt>
+          <dd data-on={!!readout?.busy}>
+            {readout?.busy
+              ? [readout.inert && "inert", readout.hidden && "aria-hidden"]
+                  .filter(Boolean)
+                  .join(", ")
+              : "—"}
+          </dd>
+          <dt>Reduced motion</dt>
+          <dd data-on={reduced}>
+            {reduced ? "on — still bones, instant reveals" : "off"}
+          </dd>
+        </dl>
+      </div>
+    </div>
+  );
+};
+
+// Loading for `ms` from mount and from every `start`
+function useTimed(ms: number) {
+  const [round, setRound] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!loading) return;
+    const timeout = window.setTimeout(() => setLoading(false), ms);
+    return () => window.clearTimeout(timeout);
+  }, [loading, round, ms]);
+
+  const start = () => {
+    setRound((r) => r + 1);
+    setLoading(true);
+  };
+  return { loading, round, start };
+}
+
+/* Images */
+
+type Shot = { title: string; meta: string; image: string };
+
+// A query of its own each load, so the images come over the network every time; the sample's stay put for the server render
+const shots = (round: number, query?: number): Shot[] =>
+  ["Launch week", "Offsite"].map((title, i) => ({
+    title,
+    meta: `${AUTHORS[i]![0]} · ${i + 2} photos`,
+    image: `https://picsum.photos/seed/skele-${round}-${i}/480/300${query === undefined ? "" : `?q=${query}`}`,
+  }));
+
+const Shots = ({ shots }: { shots: Shot[] }) => (
+  <div className={styles.shots}>
+    {shots.map((shot) => (
+      <figure key={shot.image}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- a plain image is what's measured */}
+        <img src={shot.image} alt="" width={480} height={300} />
+        <figcaption>
+          <p className={styles.feedName}>{shot.title}</p>
+          <p className={styles.feedMeta}>{shot.meta}</p>
+        </figcaption>
+      </figure>
+    ))}
+  </div>
+);
+
+export const Images = () => {
+  const { loading, round, start } = useTimed(900);
+  const [query, setQuery] = useState(() => Math.random());
+  const load = () => {
+    setQuery(Math.random());
+    start();
+  };
+
+  return (
+    <div className={styles.featureStack}>
+      <div className={styles.toolbar}>
+        <div className={styles.toolbarActions}>
+          <Button onClick={load} disabled={loading}>
+            Load with new images
+          </Button>
+        </div>
+      </div>
+      <div className={styles.columns} data-count={2}>
+        {(["together", "smart"] as const).map((mode) => (
+          <div key={mode} className={styles.column}>
+            <h4>
+              <code>{mode}</code>
+            </h4>
+            <p>
+              {mode === "together"
+                ? "Waits for every image, up to 600ms, then fades in whole."
+                : "Text arrives on time; each image's bone holds until that image has loaded."}
+            </p>
+            <SkeleProvider reveal={mode}>
+              <div className={styles.frame}>
+                <SkeletonReveal
+                  data={loading ? null : shots(round, query)}
+                  sample={shots(0)}
+                >
+                  {(shots) => <Shots shots={shots} />}
+                </SkeletonReveal>
+              </div>
+            </SkeleProvider>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* Changing size */
+
+const BIOS = {
+  short: "Builds skeletons.",
+  long: "Builds the libraries behind the interface — skeletons, text morphs and the small motion details that hold a page together. Currently measuring every line of text on the page.",
+};
+
+export const Resizing = () => {
+  const [bio, setBio] = useState<keyof typeof BIOS>("long");
+  const [loading, setLoading] = useState(true);
+  const { frame, moved } = useMovement(loading);
+
+  useEffect(() => {
+    if (!loading) return;
+    const timeout = window.setTimeout(() => setLoading(false), 1200);
+    return () => window.clearTimeout(timeout);
+  }, [loading]);
+
+  const load = (next: keyof typeof BIOS) => {
+    setBio(next);
+    setLoading(true);
+  };
+
+  return (
+    <div className={styles.featureStack}>
+      <div className={styles.toolbar}>
+        <div className={styles.toolbarActions}>
+          <Button onClick={() => load("short")} disabled={loading}>
+            Load a shorter bio
+          </Button>
+          <Button onClick={() => load("long")} disabled={loading}>
+            Load a longer bio
+          </Button>
+        </div>
+      </div>
+      <div className={styles.columns} data-count={2}>
+        <div className={styles.column}>
+          <div ref={frame} className={styles.frame}>
+            <SkeletonReveal
+              data={loading ? null : { ...PROFILES[0]!, bio: BIOS[bio] }}
+              sample={PROFILES[0]!}
+            >
+              {(profile) => <ProfileCard profile={profile} />}
+            </SkeletonReveal>
+          </div>
+          <span
+            className={styles.moved}
+            data-jump={loading || moved === null ? undefined : moved !== 0}
+          >
+            {loading || moved === null
+              ? "loading…"
+              : moved === 0
+                ? "no movement"
+                : `eased ${moved > 0 ? "+" : ""}${moved}px`}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* States */
+
+type Outcome = "content" | "empty" | "error";
+
+const TEAM = AUTHORS.map(([name, team]) => ({ name, team }));
+
+export const States = () => {
+  const [outcome, setOutcome] = useState<Outcome>("content");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!loading) return;
+    const timeout = window.setTimeout(() => setLoading(false), 1200);
+    return () => window.clearTimeout(timeout);
+  }, [loading, outcome]);
+
+  const load = (next: Outcome) => {
+    setOutcome(next);
+    setLoading(true);
+  };
+
+  const done = !loading;
+  return (
+    <div className={styles.featureStack}>
+      <div className={styles.toolbar}>
+        <div className={styles.toolbarActions}>
+          <Button onClick={() => load("content")} disabled={loading}>
+            Load the team
+          </Button>
+          <Button onClick={() => load("empty")} disabled={loading}>
+            Load nobody
+          </Button>
+          <Button onClick={() => load("error")} disabled={loading}>
+            Fail
+          </Button>
+        </div>
+      </div>
+      <div className={styles.columns} data-count={2}>
+        <div className={styles.frame}>
+          <SkeletonReveal
+            data={
+              loading || outcome === "error"
+                ? null
+                : outcome === "empty"
+                  ? []
+                  : TEAM
+            }
+            sample={TEAM}
+            empty={done && outcome === "empty"}
+            emptyMessage={
+              <p className={styles.feedMeta}>No one on this team yet.</p>
+            }
+            error={
+              done &&
+              outcome === "error" && (
+                <p className={styles.stateError}>
+                  Couldn&apos;t load the team.{" "}
+                  <button onClick={() => load("content")}>Retry</button>
+                </p>
+              )
+            }
+          >
+            {(team) => (
+              <ul className={styles.team}>
+                {team.map((member) => (
+                  <li key={member.name}>
+                    <span className={styles.feedName}>{member.name}</span>
+                    <span className={styles.feedMeta}>{member.team}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </SkeletonReveal>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* Hints */
+
+const TAGS = ["Motion", "Type", "Systems"];
+
+const Tagged = ({ hint }: { hint?: "skele-block" | "skele-ignore" }) => (
+  <div className={styles.profile}>
+    <span className={styles.avatar} data-hue={1} />
+    <div>
+      <p className={styles.feedName}>{PROFILES[1]!.name}</p>
+      <p className={styles.feedMeta}>{PROFILES[1]!.role}</p>
+    </div>
+    <div className={styles.tags} {...(hint ? { [hint]: "" } : {})}>
+      {TAGS.map((tag) => (
+        <span key={tag}>{tag}</span>
+      ))}
+    </div>
+  </div>
+);
+
+const HINTS = [
+  {
+    title: "Measured",
+    hint: undefined,
+    detail: "Each tag is a painted label, so each gets a bone.",
+  },
+  {
+    title: "skele-block",
+    hint: "skele-block",
+    detail: "The whole row is drawn as one block.",
+  },
+  {
+    title: "skele-ignore",
+    hint: "skele-ignore",
+    detail: "The row keeps its space but draws nothing.",
+  },
+] as const;
+
+export const Hints = () => (
+  <div className={styles.columns} data-count={3}>
+    {HINTS.map(({ title, hint, detail }) => (
+      <div key={title} className={styles.column}>
+        <h4>{hint ? <code>{title}</code> : title}</h4>
+        <p>{detail}</p>
+        <div className={styles.frame}>
+          <SkeletonReveal loading>
+            <Tagged hint={hint} />
+          </SkeletonReveal>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+/* Scoped themes */
+
+const SCOPES = [
+  {
+    title: "Brand",
+    detail: "Colours of its own.",
+    style: themeVariables(
+      {
+        dark: {
+          base: "rgb(47 111 237 / 0.28)",
+          highlight: "rgb(150 190 255 / 0.3)",
+        },
+      },
+      "dark",
+    ),
+  },
+  {
+    title: "Pills, pulsing",
+    detail: "Round bars and a soft pulse.",
+    style: themeVariables({ radius: "999px", animation: "pulse" }),
+  },
+  {
+    title: "Warm, square, fast",
+    detail: "Its own sweep, quickly.",
+    style: themeVariables(
+      {
+        dark: {
+          base: "rgb(255 122 89 / 0.2)",
+          highlight: "rgb(255 206 68 / 0.25)",
+        },
+        radius: "2px",
+        animation: "group-shimmer",
+        speed: "fast",
+      },
+      "dark",
+    ),
+  },
+];
+
+export const ScopedThemes = () => (
+  <div className={styles.columns} data-count={3}>
+    {SCOPES.map((scope) => (
+      <div key={scope.title} className={styles.column}>
+        <h4>{scope.title}</h4>
+        <p>{scope.detail}</p>
+        <div className={styles.frame} style={scope.style as CSSProperties}>
+          <SkeletonReveal loading>
+            <ProfileCard profile={PROFILES[1]!} />
+          </SkeletonReveal>
+        </div>
+      </div>
+    ))}
+  </div>
+);

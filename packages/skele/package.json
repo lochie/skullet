@@ -1,0 +1,120 @@
+{
+  "name": "skele",
+  "version": "0.0.0",
+  "description": "Dependency-free skeleton loading component.",
+  "homepage": "https://skele.lochie.me",
+  "author": "Lochie Axon",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lochie/skele.git",
+    "directory": "packages/skele"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.mjs",
+      "require": "./dist/react/index.js"
+    },
+    "./vue": {
+      "types": {
+        "import": "./dist/vue/index.d.mts",
+        "require": "./dist/vue/index.d.ts"
+      },
+      "import": "./dist/vue/index.mjs",
+      "require": "./dist/vue/index.js"
+    },
+    "./svelte": {
+      "types": {
+        "import": "./dist/svelte/index.d.mts",
+        "require": "./dist/svelte/index.d.ts"
+      },
+      "svelte": "./dist/svelte/index.mjs",
+      "import": "./dist/svelte/index.mjs",
+      "require": "./dist/svelte/index.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node scripts/build-inline.mjs && tsup && node scripts/build-svelte.mjs && node scripts/build-css.mjs",
+    "dev": "node scripts/build-inline.mjs && tsup --watch",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "pre-commit": "lint-staged"
+  },
+  "keywords": [
+    "react",
+    "vue",
+    "svelte",
+    "skeleton",
+    "loading",
+    "placeholder"
+  ],
+  "bugs": {
+    "url": "https://github.com/lochie/skele/issues"
+  },
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "dist/*"
+  ],
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18",
+    "svelte": ">=5",
+    "vue": ">=3"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    },
+    "svelte": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@skele/test-cases": "workspace:*",
+    "@eslint/js": "^9.36.0",
+    "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@vitest/browser-playwright": "4.1.11",
+    "esbuild": "0.27.7",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^17.9.0",
+    "happy-dom": "^20.12.0",
+    "playwright": "1.64.1",
+    "prettier": "^3.0.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "svelte": "^5.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.65.0",
+    "vitest": "^4.1.11",
+    "vue": "^3.3.0"
+  }
+}

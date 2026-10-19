@@ -1,0 +1,272 @@
+# Skele
+
+Dependency-free skeleton loading for React, Vue, Svelte, and vanilla JavaScript.
+
+Wrap what you'd render once your data arrives. While it loads, skele lays that
+content out unseen and draws a skeleton over it: a bar for every line of text,
+a block for every image, control and button. The skeleton takes exactly the
+space the content will, so nothing moves when it arrives.
+
+## Installation
+
+```shell
+pnpm i skele
+```
+
+## Usage
+
+### React
+
+Pass your data and render from it. It's loading while `data` is `null`:
+
+```tsx
+import { SkeletonReveal } from "skele/react";
+
+<SkeletonReveal data={user} sample={SAMPLE_USER}>
+  {(user) => <Card user={user} />}
+</SkeletonReveal>;
+```
+
+Or toggle it yourself, with plain children:
+
+```tsx
+<SkeletonReveal loading={!user}>
+  <Card user={user} />
+</SkeletonReveal>
+```
+
+| Prop           | Type                      | Description                                                       |
+| -------------- | ------------------------- | ----------------------------------------------------------------- |
+| `data`         | `T \| null \| undefined`  | Loading while empty; passed to `children` once it isn't.          |
+| `sample`       | `T`                       | Stands in for `data` to draw the very first skeleton.             |
+| `loading`      | `boolean`                 | Shows the skeleton, even over `data` — say, while refetching.     |
+| `id`           | `string`                  | Remembers the skeleton's shape across visits under this key.      |
+| `label`        | `string`                  | Read to screen readers while loading.                             |
+| `skeleton`     | `ReactNode`               | Shown while loading instead of the measured skeleton.             |
+| `error`        | `ReactNode`               | Shown instead of the content when set.                            |
+| `empty`        | `boolean`                 | Shows `emptyMessage`, or the content if there's none.             |
+| `emptyMessage` | `ReactNode`               |                                                                   |
+
+### Vue
+
+```vue
+<template>
+  <SkeletonReveal :data="user" :sample="SAMPLE_USER">
+    <template #default="{ data }">
+      <Card :user="data" />
+    </template>
+  </SkeletonReveal>
+</template>
+
+<script setup>
+import { SkeletonReveal } from "skele/vue";
+</script>
+```
+
+Slots: `default` (with `{ data }`), `skeleton`, `empty`, `error` (with `{ error }`).
+
+### Svelte
+
+```svelte
+<script>
+  import { SkeletonReveal } from "skele/svelte";
+</script>
+
+<SkeletonReveal data={user} sample={SAMPLE_USER}>
+  {#snippet children(user)}
+    <Card {user} />
+  {/snippet}
+</SkeletonReveal>
+```
+
+Snippets: `children(data)`, `skeleton`, `emptyMessage`, `errorMessage(error)`.
+
+### Vanilla
+
+```ts
+import { Reveal } from "skele";
+
+const reveal = new Reveal(document.getElementById("card"), { id: "profile" });
+
+reveal.load(renderCard(SAMPLE_USER));
+// once loaded
+reveal.show(renderCard(user));
+// a later reload: drawn from the card last shown
+reveal.load();
+```
+
+### Suspense (React)
+
+A Suspense boundary whose fallback is a measured skeleton:
+
+```tsx
+import { SkeletonSuspense } from "skele/react";
+
+<SkeletonSuspense skeleton={<Quote quote={SAMPLE_QUOTE} />}>
+  <LoadedQuote /> {/* calls use(promise) */}
+</SkeletonSuspense>;
+```
+
+## Provider
+
+`SkeleProvider` sets skele up for everything inside it, per render — so a
+nonce can differ per request. React, Vue and Svelte each export one.
+
+```tsx
+import { SkeleProvider } from "skele/react";
+
+<SkeleProvider
+  nonce={nonce} // on the inline script and stylesheets, for a Content Security Policy
+  mode="system" // or "light" / "dark"
+  theme={theme} // below
+  text={{ top: "ascender", bottom: "descender" }} // where text bars run
+  reveal="smart" // or "together" / "sequence"
+  debug // the overlay, below
+>
+  <App />
+</SkeleProvider>;
+```
+
+### Theming
+
+A theme is colours for light and dark, plus how bones look and move:
+
+```ts
+const theme = {
+  light: { base: "rgb(0 0 0 / 0.07)", highlight: "rgb(255 255 255 / 0.6)" },
+  dark: { base: "rgb(255 255 255 / 0.08)", highlight: "rgb(255 255 255 / 0.1)" },
+  animation: "shimmer", // "group-shimmer", "pulse" or "none"
+  speed: "slow", // or "fast" — shimmer 4s / 2s, pulse 2.4s / 1.2s
+  radius: "6px", // text bars and single bars; images and chips keep their own
+  text: { top: "ascender", bottom: "descender" },
+};
+```
+
+- `speed` is set per animation: a shimmer loops in 4s or 2s, a pulse in 2.4s
+  or 1.2s. A shimmer keeps the pace it has across a 1280px screen on any
+  width, so a wide monitor doesn't make it race.
+- `shimmer` sweeps one highlight across the whole page; `group-shimmer` gives
+  each skeleton a sweep of its own; `pulse` fades every bone softly in and out.
+  Each keeps one phase across the page.
+- Every option is a custom property underneath — `--skele-base`,
+  `--skele-highlight`, `--skele-radius`, `--skele-animation`, `--skele-speed`,
+  `--skele-text-top` and `--skele-text-bottom` — so any part of a page can set
+  its own, and plain CSS can set them without a provider. Vanilla JavaScript
+  has `applyTheme(theme, mode)`, and `themeVariables(theme, mode)` returns
+  them for a style attribute.
+
+The docs have a theme creator to try them in.
+
+### Text bars
+
+Each line of text gets a bar between two of the type's own lines, measured
+from the font: a top of `ascender`, `cap-height` or `x-height`, and a bottom of
+`baseline` or `descender`. The default, `ascender` to `descender`, takes in
+hanging letters like g, p and y.
+
+```tsx
+<SkeleProvider text={{ top: "x-height", bottom: "baseline" }}>
+```
+
+Or in CSS, anywhere — they're inherited, so a section can differ:
+
+```css
+.compact {
+  --skele-text-top: x-height;
+  --skele-text-bottom: baseline;
+}
+```
+
+### Reveals
+
+How content replaces its skeleton, set with `reveal` on the provider:
+
+- `together` crossfades skeleton and content whole.
+- `sequence` brings each piece in where its bone was, top to bottom.
+- `smart` (the default) decides for each reveal as it lands: at once for
+  someone mid-gesture or a load under 150ms (a skeleton is held back that long,
+  so a fast load never flashes one); a quick crossfade for a refetch; whole for
+  something small; otherwise in sequence — rows and cards as units, in screen
+  order, smaller text a beat behind, off-screen content at once, and each image
+  when it loads.
+
+### Accessibility
+
+A loading reveal is `aria-busy`; its skeleton is hidden from screen readers
+and `inert`, server-rendered too. Pass `label` to have something read in its
+place: `label="Loading profile"`. Everything holds still under
+`prefers-reduced-motion`.
+
+### Debugging
+
+Pass `debug` to the provider, or add `?skele-debug` to the URL: every reveal
+is outlined with where its skeleton came from, then whether the content moved
+anything when it arrived. Its x-ray shows the content each skeleton was
+measured from.
+
+## Where the skeleton's shape comes from
+
+Skele uses the best it has, in this order:
+
+1. The data on screen, when you force `loading` over it.
+2. The data it last showed under the same `id`, so a reload is exact.
+3. The shape remembered from a previous visit.
+4. Your `sample`.
+5. Plain children, rendered without their data.
+6. A few generic lines, with a warning in development.
+
+In development, skele warns when a skeleton and its content differ in size,
+and when data-driven content has no `sample` it logs one for you to paste, with
+your data's keys and lengths and every value replaced.
+
+Remembered shapes keep layout, never content: text is replaced with filler,
+and media sources and form values are dropped. Clear them on sign-out:
+
+```ts
+import { forgetShapes } from "skele";
+
+forgetShapes();
+```
+
+## Hints
+
+- `skele-block` draws an element as one block.
+- `skele-ignore` draws nothing for an element.
+- In React, a component with a static `Skeleton` is rendered as that instead:
+
+```tsx
+Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;
+```
+
+## Single bars
+
+```tsx
+import { Skeleton } from "skele/react";
+
+<Skeleton width="60%" height="1em" radius="0.25em" />;
+```
+
+Numbers are read as pixels. In vanilla JavaScript, `createSkeleton(options)`
+returns the element.
+
+## Server rendering
+
+A server-rendered skeleton is measured as the HTML is parsed: a small inline
+script follows each one, so the page's first paint already shows its bones —
+no flash of content, and no change when the page hydrates. With JavaScript
+off, each line of text is struck through with a bar instead.
+
+On React 19 the stylesheet is rendered into the page for you. With anything
+else, import it once:
+
+```ts
+import "skele/styles.css";
+```
+
+## Notes
+
+- Every skeleton on the page shimmers in one sweep, however late it mounts.
+- A reveal waits briefly for the content's images, so none pops in after the
+  skeleton has gone.
+- Fades and the shimmer respect `prefers-reduced-motion`.
+- Give images a size; one that only gets it on load moves once it does.
