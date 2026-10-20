@@ -196,8 +196,7 @@ function sweepPlan(reveal: Element): WipePlan | null {
   const layer = reveal.querySelector(
     `:scope > [${ATTR_EXITING}] [${ATTR_BONES}]`,
   );
-  const pace =
-    layer && typeof CSS.registerProperty === "function" && paceOf(layer);
+  const pace = layer && paceOf(layer);
   if (!pace) return null;
 
   const rect = reveal.getBoundingClientRect();

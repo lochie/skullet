@@ -343,7 +343,7 @@ export function fadeOut(element: HTMLElement, box?: PaneBox): Promise<void> {
   const opacity = parseFloat(getComputedStyle(element).opacity);
   const from = Number.isNaN(opacity) ? 1 : opacity;
   for (const animation of element.getAnimations()) animation.cancel();
-  element.style.maskImage = "";
+  clearMask(element);
   element.style.filter = "";
 
   const parent = element.parentElement;
@@ -418,24 +418,21 @@ function sequenceOut(element: HTMLElement, plan: SequencePlan) {
   ).then(noop);
 }
 
-const WIPE = "--skele-wipe";
 const FEATHER = 40; // px either side of a wipe's front, across the slant
 
-let registered = false;
-function registerWipe() {
-  if (registered) return;
-  registered = true;
-  // Registered, so it animates as a length rather than flipping at the end
-  try {
-    CSS.registerProperty({
-      name: WIPE,
-      syntax: "<length>",
-      inherits: false,
-      initialValue: "0px",
-    });
-  } catch {
-    // Already registered, by another copy of skele
-  }
+// Running fronts, by pane — stopped when the pane's mask is cleared
+const fronts = new WeakMap<HTMLElement, () => void>();
+
+// Prefixed too: Safari before 15.4 masks with -webkit- only
+function setMask(element: HTMLElement, image: string) {
+  element.style.setProperty("mask-image", image);
+  element.style.setProperty("-webkit-mask-image", image);
+}
+
+function clearMask(element: HTMLElement) {
+  fronts.get(element)?.();
+  element.style.removeProperty("mask-image");
+  element.style.removeProperty("-webkit-mask-image");
 }
 
 const GLOSS = 320; // px across the slant: the band trailing a wipe's front, as wide as the shimmer's widest
@@ -454,25 +451,53 @@ function crossing(rect: DOMRect, plan: WipePlan, margin: number) {
   };
 }
 
-// Animates `element`'s front across it; `stop(i)` places the i-th of STEPS + 1 stops against it
+/**
+ * Moves `element`'s front across it, a frame at a time, on the plan's clock;
+ * `stop(i, at)` places the i-th of STEPS + 1 stops against a front `at` px
+ * along the slant. Only the plainest mask — a gradient the pane's own size,
+ * rewritten each frame: Safari 18 drops a mask's size once its position
+ * animates, and doesn't repaint for a custom property animated inside it.
+ */
 function front(
   element: HTMLElement,
   plan: WipePlan,
   margin: number,
-  stop: (i: number) => string,
-) {
+  stop: (i: number, at: number) => string,
+): Promise<void> | null {
   const { begin, end, length } = crossing(
     element.getBoundingClientRect(),
     plan,
     margin,
   );
   if (end <= 0) return null;
-  const image = `linear-gradient(${SLANT_ANGLE}, ${Array.from({ length: STEPS + 1 }, (_, i) => stop(i)).join(", ")})`;
-  const animation = element.animate(
-    [{ [WIPE]: `${-margin}px` }, { [WIPE]: `${length + margin}px` }],
-    { duration: end - begin, delay: begin, fill: "both" },
-  );
-  return { image, animation };
+  const start = performance.now();
+  const draw = (progress: number) => {
+    const at = -margin + (length + 2 * margin) * progress;
+    setMask(
+      element,
+      `linear-gradient(${SLANT_ANGLE}, ${Array.from({ length: STEPS + 1 }, (_, i) => stop(i, at)).join(", ")})`,
+    );
+  };
+
+  return new Promise((resolve) => {
+    let frame = 0;
+    const tick = () => {
+      const progress = Math.min(
+        Math.max((performance.now() - start - begin) / (end - begin), 0),
+        1,
+      );
+      draw(progress);
+      if (progress < 1) frame = requestAnimationFrame(tick);
+      else done();
+    };
+    const done = () => {
+      cancelAnimationFrame(frame);
+      fronts.delete(element);
+      resolve();
+    };
+    fronts.set(element, done);
+    tick();
+  });
 }
 
 const SVG = "http://www.w3.org/2000/svg";
@@ -518,17 +543,34 @@ function gloss(element: HTMLElement, plan: WipePlan) {
   const cy = rect.height / 2;
   const dx = (GLOSS / 2) * SLANT_COS;
   const dy = (GLOSS / 2) * SLANT_TAN * SLANT_COS;
-  const stops = Array.from({ length: STEPS + 1 }, (_, i) => {
+  // Drawn to a PNG: Safari's feImage renders no SVG, and the filter then hides what it's on
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.ceil(width);
+  canvas.height = Math.ceil(rect.height);
+  const context = canvas.getContext("2d");
+  if (!context) return;
+  const gradient = context.createLinearGradient(
+    cx - dx,
+    cy - dy,
+    cx + dx,
+    cy + dy,
+  );
+  for (let i = 0; i <= STEPS; i++) {
     const t = i / STEPS;
-    const alpha = ease(1 - Math.abs(t * 2 - 1));
-    return `<stop offset="${t.toFixed(3)}" stop-color="#fff" stop-opacity="${alpha.toFixed(3)}"/>`;
-  }).join("");
-  const band = `<svg xmlns="${SVG}" width="${width}" height="${rect.height}"><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="${cx - dx}" y1="${cy - dy}" x2="${cx + dx}" y2="${cy + dy}">${stops}</linearGradient><rect width="100%" height="100%" fill="url(#g)"/></svg>`;
+    gradient.addColorStop(
+      t,
+      `rgb(255 255 255 / ${ease(1 - Math.abs(t * 2 - 1)).toFixed(3)})`,
+    );
+  }
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, canvas.width, canvas.height);
 
   const id = `skele-gloss-${++glosses}`;
+  // In the pane's own box: WebKit doesn't measure a primitive's x and y from an HTML element's corner, and blanks it
   const filter = svg("filter", {
     id,
     "color-interpolation-filters": "sRGB",
+    primitiveUnits: "objectBoundingBox",
   });
   const lit = svg("feComponentTransfer", {
     in: "SourceGraphic",
@@ -544,10 +586,10 @@ function gloss(element: HTMLElement, plan: WipePlan) {
     );
   }
   const image = svg("feImage", {
-    href: `data:image/svg+xml,${encodeURIComponent(band)}`,
+    href: canvas.toDataURL(),
     y: 0,
-    width,
-    height: rect.height,
+    width: width / rect.width,
+    height: 1,
     preserveAspectRatio: "none",
     result: "band",
   });
@@ -572,7 +614,10 @@ function gloss(element: HTMLElement, plan: WipePlan) {
       if (element.style.filter === `url(#${id})`) element.style.filter = "";
       return;
     }
-    image.setAttribute("x", (at - cx - cy * SLANT_TAN).toFixed(1));
+    image.setAttribute(
+      "x",
+      ((at - cx - cy * SLANT_TAN) / rect.width).toFixed(4),
+    );
     requestAnimationFrame(tick);
   };
   tick();
@@ -584,11 +629,10 @@ function gloss(element: HTMLElement, plan: WipePlan) {
  * meet exactly; the incoming one brings the band that trails it.
  */
 function wipe(element: HTMLElement, plan: WipePlan, incoming: boolean) {
-  registerWipe();
-  const run = front(element, plan, FEATHER, (i) => {
+  const run = front(element, plan, FEATHER, (i, at) => {
     const shown = incoming ? 1 - ease(i / STEPS) : ease(i / STEPS);
-    const at = -FEATHER + (2 * FEATHER * i) / STEPS;
-    return `rgb(0 0 0 / ${shown.toFixed(3)}) calc(var(${WIPE}) + ${at.toFixed(2)}px)`;
+    const offset = -FEATHER + (2 * FEATHER * i) / STEPS;
+    return `rgb(0 0 0 / ${shown.toFixed(3)}) ${(at + offset).toFixed(2)}px`;
   });
   if (!run) {
     if (!incoming) element.style.opacity = "0";
@@ -596,13 +640,8 @@ function wipe(element: HTMLElement, plan: WipePlan, incoming: boolean) {
   }
   if (incoming) gloss(element, plan);
 
-  element.style.maskImage = run.image;
-  return settle(run.animation).then(() => {
-    if (incoming) {
-      run.animation.cancel();
-      element.style.maskImage = "";
-    } else {
-      element.style.opacity = "0";
-    }
+  return run.then(() => {
+    if (incoming) clearMask(element);
+    else element.style.opacity = "0";
   });
 }

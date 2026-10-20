@@ -152,6 +152,32 @@ describe("Reveal", () => {
     expect(pane.getAnimations()).toHaveLength(1);
   });
 
+  it("sweeps with the plainest mask — a pane-sized gradient moved a frame at a time, which every Safari paints", async () => {
+    const root = stage(400);
+    const reveal = new Reveal(root, { reveal: "sweep" });
+    const rows = Array.from(
+      { length: 6 },
+      (_, i) => `<p style="margin: 0 0 12px">Row ${i} of the content</p>`,
+    ).join("");
+    reveal.load(html(rows));
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    const content = reveal.show(html(rows));
+
+    const mask = () => content.style.getPropertyValue("mask-image");
+    expect(mask()).toMatch(/^linear-gradient/);
+    expect(mask()).not.toContain("var(");
+    expect(content.style.getPropertyValue("mask-size")).toBe("");
+    expect(content.style.getPropertyValue("mask-position")).toBe("");
+    expect(content.getAnimations()).toHaveLength(0);
+
+    const before = mask();
+    await frame();
+    await frame();
+    await frame();
+    expect(mask()).not.toBe(before);
+    reveal.destroy();
+  });
+
   it("re-measures when its width changes", async () => {
     const root = stage(400);
     const reveal = new Reveal(root);

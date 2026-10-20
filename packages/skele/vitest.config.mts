@@ -2,7 +2,7 @@ import { defineConfig } from "vitest/config";
 import { playwright } from "@vitest/browser-playwright";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 
-// Geometry needs real layout, which happy-dom doesn't have — `*.browser.test.*` runs in Chromium
+// Geometry needs real layout, which happy-dom doesn't have — `*.browser.test.*` runs in Chromium and WebKit, for Safari
 export default defineConfig({
   test: {
     projects: [
@@ -25,7 +25,7 @@ export default defineConfig({
             provider: playwright(),
             headless: true,
             screenshotFailures: false,
-            instances: [{ browser: "chromium" }],
+            instances: [{ browser: "chromium" }, { browser: "webkit" }],
           },
         },
       },

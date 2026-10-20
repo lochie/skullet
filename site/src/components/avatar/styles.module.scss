@@ -1,4 +1,7 @@
 .avatar {
+  z-index: 1;
+  overflow: hidden;
+  position: relative;
   display: grid;
   flex-shrink: 0;
   place-items: center;
