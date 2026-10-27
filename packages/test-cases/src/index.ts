@@ -7,4 +7,4 @@ export {
   verifyNoJump,
   verifyRecall,
 } from "./verify";
-export type { SkeleApi, GeometryCase, Result } from "./types";
+export type { SkulletApi, GeometryCase, Result } from "./types";

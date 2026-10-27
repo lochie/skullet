@@ -13,10 +13,10 @@ import {
   forgetShapes,
   themeVariables,
   type RevealMode,
-  type SkeleAnimation,
-  type SkeleSpeed,
-} from "skele";
-import { SkeleProvider, SkeletonReveal, SkeletonSuspense } from "skele/react";
+  type SkulletAnimation,
+  type SkulletSpeed,
+} from "skullet";
+import { SkulletProvider, SkeletonReveal, SkeletonSuspense } from "skullet/react";
 
 import styles from "./styles.module.scss";
 
@@ -196,7 +196,7 @@ export const RevealModes = () => {
             <h4>
               <code>{mode}</code>
             </h4>
-            <SkeleProvider reveal={mode}>
+            <SkulletProvider reveal={mode}>
               <div className={styles.frame}>
                 <SkeletonReveal
                   data={posts}
@@ -206,7 +206,7 @@ export const RevealModes = () => {
                   {(posts) => <Feed posts={posts} />}
                 </SkeletonReveal>
               </div>
-            </SkeleProvider>
+            </SkulletProvider>
           </div>
         ))}
       </div>
@@ -375,16 +375,16 @@ export const Sources = () => {
 
 /* Animation */
 
-const ANIMATIONS: SkeleAnimation[] = [
+const ANIMATIONS: SkulletAnimation[] = [
   "shimmer",
   "group-shimmer",
   "pulse",
   "none",
 ];
-const SPEEDS: SkeleSpeed[] = ["slow", "fast"];
+const SPEEDS: SkulletSpeed[] = ["slow", "fast"];
 
 export const Animations = () => {
-  const [speed, setSpeed] = useState<SkeleSpeed>("slow");
+  const [speed, setSpeed] = useState<SkulletSpeed>("slow");
 
   return (
     <div className={styles.featureStack}>
@@ -548,13 +548,13 @@ type Readout = {
 
 const observeReadout = (frame: HTMLElement, onChange: (r: Readout) => void) => {
   const read = () => {
-    const reveal = frame.querySelector("[skele-reveal]");
+    const reveal = frame.querySelector("[skullet-reveal]");
     const loading = frame.querySelector(
-      "[skele-loading]:not([skele-exiting] *)",
+      "[skullet-loading]:not([skullet-exiting] *)",
     );
     onChange({
       busy: reveal?.getAttribute("aria-busy") === "true",
-      status: frame.querySelector("[skele-status]")?.textContent ?? "",
+      status: frame.querySelector("[skullet-status]")?.textContent ?? "",
       hidden: loading?.getAttribute("aria-hidden") === "true",
       inert: !!loading?.hasAttribute("inert"),
     });
@@ -664,7 +664,7 @@ const shots = (round: number, query?: number): Shot[] =>
   ["Launch week", "Offsite"].map((title, i) => ({
     title,
     meta: `${AUTHORS[i]![0]} · ${i + 2} photos`,
-    image: `https://picsum.photos/seed/skele-${round}-${i}/480/300${query === undefined ? "" : `?q=${query}`}`,
+    image: `https://picsum.photos/seed/skullet-${round}-${i}/480/300${query === undefined ? "" : `?q=${query}`}`,
   }));
 
 const Shots = ({ shots }: { shots: Shot[] }) => (
@@ -710,7 +710,7 @@ export const Images = () => {
                 ? "Waits for every image, up to 600ms, then fades in whole."
                 : "Text arrives on time; each image's bone holds until that image has loaded."}
             </p>
-            <SkeleProvider reveal={mode}>
+            <SkulletProvider reveal={mode}>
               <div className={styles.frame}>
                 <SkeletonReveal
                   data={loading ? null : shots(round, query)}
@@ -719,7 +719,7 @@ export const Images = () => {
                   {(shots) => <Shots shots={shots} />}
                 </SkeletonReveal>
               </div>
-            </SkeleProvider>
+            </SkulletProvider>
           </div>
         ))}
       </div>
@@ -871,7 +871,7 @@ export const States = () => {
 
 const TAGS = ["Motion", "Type", "Systems"];
 
-const Tagged = ({ hint }: { hint?: "skele-block" | "skele-ignore" }) => (
+const Tagged = ({ hint }: { hint?: "skullet-block" | "skullet-ignore" }) => (
   <div className={styles.profile}>
     <span className={styles.avatar} data-hue={1} />
     <div>
@@ -893,13 +893,13 @@ const HINTS = [
     detail: "Each tag is a painted label, so each gets a bone.",
   },
   {
-    title: "skele-block",
-    hint: "skele-block",
+    title: "skullet-block",
+    hint: "skullet-block",
     detail: "The whole row is drawn as one block.",
   },
   {
-    title: "skele-ignore",
-    hint: "skele-ignore",
+    title: "skullet-ignore",
+    hint: "skullet-ignore",
     detail: "The row keeps its space but draws nothing.",
   },
 ] as const;

@@ -1,4 +1,4 @@
-import { SkeletonReveal } from "skele/react";
+import { SkeletonReveal } from "skullet/react";
 
 import styles from "./preview-page.module.scss";
 

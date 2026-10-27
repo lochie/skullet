@@ -2,12 +2,12 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   DEFAULT_COLORS,
   themeVariables,
-  type SkeleAnimation,
-  type SkeleSpeed,
+  type SkulletAnimation,
+  type SkulletSpeed,
   type SkeleTheme,
   type TextBottom,
   type TextTop,
-} from "skele";
+} from "skullet";
 
 import styles from "./theme-creator.module.scss";
 import { ARRIVALS, PreviewPage, REGIONS, type Region } from "./preview-page";
@@ -17,7 +17,7 @@ type Mode = "light" | "dark";
 type Color = { hex: string; alpha: number };
 type Colors = Record<Mode, { base: Color; highlight: Color }>;
 
-const ANIMATIONS: SkeleAnimation[] = [
+const ANIMATIONS: SkulletAnimation[] = [
   "shimmer",
   "group-shimmer",
   "pulse",
@@ -142,8 +142,8 @@ export const ThemeCreator = () => {
   const [colors, setColors] = useState(INITIAL);
   const [radius, setRadius] = useState<"auto" | "pill" | "px">("auto");
   const [pixels, setPixels] = useState(4);
-  const [animation, setAnimation] = useState<SkeleAnimation>("shimmer");
-  const [speed, setSpeed] = useState<SkeleSpeed>("slow");
+  const [animation, setAnimation] = useState<SkulletAnimation>("shimmer");
+  const [speed, setSpeed] = useState<SkulletSpeed>("slow");
   const [top, setTop] = useState<TextTop>("ascender");
   const [bottom, setBottom] = useState<TextBottom>("descender");
   // Regions whose data has arrived; none at first, so the page opens as its skeleton
@@ -197,7 +197,7 @@ export const ThemeCreator = () => {
     JSON.stringify(theme.light) === JSON.stringify(DEFAULT_COLORS.light) &&
     JSON.stringify(theme.dark) === JSON.stringify(DEFAULT_COLORS.dark);
 
-  const code = `<SkeleProvider
+  const code = `<SkulletProvider
   mode="system"
   theme={${JSON.stringify(
     isDefault ? { ...theme, light: undefined, dark: undefined } : theme,
@@ -208,7 +208,7 @@ export const ThemeCreator = () => {
     .replace(/\n/g, "\n  ")}}
 >
   <App />
-</SkeleProvider>`;
+</SkulletProvider>`;
 
   return (
     <div className={styles.creator}>

@@ -1,17 +1,17 @@
-# Skele
+# Skullet
 
 Dependency-free skeleton loading component for React, Vue, Svelte, and vanilla JavaScript.
 
 ## Installation
 
 ```shell
-pnpm i skele
+pnpm i skullet
 ```
 
 ## Usage
 
 ```tsx
-import { SkeletonReveal } from "skele/react";
+import { SkeletonReveal } from "skullet/react";
 
 <SkeletonReveal data={user} sample={SAMPLE_USER}>
   {(user) => <Card user={user} />}
@@ -21,7 +21,7 @@ import { SkeletonReveal } from "skele/react";
 While it loads, the content is measured into a skeleton that takes exactly its
 space, so nothing moves when it arrives.
 
-See the [package README](packages/skele/README.md) for full API documentation.
+See the [package README](packages/skullet/README.md) for full API documentation.
 
 # Contributing
 

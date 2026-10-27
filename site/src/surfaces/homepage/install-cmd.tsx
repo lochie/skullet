@@ -6,10 +6,10 @@ import { TextMorph } from "torph/react";
 import { CodeBlock } from "@/components/codeblock";
 
 const pkgCmds = {
-  npm: "npm i skele",
-  pnpm: "pnpm i skele",
-  yarn: "yarn add skele",
-  bun: "bun i skele",
+  npm: "npm i skullet",
+  pnpm: "pnpm i skullet",
+  yarn: "yarn add skullet",
+  bun: "bun i skullet",
 };
 
 export const InstallCommands = () => {

@@ -1,6 +1,6 @@
-import { Reveal } from "skele";
+import { Reveal } from "skullet";
 
-const container = document.getElementById("skele-card")!;
+const container = document.getElementById("skullet-card")!;
 container.style.display = "flex";
 container.style.flexDirection = "column";
 container.style.justifyContent = "center";

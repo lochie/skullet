@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "vue": "^3.3.0",
-    "skele": "workspace:*"
+    "skullet": "workspace:*"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.8",

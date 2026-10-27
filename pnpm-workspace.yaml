@@ -2,3 +2,5 @@ packages:
   - "packages/**"
   - "site"
   - "apps/**"
+  - "e2e"
+  - "e2e/safari18"

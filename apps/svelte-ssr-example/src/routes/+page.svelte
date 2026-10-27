@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { SkeletonReveal } from 'skele/svelte';
-  import 'skele/styles.css';
+  import { SkeletonReveal } from 'skullet/svelte';
+  import 'skullet/styles.css';
 
   type User = { name: string; role: string };
 
@@ -19,7 +19,7 @@
 </script>
 
 <svelte:head>
-  <title>Skele Svelte SSR Example</title>
+  <title>Skullet Svelte SSR Example</title>
 </svelte:head>
 
 <div class="container">

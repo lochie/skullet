@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "@/styles/globals.scss";
 import { Analytics } from "@vercel/analytics/next";
-import { SkeleProvider } from "skele/react";
+import { SkulletProvider } from "skullet/react";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -12,20 +12,20 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Skele – Dependency-Free Skeleton Loading",
+  title: "Skullet – Dependency-Free Skeleton Loading",
   description: "Dependency-free skeleton loading component.",
   openGraph: {
     type: "website",
-    url: "https://skele.lochie.me",
-    siteName: "Skele",
-    title: "Skele – Dependency-Free Skeleton Loading",
+    url: "https://skullet.lochie.me",
+    siteName: "Skullet",
+    title: "Skullet – Dependency-Free Skeleton Loading",
     description: "Dependency-free skeleton loading component.",
   },
   twitter: {
     card: "summary_large_image",
     site: "@lochieaxon",
     creator: "@lochieaxon",
-    title: "Skele",
+    title: "Skullet",
     description: "Dependency-free skeleton loading component.",
   },
   other: {
@@ -42,9 +42,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <SkeleProvider mode="dark">
+        <SkulletProvider mode="dark">
           {children}
-        </SkeleProvider>
+        </SkulletProvider>
         <Analytics />
       </body>
     </html>

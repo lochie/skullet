@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "skele": "workspace:*"
+    "skullet": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.0.2",

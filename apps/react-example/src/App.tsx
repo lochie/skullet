@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { SkeletonReveal } from "skele/react";
+import { SkeletonReveal } from "skullet/react";
 
 type User = { name: string; role: string };
 

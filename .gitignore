@@ -6,3 +6,7 @@ apps/*/dist
 package-lock.json
 yarn.lock
 site/src/surfaces/playground/bundle-sizes.json
+
+# Playwright run output; golden screenshots live in e2e/tests/*-snapshots
+e2e/test-results
+e2e/playwright-report

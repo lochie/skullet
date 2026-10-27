@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "skele": "workspace:*"
+    "skullet": "workspace:*"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^7.0.1",

@@ -17,7 +17,7 @@ import {
   setDebug,
   type TextBottom,
   type TextTop,
-} from "skele";
+} from "skullet";
 import {
   bonesIn,
   CHECKS,
@@ -25,7 +25,7 @@ import {
   verifyCoverage,
   type GeometryCase,
   type Result,
-} from "@skele/test-cases";
+} from "@skullet/test-cases";
 
 import styles from "./styles.module.scss";
 import { Live } from "./live";
@@ -220,8 +220,8 @@ export const Playground = ({ bundleSizes }: { bundleSizes: BundleSize[] }) => {
       className={styles.playground}
       style={
         {
-          "--skele-text-top": top,
-          "--skele-text-bottom": bottom,
+          "--skullet-text-top": top,
+          "--skullet-text-bottom": bottom,
         } as CSSProperties
       }
     >
@@ -229,7 +229,7 @@ export const Playground = ({ bundleSizes }: { bundleSizes: BundleSize[] }) => {
         <h1>Playground</h1>
         <DebugToggle />
         <p>
-          Every feature of skele, one at a time — how content reveals, where a
+          Every feature of skullet, one at a time — how content reveals, where a
           skeleton comes from, how it looks — then live data, and the geometry
           corpus vitest runs in Chromium, run here against the built package.
         </p>
@@ -336,8 +336,8 @@ export const Playground = ({ bundleSizes }: { bundleSizes: BundleSize[] }) => {
         description={
           <>
             Measuring gets most things right on its own. Where it doesn&apos;t,
-            mark the markup: <code>skele-block</code> draws an element as one
-            block, <code>skele-ignore</code> leaves it out.
+            mark the markup: <code>skullet-block</code> draws an element as one
+            block, <code>skullet-ignore</code> leaves it out.
           </>
         }
       >
@@ -453,7 +453,7 @@ export const Playground = ({ bundleSizes }: { bundleSizes: BundleSize[] }) => {
         description={
           <>
             Where each bar runs, in the type&apos;s own lines — set with{" "}
-            <code>--skele-text-top</code> and <code>--skele-text-bottom</code>,
+            <code>--skullet-text-top</code> and <code>--skullet-text-bottom</code>,
             or <code>text</code> on the provider. Every case below re-measures
             as you change them.
           </>

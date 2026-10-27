@@ -1,7 +1,7 @@
 @use "sass:list";
 @use "sass:math";
 
-$steps: 12; // Stops per ramp, as skele's own STEPS — enough for an eased curve to read as one, with no banding
+$steps: 12; // Stops per ramp, as skullet's own STEPS — enough for an eased curve to read as one, with no banding
 
 // A linear gradient eased between each pair of stops, so no stop shows as a hard line
 @function scrim($angle, $stops...) {

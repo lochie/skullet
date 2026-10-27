@@ -6,9 +6,9 @@ export default defineConfig({
   plugins: [svelte()],
   resolve: {
     alias: {
-      "skele/svelte": path.resolve(
+      "skullet/svelte": path.resolve(
         __dirname,
-        "../../packages/skele/src/svelte",
+        "../../packages/skullet/src/svelte",
       ),
     },
   },

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { SkeletonReveal } from 'skele/svelte';
+  import { SkeletonReveal } from 'skullet/svelte';
 
   type User = { name: string; role: string };
 

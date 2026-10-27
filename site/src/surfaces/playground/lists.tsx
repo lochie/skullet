@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import { SkeletonReveal } from "skele/react";
+import { SkeletonReveal } from "skullet/react";
 
 import styles from "./styles.module.scss";
 

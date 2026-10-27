@@ -5,8 +5,8 @@ import {
   useRef,
   useState,
 } from "react";
-import { forgetShapes } from "skele";
-import { SkeletonReveal } from "skele/react";
+import { forgetShapes } from "skullet";
+import { SkeletonReveal } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { CHAINS, fetchReserves, SAMPLE, type Reserve } from "./aave";
@@ -95,12 +95,12 @@ export const Live = () => {
   const name = CHAINS.find((c) => c.id === chain)!.name;
 
   useLayoutEffect(() => {
-    const reveal = frame.current?.querySelector<HTMLElement>("[skele-reveal]");
+    const reveal = frame.current?.querySelector<HTMLElement>("[skullet-reveal]");
     if (!reveal) return;
 
     if (loading) {
       const recalled = reveal.querySelector(
-        "[skele-snapshot]:not([skele-inactive]) *",
+        "[skullet-snapshot]:not([skullet-inactive]) *",
       );
       const source = reserves
         ? "data on screen"

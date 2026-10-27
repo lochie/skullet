@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Docs } from "@/surfaces/docs";
 
 export const metadata: Metadata = {
-  title: "Docs – Skele",
+  title: "Docs – Skullet",
   description:
     "Skeletons measured from your content, for React, Vue, Svelte and vanilla JavaScript.",
 };

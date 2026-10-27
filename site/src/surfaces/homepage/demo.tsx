@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SkeleProvider } from "skele/react";
+import { SkulletProvider } from "skullet/react";
 
 import styles from "./demo.module.scss";
 import { Button } from "@/components/button";
@@ -24,22 +24,41 @@ export const Demo = () => {
   // Remounting the grid is a reload: every demo starts over on its own delay
   const [round, setRound] = useState(0);
   const [reveal, setReveal] = useState<"smart" | "sweep">("sweep");
+  // One count per card: bumping it remounts just that demo, so its loader starts over
+  const [loads, setLoads] = useState<Record<string, number>>({});
+  const reload = (card: string) =>
+    setLoads((counts) => ({ ...counts, [card]: (counts[card] ?? 0) + 1 }));
 
   return (
     <div className={styles.demo}>
-      <SkeleProvider reveal={reveal}>
+      <SkulletProvider reveal={reveal}>
         <div className={styles.grid} key={round}>
           {COLUMNS.map((column, i) => (
             <div key={i} className={styles.column}>
-              {column.map((DemoComponent, j) => (
-                <div key={j} className={styles.card}>
-                  <DemoComponent />
-                </div>
-              ))}
+              {column.map((DemoComponent, j) => {
+                const card = `${i}-${j}`;
+                return (
+                  <div
+                    key={j}
+                    className={styles.card}
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Reload this demo"
+                    onClick={() => reload(card)}
+                    onKeyDown={(event) => {
+                      if (event.key !== "Enter" && event.key !== " ") return;
+                      event.preventDefault();
+                      reload(card);
+                    }}
+                  >
+                    <DemoComponent key={loads[card] ?? 0} />
+                  </div>
+                );
+              })}
             </div>
           ))}
         </div>
-      </SkeleProvider>
+      </SkulletProvider>
       <div className={styles.controls}>
         {(["smart", "sweep"] as const).map((mode) => (
           <Button

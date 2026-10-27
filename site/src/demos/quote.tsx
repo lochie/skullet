@@ -1,5 +1,5 @@
 import { use, useState, useSyncExternalStore } from "react";
-import { SkeletonReveal, SkeletonSuspense } from "skele/react";
+import { SkeletonReveal, SkeletonSuspense } from "skullet/react";
 
 import styles from "./styles.module.scss";
 

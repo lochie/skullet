@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["skele", "@skele/test-cases"],
+  transpilePackages: ["skullet", "@skullet/test-cases"],
 };
 
 export default nextConfig;

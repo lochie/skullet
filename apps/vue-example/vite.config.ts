@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      "skele/vue": path.resolve(__dirname, "../../packages/skele/src/vue"),
+      "skullet/vue": path.resolve(__dirname, "../../packages/skullet/src/vue"),
     },
   },
 });

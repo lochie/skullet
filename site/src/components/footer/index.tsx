@@ -1,6 +1,6 @@
 import styles from "./styles.module.scss";
 
-import { version } from "./../../../../packages/skele/package.json";
+import { version } from "./../../../../packages/skullet/package.json";
 import Link from "next/link";
 
 export const Footer = () => {
@@ -26,7 +26,7 @@ export const Footer = () => {
         <span>v{version}</span>
         {" • "}
         <a
-          href="https://github.com/lochie/skele"
+          href="https://github.com/lochie/skullet"
           target="_blank"
           rel="noopener noreferrer"
         >

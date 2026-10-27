@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { SkeletonReveal } from "skele/vue";
+import { SkeletonReveal } from "skullet/vue";
 
 type User = { name: string; role: string };
 

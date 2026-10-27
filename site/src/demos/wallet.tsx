@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SkeletonReveal } from "skele/react";
+import { SkeletonReveal } from "skullet/react";
 import { TextMorph } from "torph/react";
 
 import styles from "./styles.module.scss";

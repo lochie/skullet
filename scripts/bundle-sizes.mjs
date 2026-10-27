@@ -6,7 +6,7 @@ import { execSync } from "child_process";
 import { tmpdir } from "os";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const dist = resolve(__dirname, "../packages/skele/dist");
+const dist = resolve(__dirname, "../packages/skullet/dist");
 
 const entries = [
   { name: "core", path: "index.mjs" },
@@ -28,9 +28,9 @@ function measure(dir) {
 }
 
 function measurePublished() {
-  const tmp = mkdtempSync(resolve(tmpdir(), "skele-npm-"));
+  const tmp = mkdtempSync(resolve(tmpdir(), "skullet-npm-"));
   try {
-    execSync("npm pack skele --pack-destination .", { cwd: tmp, stdio: "pipe" });
+    execSync("npm pack skullet --pack-destination .", { cwd: tmp, stdio: "pipe" });
     execSync("tar -xzf *.tgz", { cwd: tmp, stdio: "pipe" });
     return measure(resolve(tmp, "package/dist"));
   } catch (e) {

@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- plain images, so the skeleton measures them as such */
 import { useState } from "react";
-import { SkeletonReveal } from "skele/react";
+import { SkeletonReveal } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { useLoad } from "./use-load";
@@ -13,7 +13,7 @@ const board = (query?: number): Board => ({
   shots: Array.from(
     { length: 6 },
     (_, i) =>
-      `https://picsum.photos/seed/skele-${i}/240/240${query === undefined ? "" : `?q=${query}`}`,
+      `https://picsum.photos/seed/skullet-${i}/240/240${query === undefined ? "" : `?q=${query}`}`,
   ),
 });
 

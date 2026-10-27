@@ -53,7 +53,7 @@ export const Theming = () => (
   <div className={styles.page}>
     <header className={styles.header}>
       <nav>
-        <Link href="/">skele</Link>
+        <Link href="/">skullet</Link>
         <Link href="/docs">Docs</Link>
       </nav>
       <h1>Theming</h1>
@@ -79,10 +79,10 @@ export const Theming = () => (
         ))}
       </dl>
       <p>
-        Every option is a custom property underneath — <code>--skele-base</code>
-        , <code>--skele-highlight</code>, <code>--skele-radius</code>,{" "}
-        <code>--skele-animation</code>, <code>--skele-speed</code>,{" "}
-        <code>--skele-text-top</code> and <code>--skele-text-bottom</code> — so
+        Every option is a custom property underneath — <code>--skullet-base</code>
+        , <code>--skullet-highlight</code>, <code>--skullet-radius</code>,{" "}
+        <code>--skullet-animation</code>, <code>--skullet-speed</code>,{" "}
+        <code>--skullet-text-top</code> and <code>--skullet-text-bottom</code> — so
         any part of a page can set its own, and plain CSS can set them without a
         provider.
       </p>

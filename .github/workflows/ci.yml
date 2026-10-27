@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Browsers
+        run: |
+          pnpm --filter=skullet exec playwright install --with-deps chromium webkit firefox
+          pnpm --filter=e2e-safari18 exec playwright install --with-deps webkit
+
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - name: Unit and browser tests — Chromium, WebKit, Firefox
+        run: pnpm test
+
+      - run: pnpm site:build
+      - name: Examples
+        run: |
+          for app in react-example vue-example svelte-example svelte-ssr-example typescript-example; do
+            pnpm --filter=$app build
+          done
+
+      - run: pnpm --filter=e2e typecheck
+      - name: End to end — the built site in three browsers
+        run: pnpm e2e
+      - name: Safari 18 — WebKit 18.2, older than any current Playwright's
+        run: |
+          pnpm --filter=site exec next start -p 3123 &
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:3123 && break; sleep 1; done
+          pnpm e2e:safari18
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: e2e/playwright-report

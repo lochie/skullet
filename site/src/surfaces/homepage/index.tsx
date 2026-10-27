@@ -2,7 +2,7 @@
 
 import styles from "./styles.module.scss";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWebHaptics } from "web-haptics/react";
 
 import { TextMorph } from "torph/react";
@@ -14,29 +14,31 @@ import { InstallCommands } from "./install-cmd";
 import { examples } from "./usage";
 import { Demo } from "./demo";
 import * as Logos from "./logos";
+import { Mascot } from "@/components/mascot";
+import { SkeletonReveal } from "skullet/react";
 
 const frameworks = [
   {
     name: "React",
-    imports: `import { SkeletonReveal } from 'skele/react'`,
+    imports: `import { SkeletonReveal } from 'skullet/react'`,
     logo: <Logos.ReactLogo />,
     example: examples.react,
   },
   {
     name: "TypeScript",
-    imports: `import { Reveal } from 'skele'`,
+    imports: `import { Reveal } from 'skullet'`,
     logo: <Logos.TypeScriptLogo />,
     example: examples.vanilla,
   },
   {
     name: "Vue",
-    imports: `import { SkeletonReveal } from 'skele/vue'`,
+    imports: `import { SkeletonReveal } from 'skullet/vue'`,
     logo: <Logos.VueLogo />,
     example: examples.vue,
   },
   {
     name: "Svelte",
-    imports: `import { SkeletonReveal } from 'skele/svelte'`,
+    imports: `import { SkeletonReveal } from 'skullet/svelte'`,
     logo: <Logos.SvelteLogo />,
     example: examples.svelte,
   },
@@ -51,9 +53,24 @@ export const Homepage = () => {
 
 ${framework.example}`;
 
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className={styles.page}>
       <div className={styles.container}>
+        <SkeletonReveal loading={loading}>
+          <header className={styles.header}>
+            <Mascot size={80} />
+            <h1>Skullet</h1>
+            <p>Smart Skeleton States</p>
+          </header>
+        </SkeletonReveal>
+
         <Demo />
 
         <section>

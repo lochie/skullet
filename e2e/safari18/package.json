@@ -1,0 +1,13 @@
+{
+  "name": "e2e-safari18",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node check.mjs",
+    "install-browser": "playwright install webkit"
+  },
+  "dependencies": {
+    "playwright": "1.50.1",
+    "pngjs": "^7.0.0"
+  }
+}

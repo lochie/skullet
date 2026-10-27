@@ -1,19 +1,19 @@
-import type { SkeleApi, GeometryCase, Result } from "./types";
+import type { SkulletApi, GeometryCase, Result } from "./types";
 
 type Box = { left: number; right: number; top: number; bottom: number };
 
 const TOLERANCE = 1;
 
-// Drawn as blocks by skele, so their text (an SVG's, a textarea's) is never a line
+// Drawn as blocks by skullet, so their text (an SVG's, a textarea's) is never a line
 const MEDIA =
   "audio, canvas, embed, iframe, img, input, object, picture, select, svg, textarea, video";
-const SKIPPED = `[skele-ignore], [skele-own], [skele-covered], [skele-block], ${MEDIA}`;
+const SKIPPED = `[skullet-ignore], [skullet-own], [skullet-covered], [skullet-block], ${MEDIA}`;
 const TEXT_LEAVES =
   "a, b, code, dd, dt, em, h1, h2, h3, h4, h5, h6, i, label, li, p, small, span, strong, td, th, time";
 
 /** Every bone drawn under `root` — they live in each layer's shadow root. */
 export const bonesIn = (root: ParentNode): Element[] =>
-  [...root.querySelectorAll("[skele-bones]")].flatMap((layer) =>
+  [...root.querySelectorAll("[skullet-bones]")].flatMap((layer) =>
     layer.shadowRoot ? [...layer.shadowRoot.children] : [],
   );
 
@@ -98,14 +98,14 @@ const result = (failures: string[], success: string): Result =>
 
 /** Every line of text, every image and every single-label surface is covered, and nothing else is. */
 export function verifyCoverage(
-  t: SkeleApi,
+  t: SkulletApi,
   testCase: GeometryCase,
   stage: HTMLElement,
 ): Result {
   stageFor(testCase, stage);
   const root = document.createElement("div");
   const ghost = document.createElement("div");
-  ghost.setAttribute("skele-ghost", "");
+  ghost.setAttribute("skullet-ghost", "");
   ghost.innerHTML = testCase.html;
   root.append(ghost);
   stage.append(root);
@@ -178,7 +178,7 @@ export function verifyCoverage(
     ...lines,
     ...[
       ...ghost.querySelectorAll(
-        `[skele-covered], [skele-block], ${MEDIA}, :is(${TEXT_LEAVES}):empty`,
+        `[skullet-covered], [skullet-block], ${MEDIA}, :is(${TEXT_LEAVES}):empty`,
       ),
     ].map((element) => box(element.getBoundingClientRect())),
   ];
@@ -212,7 +212,7 @@ const compare = (
 
 /** Revealing content after a skeleton drawn from that same content moves nothing. */
 export function verifyNoJump(
-  t: SkeleApi,
+  t: SkulletApi,
   testCase: GeometryCase,
   stage: HTMLElement,
 ): Result {
@@ -227,7 +227,7 @@ export function verifyNoJump(
 
 /** A skeleton drawn from the shape remembered on the last reveal is the content's size. */
 export function verifyRecall(
-  t: SkeleApi,
+  t: SkulletApi,
   testCase: GeometryCase,
   stage: HTMLElement,
   { persisted = false } = {},
@@ -249,7 +249,7 @@ export function verifyRecall(
 
 /** Markup rendered without its data still finds the shape the loaded content left, with no `id`. */
 export function verifyAutoKey(
-  t: SkeleApi,
+  t: SkulletApi,
   testCase: GeometryCase,
   stage: HTMLElement,
 ): Result {
@@ -269,10 +269,10 @@ export const CHECKS = {
   coverage: verifyCoverage,
   "no jump": verifyNoJump,
   recall: verifyRecall,
-  "recall from storage": (t: SkeleApi, c: GeometryCase, s: HTMLElement) =>
+  "recall from storage": (t: SkulletApi, c: GeometryCase, s: HTMLElement) =>
     verifyRecall(t, c, s, { persisted: true }),
   "auto key": verifyAutoKey,
 } satisfies Record<
   string,
-  (t: SkeleApi, c: GeometryCase, s: HTMLElement) => Result
+  (t: SkulletApi, c: GeometryCase, s: HTMLElement) => Result
 >;

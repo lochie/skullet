@@ -193,12 +193,12 @@ export const GEOMETRY_CASES: GeometryCase[] = [
   },
   {
     label: "Hints",
-    description: "`skele-block` forces a block; `skele-ignore` draws nothing.",
+    description: "`skullet-block` forces a block; `skullet-ignore` draws nothing.",
     tags: ["hints"],
     width: 320,
     html: `<div style="display: flex; flex-direction: column; gap: 8px">
-  <div data-expect="block" skele-block><span>Drawn</span> <span>as one</span></div>
-  <div skele-ignore>Not drawn at all</div>
+  <div data-expect="block" skullet-block><span>Drawn</span> <span>as one</span></div>
+  <div skullet-ignore>Not drawn at all</div>
 </div>`,
   },
 ];

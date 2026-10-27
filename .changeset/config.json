@@ -13,6 +13,8 @@
     "svelte-ssr-example",
     "typescript-example",
     "vue-example",
-    "site"
+    "site",
+    "e2e",
+    "e2e-safari18"
   ]
 }

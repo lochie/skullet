@@ -10,9 +10,9 @@
     "lint:fix": "eslint --fix"
   },
   "dependencies": {
-    "@skele/test-cases": "workspace:*",
+    "@skullet/test-cases": "workspace:*",
     "@vercel/analytics": "^2.0.1",
-    "skele": "workspace:*",
+    "skullet": "workspace:*",
     "motion": "^12.23.16",
     "next": "16.3.4",
     "react": "19.2.3",
