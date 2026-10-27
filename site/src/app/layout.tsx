@@ -12,21 +12,21 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Skullet – Dependency-Free Skeleton Loading",
-  description: "Dependency-free skeleton loading component.",
+  title: "Skullet – Smart Skeleton States",
+  description: "Smart Skeleton States.",
   openGraph: {
     type: "website",
     url: "https://skullet.lochie.me",
     siteName: "Skullet",
-    title: "Skullet – Dependency-Free Skeleton Loading",
-    description: "Dependency-free skeleton loading component.",
+    title: "Skullet – Smart Skeleton States",
+    description: "Smart Skeleton States.",
   },
   twitter: {
     card: "summary_large_image",
     site: "@lochieaxon",
     creator: "@lochieaxon",
     title: "Skullet",
-    description: "Dependency-free skeleton loading component.",
+    description: "Smart Skeleton States.",
   },
   other: {
     "msapplication-navbutton-color": "#000000",
@@ -42,9 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <SkulletProvider mode="dark">
-          {children}
-        </SkulletProvider>
+        <SkulletProvider mode="dark">{children}</SkulletProvider>
         <Analytics />
       </body>
     </html>

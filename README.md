@@ -1,6 +1,6 @@
 # Skullet
 
-Dependency-free skeleton loading component for React, Vue, Svelte, and vanilla JavaScript.
+Smart Skeleton States for React, Vue, Svelte, and vanilla JavaScript.
 
 ## Installation
 

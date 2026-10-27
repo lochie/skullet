@@ -1,7 +1,7 @@
 {
   "name": "skullet",
   "version": "0.0.0",
-  "description": "Dependency-free skeleton loading component.",
+  "description": "Smart Skeleton States.",
   "homepage": "https://skullet.lochie.me",
   "author": "Lochie Axon",
   "license": "MIT",

@@ -1,17 +1,17 @@
 # AGENTS.md
 
-skullet is a dependency-free skeleton loading component. pnpm workspace, published from `packages/skullet`.
+skullet is a smart skeleton loading component. pnpm workspace, published from `packages/skullet`.
 
 ## Layout
 
-| Path                                                 | What                                                                                   |
-| ---------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| [packages/skullet/](packages/skullet/)                 | The library. Core + React / Vue / Svelte wrappers. The only published package.         |
-| [packages/test-cases/](packages/test-cases/)         | Shared geometry corpus. Consumed by vitest _and_ the site playground.                  |
-| [site/](site/)                                       | Next.js docs site — skullet.lochie.me.                                                  |
-| [apps/](apps/)                                       | One integration example per framework. Not published, ignored by changesets.           |
+| Path                                                 | What                                                                                        |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [packages/skullet/](packages/skullet/)               | The library. Core + React / Vue / Svelte wrappers. The only published package.              |
+| [packages/test-cases/](packages/test-cases/)         | Shared geometry corpus. Consumed by vitest _and_ the site playground.                       |
+| [site/](site/)                                       | Next.js docs site — skullet.lochie.me.                                                      |
+| [apps/](apps/)                                       | One integration example per framework. Not published, ignored by changesets.                |
 | [e2e/](e2e/)                                         | Playwright against the built site: goldens and pixel checks, three browsers plus Safari 18. |
-| [scripts/bundle-sizes.mjs](scripts/bundle-sizes.mjs) | Measures dist gzip sizes into the playground. Runs in `site:build`.                    |
+| [scripts/bundle-sizes.mjs](scripts/bundle-sizes.mjs) | Measures dist gzip sizes into the playground. Runs in `site:build`.                         |
 
 ## Commands
 

@@ -1,6 +1,6 @@
 # Skullet
 
-Dependency-free skeleton loading for React, Vue, Svelte, and vanilla JavaScript.
+Smart Skeleton States for React, Vue, Svelte, and vanilla JavaScript.
 
 Wrap what you'd render once your data arrives. While it loads, skullet lays that
 content out unseen and draws a skeleton over it: a bar for every line of text,
@@ -35,17 +35,17 @@ Or toggle it yourself, with plain children:
 </SkeletonReveal>
 ```
 
-| Prop           | Type                      | Description                                                       |
-| -------------- | ------------------------- | ----------------------------------------------------------------- |
-| `data`         | `T \| null \| undefined`  | Loading while empty; passed to `children` once it isn't.          |
-| `sample`       | `T`                       | Stands in for `data` to draw the very first skeleton.             |
-| `loading`      | `boolean`                 | Shows the skeleton, even over `data` — say, while refetching.     |
-| `id`           | `string`                  | Remembers the skeleton's shape across visits under this key.      |
-| `label`        | `string`                  | Read to screen readers while loading.                             |
-| `skeleton`     | `ReactNode`               | Shown while loading instead of the measured skeleton.             |
-| `error`        | `ReactNode`               | Shown instead of the content when set.                            |
-| `empty`        | `boolean`                 | Shows `emptyMessage`, or the content if there's none.             |
-| `emptyMessage` | `ReactNode`               |                                                                   |
+| Prop           | Type                     | Description                                                   |
+| -------------- | ------------------------ | ------------------------------------------------------------- |
+| `data`         | `T \| null \| undefined` | Loading while empty; passed to `children` once it isn't.      |
+| `sample`       | `T`                      | Stands in for `data` to draw the very first skeleton.         |
+| `loading`      | `boolean`                | Shows the skeleton, even over `data` — say, while refetching. |
+| `id`           | `string`                 | Remembers the skeleton's shape across visits under this key.  |
+| `label`        | `string`                 | Read to screen readers while loading.                         |
+| `skeleton`     | `ReactNode`              | Shown while loading instead of the measured skeleton.         |
+| `error`        | `ReactNode`              | Shown instead of the content when set.                        |
+| `empty`        | `boolean`                | Shows `emptyMessage`, or the content if there's none.         |
+| `emptyMessage` | `ReactNode`              |                                                               |
 
 ### Vue
 
@@ -134,7 +134,10 @@ A theme is colours for light and dark, plus how bones look and move:
 ```ts
 const theme = {
   light: { base: "rgb(0 0 0 / 0.07)", highlight: "rgb(255 255 255 / 0.6)" },
-  dark: { base: "rgb(255 255 255 / 0.08)", highlight: "rgb(255 255 255 / 0.1)" },
+  dark: {
+    base: "rgb(255 255 255 / 0.08)",
+    highlight: "rgb(255 255 255 / 0.1)",
+  },
   animation: "shimmer", // "group-shimmer", "pulse" or "none"
   speed: "slow", // or "fast" — shimmer 4s / 2s, pulse 2.4s / 1.2s
   radius: "6px", // text bars and single bars; images and chips keep their own
