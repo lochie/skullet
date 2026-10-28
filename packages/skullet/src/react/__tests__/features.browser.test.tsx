@@ -5,12 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { SkulletProvider } from "../config";
 import { SkeletonReveal } from "../Skeleton";
 import { SkeletonSuspense } from "../Suspense";
-import {
-  CASCADE_SPREAD,
-  FADE_DURATION,
-  forgetShapes,
-  setDebug,
-} from "../../lib";
+import { forgetShapes, setDebug } from "../../lib";
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -30,6 +25,19 @@ function render(ui: ReactNode) {
 
 const wait = (ms: number) =>
   act(() => new Promise((resolve) => setTimeout(resolve, ms)));
+
+// Short act()s rather than one long one, which would hold React's updates until it ended
+async function until(check: () => void, timeout = 2000) {
+  const start = performance.now();
+  for (;;) {
+    try {
+      return check();
+    } catch (error) {
+      if (performance.now() - start > timeout) throw error;
+      await wait(16);
+    }
+  }
+}
 
 afterEach(() => {
   act(() => root?.unmount());
@@ -114,8 +122,9 @@ describe("sequence", () => {
     expect(boneDelays.every((delay) => delay >= 0)).toBe(true);
     expect(Math.max(...boneDelays)).toBeGreaterThan(Math.min(...boneDelays));
 
-    await wait(CASCADE_SPREAD + FADE_DURATION + 50);
-    expect(container.querySelectorAll("[skullet-pane]")).toHaveLength(1);
+    await until(() =>
+      expect(container.querySelectorAll("[skullet-pane]")).toHaveLength(1),
+    );
   });
 });
 
@@ -149,20 +158,19 @@ describe("debug", () => {
       </SkeletonReveal>
     );
     render(ui(null));
-    await wait(32);
 
-    const overlay = [...document.body.children].find((element) =>
-      element.shadowRoot?.querySelector(".boxes"),
-    )!;
+    const overlay = () =>
+      [...document.body.children].find((element) =>
+        element.shadowRoot?.querySelector(".boxes"),
+      );
     const label = () =>
-      overlay.shadowRoot!.querySelector(".label")?.textContent;
-    expect(label()).toBe("skeleton · sample");
+      overlay()?.shadowRoot!.querySelector(".label")?.textContent;
+    await until(() => expect(label()).toBe("skeleton · sample"));
 
     render(ui(ADA));
-    await wait(32);
-    expect(label()).toBe("✓ no movement · sample");
+    await until(() => expect(label()).toBe("✓ no movement · sample"));
 
-    overlay.shadowRoot!.querySelector<HTMLInputElement>(".xray")!.click();
+    overlay()!.shadowRoot!.querySelector<HTMLInputElement>(".xray")!.click();
     expect(document.documentElement.hasAttribute("skullet-xray")).toBe(true);
   });
 });
@@ -207,8 +215,9 @@ describe("SkeletonSuspense", () => {
     expect(reveal().offsetHeight).toBe(height);
     expect(container.querySelectorAll("[skullet-exiting]")).toHaveLength(1);
 
-    await wait(FADE_DURATION * 2 + 50);
-    expect(container.querySelectorAll("[skullet-exiting]")).toHaveLength(0);
+    await until(() =>
+      expect(container.querySelectorAll("[skullet-exiting]")).toHaveLength(0),
+    );
   });
 
   it("works inside an app's own Suspense too", () => {

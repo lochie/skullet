@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { FADE_DURATION, RESIZE_DURATION } from "../constants";
+import { FADE_DURATION } from "../constants";
 import { bonesIn } from "@skullet/test-cases";
 import { fadeIn, forgetShapes, Reveal } from "..";
 
@@ -103,9 +103,10 @@ describe("Reveal", () => {
     expect(easing).toBeLessThan(120);
     expect(getComputedStyle(root).overflow).toBe("clip");
 
-    await new Promise((resolve) => setTimeout(resolve, RESIZE_DURATION + 50));
-    expect(root.getBoundingClientRect().height).toBe(120);
-    expect(root.style.overflow).toBe("");
+    await vi.waitFor(() => {
+      expect(root.getBoundingClientRect().height).toBe(120);
+      expect(root.style.overflow).toBe("");
+    });
     reveal.destroy();
   });
 
