@@ -167,8 +167,34 @@ describe("debug", () => {
       overlay()?.shadowRoot!.querySelector(".label")?.textContent;
     await until(() => expect(label()).toBe("skeleton · sample"));
 
+    // TEMPORARY: what the page looked like, for a failure only CI's WebKit has shown
+    const logged: string[] = [];
+    for (const level of ["warn", "error"] as const) {
+      vi.spyOn(console, level).mockImplementation((...args) => {
+        logged.push(`${level}: ${args.join(" ")}`);
+      });
+    }
+    addEventListener("error", (event) =>
+      logged.push(`thrown: ${event.message}`),
+    );
+    const state = () =>
+      JSON.stringify({
+        labels: [
+          ...(overlay()?.shadowRoot!.querySelectorAll(".label") ?? []),
+        ].map((element) => element.textContent),
+        panes: [...container.querySelectorAll("[skullet-pane]")].map(
+          (pane) => ({
+            exiting: pane.hasAttribute("skullet-exiting"),
+            loading: !!pane.querySelector("[skullet-loading]"),
+            opacity: getComputedStyle(pane).opacity,
+          }),
+        ),
+        reveal: reveal().getBoundingClientRect().toJSON(),
+        logged,
+      });
+
     render(ui(ADA));
-    await until(() => expect(label()).toBe("✓ no movement · sample"));
+    await until(() => expect(label(), state()).toBe("✓ no movement · sample"));
 
     overlay()!.shadowRoot!.querySelector<HTMLInputElement>(".xray")!.click();
     expect(document.documentElement.hasAttribute("skullet-xray")).toBe(true);
