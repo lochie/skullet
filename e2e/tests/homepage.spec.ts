@@ -78,7 +78,12 @@ test("no demo is ever blank while it reveals", async ({ page }) => {
   await page.setViewportSize({ width: 1400, height: 2000 });
   await page.goto("/");
   await page.waitForTimeout(3000);
-  await page.getByRole("button", { name: "Reload", exact: true }).click();
+  // Every card at once, as the reveals would land together
+  await page
+    .getByRole("button", { name: "Reload this demo" })
+    .evaluateAll((cards) =>
+      cards.forEach((card) => (card as HTMLElement).click()),
+    );
   const count = await reveals(page).count();
   const start = Date.now();
   while (Date.now() - start < 2500) {

@@ -273,6 +273,37 @@ describe("SkeletonReveal", () => {
     expect(container.querySelector("img")).toBeNull();
   });
 
+  it("keeps a child's own skeleton over a remembered shape", async () => {
+    const Avatar = () => <img alt="" width={40} height={40} />;
+    Avatar.Skeleton = function AvatarSkeleton() {
+      return <Skeleton width={40} height={40} radius="50%" />;
+    };
+    const ui = (loading: boolean) => (
+      <SkeletonReveal loading={loading}>
+        <header>
+          <div>
+            <Avatar />
+          </div>
+          <h1>Ada Lovelace</h1>
+        </header>
+      </SkeletonReveal>
+    );
+
+    render(ui(true));
+    render(ui(false));
+    await settle();
+    // A visit to another page and back: the header's shape is remembered
+    unmount();
+    render(ui(true));
+    await act(() => new Promise(requestAnimationFrame));
+
+    expect(
+      container.querySelector(
+        "[skullet-ghost]:not([skullet-inactive]) [skullet-own] [skullet-bar]",
+      ),
+    ).not.toBeNull();
+  });
+
   it("shows error over empty over content", () => {
     render(
       <SkeletonReveal empty emptyMessage="Nothing yet" error="Failed">

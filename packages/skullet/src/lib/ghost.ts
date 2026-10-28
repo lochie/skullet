@@ -5,6 +5,7 @@ import {
   ATTR_GHOST,
   ATTR_INACTIVE,
   ATTR_LOADING,
+  ATTR_OWN,
   ATTR_REVEAL,
   ATTR_SNAPSHOT,
   GHOSTED,
@@ -154,7 +155,9 @@ export class Ghost {
 
     // Re-shaping a skeleton already on screen would move the page — keep it
     const settled = this.options.exact || served.has(this.root);
-    if (settled && this.hadContent) {
+    // A remembered shape is the shown content, which has none of the author's own skeletons
+    const own = !!this.ghost.querySelector(`[${ATTR_OWN}]`);
+    if ((settled || own) && this.hadContent) {
       next = "ghost";
     } else {
       const key = this.options.id ?? autoKey(this.ghost);

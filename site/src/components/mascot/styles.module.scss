@@ -6,7 +6,6 @@
 // The silhouette and the cut-outs over it, stacked
 .skeleton {
   display: grid;
-  transform: translateX(10%);
 
   > * {
     grid-area: 1 / 1;
@@ -20,6 +19,7 @@
 
 // Hovering: a slow bob with a little tilt, as if held up by its tail
 .mascot {
+  display: block;
   overflow: visible;
   animation: float 4s ease-in-out infinite;
   transform-origin: center;
@@ -33,10 +33,10 @@
 @keyframes float {
   0%,
   100% {
-    transform: translateY(4%) translateX(10%);
+    transform: translateY(4%);
   }
   50% {
-    transform: translateY(-4%) translateX(10%);
+    transform: translateY(-4%);
   }
 }
 

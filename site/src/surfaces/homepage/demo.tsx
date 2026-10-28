@@ -59,21 +59,6 @@ export const Demo = () => {
           ))}
         </div>
       </SkulletProvider>
-      <div className={styles.controls}>
-        {(["smart", "sweep"] as const).map((mode) => (
-          <Button
-            key={mode}
-            disabled={reveal === mode}
-            onClick={() => {
-              setReveal(mode);
-              setRound((r) => r + 1);
-            }}
-          >
-            {mode}
-          </Button>
-        ))}
-        <Button onClick={() => setRound((r) => r + 1)}>Reload</Button>
-      </div>
     </div>
   );
 };

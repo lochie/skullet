@@ -3,8 +3,6 @@
 .playground {
   display: flex;
   flex-direction: column;
-  max-width: 72rem;
-  margin: 0 auto;
 
   // Inline, unlike the global `code`, which is styled as a block to copy
   :is(p, h4, li, dd) code {
@@ -52,25 +50,26 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--color-muted);
+  scroll-margin-top: 2rem;
+
+  a {
+    color: inherit;
+  }
 }
 
 .row {
-  display: grid;
-  grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
-  gap: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
   padding: 2rem 0;
   border-bottom: 1px solid var(--border);
-
-  @media (max-width: 860px) {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.25rem;
-  }
 }
 
 .info {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  max-width: 40rem;
 
   h3 {
     font-size: 0.9375rem;

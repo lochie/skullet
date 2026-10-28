@@ -24,10 +24,10 @@
     "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-secondary:
-    "SN Pro", "SF Pro Rounded", ui-rounded, "Nunito", -apple-system,
-    BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial,
-    sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+    var(--font-open-runde), "SF Pro Rounded", ui-rounded, "Nunito",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
+    "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
   --font-mono:
-    "SF Mono", "SFMono-Regular", "Consolas", "Liberation Mono", Menlo, Courier,
-    monospace;
+    var(--font-courier-prime), "SF Mono", "SFMono-Regular", "Consolas",
+    "Liberation Mono", Menlo, Courier, monospace;
 }

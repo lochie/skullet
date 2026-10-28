@@ -1,7 +1,27 @@
 import type { Metadata, Viewport } from "next";
 import "@/styles/globals.scss";
 import { Analytics } from "@vercel/analytics/next";
+import { Courier_Prime } from "next/font/google";
+import localFont from "next/font/local";
 import { SkulletProvider } from "skullet/react";
+
+const openRunde = localFont({
+  src: [
+    { path: "../fonts/OpenRunde-Regular.woff2", weight: "400" },
+    { path: "../fonts/OpenRunde-Medium.woff2", weight: "500" },
+    { path: "../fonts/OpenRunde-Semibold.woff2", weight: "600" },
+    { path: "../fonts/OpenRunde-Bold.woff2", weight: "700" },
+  ],
+  variable: "--font-open-runde",
+  display: "swap",
+});
+
+const courierPrime = Courier_Prime({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-courier-prime",
+  display: "swap",
+});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -11,21 +31,25 @@ export const viewport: Viewport = {
   themeColor: "#000000",
 };
 
+const SITE = "https://skullet.lochie.me";
+// Next resolves image URLs against metadataBase, but leaves video URLs as written
+const VIDEO = `${SITE}/opengraph-video.mp4`;
+
 export const metadata: Metadata = {
-  // Open Graph needs absolute URLs; this resolves the image and video paths
-  metadataBase: new URL("https://skullet.lochie.me"),
+  // Open Graph needs absolute URLs
+  metadataBase: new URL(SITE),
   title: "Skullet – Smart Skeleton States",
   description: "Smart Skeleton States.",
   openGraph: {
     type: "website",
-    url: "https://skullet.lochie.me",
+    url: SITE,
     siteName: "Skullet",
     title: "Skullet – Smart Skeleton States",
     description: "Smart Skeleton States.",
     videos: [
       {
-        url: "/opengraph-video.mp4",
-        secureUrl: "/opengraph-video.mp4",
+        url: VIDEO,
+        secureUrl: VIDEO,
         type: "video/mp4",
         width: 1440,
         height: 760,
@@ -51,7 +75,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${openRunde.variable} ${courierPrime.variable}`}
+    >
       <body>
         <SkulletProvider mode="dark">{children}</SkulletProvider>
         <Analytics />

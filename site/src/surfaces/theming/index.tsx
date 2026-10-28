@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
-
 import styles from "./styles.module.scss";
-import { Footer } from "@/components/footer";
+import { DocsLayout } from "@/components/docs-layout";
 import { ThemeCreator } from "./theme-creator";
 
 const OPTIONS: [string, React.ReactNode][] = [
@@ -49,13 +47,14 @@ const OPTIONS: [string, React.ReactNode][] = [
   ],
 ];
 
+const SECTIONS = [
+  ["creator", "Theme creator"],
+  ["options", "Options"],
+] as const;
+
 export const Theming = () => (
-  <div className={styles.page}>
+  <DocsLayout sections={SECTIONS} wide>
     <header className={styles.header}>
-      <nav>
-        <Link href="/">skullet</Link>
-        <Link href="/docs">Docs</Link>
-      </nav>
       <h1>Theming</h1>
       <p>
         Change any option and the page below re-measures with it. Load the page
@@ -64,10 +63,14 @@ export const Theming = () => (
       </p>
     </header>
 
-    <ThemeCreator />
+    <div id="creator" className={styles.creator}>
+      <ThemeCreator />
+    </div>
 
-    <section className={styles.options}>
-      <h2>Options</h2>
+    <section id="options" className={styles.options}>
+      <h2>
+        <a href="#options">Options</a>
+      </h2>
       <dl>
         {OPTIONS.map(([term, description]) => (
           <div key={term}>
@@ -79,15 +82,13 @@ export const Theming = () => (
         ))}
       </dl>
       <p>
-        Every option is a custom property underneath — <code>--skullet-base</code>
-        , <code>--skullet-highlight</code>, <code>--skullet-radius</code>,{" "}
-        <code>--skullet-animation</code>, <code>--skullet-speed</code>,{" "}
-        <code>--skullet-text-top</code> and <code>--skullet-text-bottom</code> — so
-        any part of a page can set its own, and plain CSS can set them without a
-        provider.
+        Every option is a custom property underneath —{" "}
+        <code>--skullet-base</code>, <code>--skullet-highlight</code>,{" "}
+        <code>--skullet-radius</code>, <code>--skullet-animation</code>,{" "}
+        <code>--skullet-speed</code>, <code>--skullet-text-top</code> and{" "}
+        <code>--skullet-text-bottom</code> — so any part of a page can set its
+        own, and plain CSS can set them without a provider.
       </p>
     </section>
-
-    <Footer />
-  </div>
+  </DocsLayout>
 );

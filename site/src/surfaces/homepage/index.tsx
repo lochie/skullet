@@ -65,7 +65,9 @@ ${framework.example}`;
       <div className={styles.container}>
         <SkeletonReveal loading={loading}>
           <header className={styles.header}>
-            <Mascot size={80} />
+            <div className={styles.mascot}>
+              <Mascot size={80} />
+            </div>
             <h1>Skullet</h1>
             <p>Smart Skeleton States</p>
           </header>

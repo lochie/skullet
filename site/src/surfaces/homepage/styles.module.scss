@@ -19,7 +19,16 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-family: var(--font-secondary);
+
+    h1 {
+      font-family: var(--font-secondary);
+      letter-spacing: -0.0375em;
+      font-weight: 600;
+    }
+
+    .mascot {
+      transform: translateX(10%);
+    }
   }
 
   section {
