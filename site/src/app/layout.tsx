@@ -38,14 +38,14 @@ const VIDEO = `${SITE}/opengraph-video.mp4`;
 export const metadata: Metadata = {
   // Open Graph needs absolute URLs
   metadataBase: new URL(SITE),
-  title: "Skullet – Smart Skeleton States",
-  description: "Smart Skeleton States.",
+  title: "Skullet 🦴 Smart skeleton states",
+  description: "Smart skeleton states.",
   openGraph: {
     type: "website",
     url: SITE,
     siteName: "Skullet",
-    title: "Skullet – Smart Skeleton States",
-    description: "Smart Skeleton States.",
+    title: "Skullet 🦴 Smart skeleton states",
+    description: "Smart skeleton states.",
     videos: [
       {
         url: VIDEO,
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     site: "@lochieaxon",
     creator: "@lochieaxon",
     title: "Skullet",
-    description: "Smart Skeleton States.",
+    description: "Smart skeleton states.",
   },
   other: {
     "msapplication-navbutton-color": "#000000",

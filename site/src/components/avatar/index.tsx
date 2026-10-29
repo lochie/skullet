@@ -5,6 +5,9 @@ const AVATARS: Record<string, string> = {
   "Lochie Axon": "https://lochie.me/avatar.jpg",
   "Alex Vanderzon": "/avatars/alex.png",
   Pugson: "/avatars/pugson.jpg",
+  USDC: "/avatars/usdc.png",
+  ETH: "/avatars/eth.png",
+  AAVE: "/avatars/aave.png",
 };
 
 const initialsOf = (name: string) => {

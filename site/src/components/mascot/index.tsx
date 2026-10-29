@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Skeleton, SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 import styles from "./styles.module.scss";
 
 const LOOK = 16; // How far the face turns toward the pointer, in viewBox units — about 4px at the homepage's 80px

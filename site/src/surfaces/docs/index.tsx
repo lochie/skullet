@@ -1,62 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { SkulletProvider, Skeleton } from "skullet/react";
+import { useState } from "react";
+import { Skeleton, SkulletProvider } from "skullet/react";
 
 import styles from "./styles.module.scss";
+import { Callout } from "@/components/callout";
 import { CodeBlock } from "@/components/codeblock";
+import { Demo } from "@/components/demo";
 import { DocsLayout } from "@/components/docs-layout";
 import { ArticleDemo } from "@/demos/article";
-import { InboxDemo } from "@/demos/inbox";
 import { ProfileDemo } from "@/demos/profile";
-import { QuoteDemo } from "@/demos/quote";
-import { StatsDemo } from "@/demos/stats";
 
-const Section = ({
-  id,
-  title,
-  children,
-}: {
-  id: string;
-  title: string;
-  children: React.ReactNode;
-}) => (
-  <section id={id} className={styles.section}>
-    <h2>
-      <a href={`#${id}`}>{title}</a>
-    </h2>
-    {children}
-  </section>
-);
+import { ThemeCreator } from "./theme-creator";
+import { InstallCommands } from "../homepage/install-cmd";
+import { Frameworks } from "../homepage/frameworks";
+import { Section } from "@/components/section";
+import { SegmentedControl } from "@/components/segmented-control";
 
-const Demo = ({ children }: { children: React.ReactNode }) => (
-  <div className={styles.demo}>
-    {children}
-    <span className={styles.hint}>Click to reload</span>
-  </div>
-);
-
-const TECHNIQUES: [string, React.ReactNode][] = [
+const HOW: [string, React.ReactNode][] = [
   [
     "Real layout",
     <>
       Your content is rendered unseen, in place, so the skeleton takes exactly
-      the space it will.
+      its space.
     </>,
   ],
-  [
-    "Widths from the text",
-    <>
-      Each line of text gets a bar as wide as that line, so a paragraph that
-      wraps to three lines gets three bars.
-    </>,
-  ],
+  ["A bar per line", <>Each line of text gets a bar as wide as that line.</>],
   [
     "Heights from the type",
-    <>
-      Bars run between the font&apos;s own lines — ascender to descender by
-      default — so they sit on the text the way the letters do.
-    </>,
+    <>Bars run between the font’s own lines, ascender to descender.</>,
   ],
   [
     "Boxes for the rest",
@@ -65,128 +38,197 @@ const TECHNIQUES: [string, React.ReactNode][] = [
     </>,
   ],
   [
-    "Filled with the closest data",
+    "The closest data",
     <>
-      The content is rendered from the data on screen, the data it last showed,
-      a shape remembered from an earlier visit, or your <code>sample</code> —
-      whichever is nearest the real thing.
+      It renders from the data on screen, the data last shown under the same{" "}
+      <code>id</code>, a shape remembered from an earlier visit, or your{" "}
+      <code>sample</code>, whichever is nearest the real thing.
     </>,
   ],
 ];
 
-const SECTIONS = [
-  ["sizing", "How sizing works"],
-  ["start", "Getting started"],
-  ["data", "Data and samples"],
-  ["plain", "Plain children"],
-  ["shapes", "Remembered shapes"],
-  ["shimmer", "One shimmer"],
-  ["reveals", "Reveals"],
-  ["images", "Images"],
-  ["suspense", "Suspense"],
-  ["accessibility", "Accessibility"],
-  ["provider", "Provider"],
-  ["theming", "Theming"],
-  ["debug", "Debugging"],
-  ["server", "Server rendering"],
-  ["frameworks", "Vue, Svelte and vanilla"],
-  ["api", "API"],
-  ["hints", "Hints"],
-  ["bars", "Single bars"],
-] as const;
+const REVEALS: [string, React.ReactNode][] = [
+  [
+    "smart",
+    <>
+      The default. Instant for a fast load, a crossfade for something small, a
+      sequence for the rest.
+    </>,
+  ],
+  ["together", <>Crossfades the whole skeleton into the content.</>],
+  ["sequence", <>Brings each piece in where its bone was, top to bottom.</>],
+  ["sweep", <>Uncovers the content behind the shimmer’s front.</>],
+];
 
-export const Docs = () => (
-  <DocsLayout sections={SECTIONS}>
+const THEME_OPTIONS: [string, React.ReactNode][] = [
+  ["light, dark", <>The bones’ fill and highlight, per colour scheme.</>],
+  [
+    "animation",
+    <>
+      <code>shimmer</code>, <code>group-shimmer</code>, <code>pulse</code> or{" "}
+      <code>none</code>. Every skeleton on the page keeps one phase, however
+      late it mounts.
+    </>,
+  ],
+  [
+    "speed",
+    <>
+      <code>slow</code> or <code>fast</code>.
+    </>,
+  ],
+  ["radius", <>Corners of text bars, as any CSS length.</>],
+  [
+    "reveal",
+    <>
+      How content replaces its skeleton. Set on the provider, not the theme; see{" "}
+      <a href="#reveals">reveals</a>.
+    </>,
+  ],
+  [
+    "text",
+    <>
+      Where text bars run: a <code>top</code> of <code>ascender</code>,{" "}
+      <code>cap-height</code> or <code>x-height</code>, to a <code>bottom</code>{" "}
+      of <code>descender</code> or <code>baseline</code>.
+    </>,
+  ],
+];
+
+type Row = [name: string, type: string, description: string];
+
+const API: [title: string, rows: Row[]][] = [
+  [
+    "SkeletonReveal",
+    [
+      ["data", "T | null", "Loading while empty; passed to children once set."],
+      ["sample", "T", "Stands in for data to draw the first skeleton."],
+      ["loading", "boolean", "Shows the skeleton, even over data."],
+      ["id", "string", "Remembers the shape under this key."],
+      ["label", "string", "Read to screen readers while loading."],
+      ["skeleton", "ReactNode", "Shown instead of the measured skeleton."],
+      ["empty", "boolean", "Shows emptyMessage in place of the content."],
+      ["error", "ReactNode", "Shown in place of the content."],
+    ],
+  ],
+  [
+    "SkeletonSuspense",
+    [
+      ["skeleton", "ReactNode", "The content, rendered from sample data."],
+      ["id", "string", "Remembers the shape under this key."],
+      ["label", "string", "Read to screen readers while suspended."],
+    ],
+  ],
+  [
+    "SkulletProvider",
+    [
+      [
+        "reveal",
+        '"smart" | "sequence" | "together" | "sweep"',
+        "How content replaces its skeleton.",
+      ],
+      ["theme", "SkeleTheme", "Colours, animation, speed, radius and text."],
+      ["mode", '"light" | "dark" | "system"', "Which colours to use."],
+      ["nonce", "string", "For a Content Security Policy."],
+      ["debug", "boolean", "Outlines every reveal and whether it moved."],
+    ],
+  ],
+  [
+    "Skeleton",
+    [
+      ["width", "number | string", "60% by default."],
+      ["height", "number | string", "1em by default."],
+      ["radius", "number | string", "The theme’s radius by default."],
+    ],
+  ],
+];
+
+const MODES = ["smart", "together", "sequence", "sweep"] as const;
+
+const RevealModes = () => {
+  const [reveal, setReveal] = useState<(typeof MODES)[number]>("smart");
+
+  return (
+    <>
+      <Demo>
+        {/* Keyed by mode, so a new choice loads again under it */}
+        <SkulletProvider key={reveal} reveal={reveal}>
+          <ArticleDemo />
+        </SkulletProvider>
+      </Demo>
+      <SegmentedControl
+        label="Reveal"
+        options={MODES}
+        value={reveal}
+        onChange={setReveal}
+      />
+      <CodeBlock
+        code={`<SkulletProvider reveal="${reveal}">
+  <App />
+</SkulletProvider>`}
+      />
+    </>
+  );
+};
+
+const Terms = ({
+  items,
+  code,
+}: {
+  items: [string, React.ReactNode][];
+  code?: boolean;
+}) => (
+  <dl className={styles.terms}>
+    {items.map(([term, description]) => (
+      <div key={term}>
+        <dt>{code ? <code>{term}</code> : term}</dt>
+        <dd>{description}</dd>
+      </div>
+    ))}
+  </dl>
+);
+
+export const Docs = ({ downloads }: { downloads?: number }) => (
+  <DocsLayout aside downloads={downloads}>
     <header className={styles.header}>
-      <h1>Docs</h1>
+      <h1>Skullet</h1>
       <p>
-        Skullet shows a skeleton of exactly what is about to load. It lays your
-        content out unseen and draws over it: a bar for every line of text, a
-        block for every image, control and button. The skeleton takes the space
-        the content will, so nothing moves when it arrives.
+        Skullet draws a skeleton of exactly what is about to load, for React,
+        Vue, Svelte and vanilla JavaScript. Your content is laid out unseen and
+        covered in <em>bones</em>, a bar for each line of text and a block for
+        each image or control, so nothing moves when it arrives.
       </p>
     </header>
 
-    <Section id="sizing" title="How sizing works">
-      <p>
-        Skullet measures your content rather than guessing at it, so nothing
-        moves when it arrives:
-      </p>
-      <dl className={styles.techniques}>
-        {TECHNIQUES.map(([term, description]) => (
-          <div key={term}>
-            <dt>{term}</dt>
-            <dd>{description}</dd>
-          </div>
-        ))}
-      </dl>
+    <Section id="install" title="Install">
+      <InstallCommands />
+      <Frameworks />
     </Section>
 
-    <Section id="start" title="Getting started">
-      <CodeBlock code="pnpm i skullet" />
+    <Section id="data" title="From data">
       <p>
-        Wrap what you would render once the data arrives. Pass the data and
-        render from it: while it&apos;s <code>null</code>, you see its skeleton.
+        Before data arrives there’s nothing to measure. Pass a{" "}
+        <code>sample</code> of the same shape: while <code>data</code> is{" "}
+        <code>null</code>, the sample is rendered unseen and measured in its
+        place. Your function only ever receives real data.
       </p>
       <Demo>
         <ProfileDemo />
       </Demo>
       <CodeBlock
-        code={`import { SkeletonReveal } from "skullet/react";
-
-<SkeletonReveal data={user} sample={SAMPLE_USER}>
+        code={`<SkeletonReveal data={user} sample={SAMPLE_USER}>
   {(user) => <Profile user={user} />}
 </SkeletonReveal>`}
       />
-    </Section>
-
-    <Section id="data" title="Data and samples">
       <p>
-        Your function only ever receives real data, so it never deals in{" "}
-        <code>user?.name</code>. While loading, skullet calls it with the best
-        stand-in it has, and measures what comes back:
+        In development, content without a <code>sample</code> logs one to paste:
+        your data’s keys and lengths, with every value replaced.
       </p>
-      <ol>
-        <li>
-          the data on screen, when you force <code>loading</code> over it;
-        </li>
-        <li>
-          the data it last showed under the same <code>id</code>, so a reload is
-          exact;
-        </li>
-        <li>the shape remembered from a previous visit;</li>
-        <li>
-          your <code>sample</code>;
-        </li>
-        <li>a few generic lines, with a warning in development.</li>
-      </ol>
-      <Demo>
-        <ArticleDemo />
-      </Demo>
-      <p>
-        A <code>sample</code> shaped like the real thing makes the very first
-        skeleton exact. In development, skullet checks: when a skeleton and its
-        content differ in size, it warns, and when data-driven content has no
-        sample, it logs one to paste — your data&apos;s keys and lengths, with
-        every value replaced.
-      </p>
-      <CodeBlock
-        code={`<SkeletonReveal data={post} sample={SAMPLE_POST}>
-  {(post) => <Article post={post} />}
-</SkeletonReveal>
-
-// Refetching: keep the data, force the skeleton — drawn from what's on screen
-<SkeletonReveal data={post} loading={isRefetching}>
-  {(post) => <Article post={post} />}
-</SkeletonReveal>`}
-      />
     </Section>
 
     <Section id="plain" title="Plain children">
       <p>
-        If you&apos;d rather toggle it yourself, pass children and{" "}
-        <code>loading</code>. The children are rendered without their data and
-        measured — empty text gets a typical line — until a reveal remembers the
+        Toggle <code>loading</code> yourself and the children are measured as
+        they are. Empty text gets a typical line until a reveal remembers the
         real shape.
       </p>
       <CodeBlock
@@ -196,140 +238,136 @@ export const Docs = () => (
       />
     </Section>
 
-    <Section id="shapes" title="Remembered shapes">
+    <Section id="custom" title="Your own skeleton">
       <p>
-        Every reveal remembers the shape of what it showed. Within a visit,
-        that&apos;s exact; across visits it&apos;s kept in{" "}
-        <code>localStorage</code> as layout only — text replaced with filler
-        spaced to wrap where the real text did, media sources and form values
-        dropped. Pass an <code>id</code> to key it; without one, skullet keys it
-        by the page and the markup&apos;s shape.
+        Some things don’t measure well: a logo, a chart, a canvas. In React,
+        give the component a static <code>.Skeleton</code> and Skullet draws
+        that instead.
       </p>
+      <CodeBlock
+        code={`import { Skeleton } from "skullet/react";
+
+Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
+      />
       <Demo>
-        <InboxDemo />
+        <Skeleton width={40} height={40} radius="50%" />
+        <Skeleton width="70%" />
+        <Skeleton width="45%" />
       </Demo>
+      <p>
+        Build your skeleton from Skullet&apos;s exported{" "}
+        <code>&lt;Skeleton&gt;</code> rather than a grey box of your own. Each
+        bar joins the page’s one shimmer, in step with every other skeleton
+        however late it mounts, and follows the theme’s colours, animation and
+        reduced motion.
+      </p>
+    </Section>
+
+    <Section id="hints" title="Hints">
+      <p>
+        Measuring gets most markup right. Where it doesn’t, mark the element:{" "}
+        <code>skullet-block</code> draws it as one block, and{" "}
+        <code>skullet-ignore</code> leaves it out.
+      </p>
+      <CodeBlock
+        code={`<div skullet-block>…</div>
+<span skullet-ignore>New</span>`}
+      />
+      <p>
+        An image with no size is flat until it loads, so its skeleton has no
+        room for it. Give images a <code>width</code> and <code>height</code>,
+        or an <code>aspect-ratio</code>.
+      </p>
+    </Section>
+
+    <Section id="memory" title="Memory">
+      <p>
+        A reveal remembers the shape it showed, so its next skeleton is exact.
+        Within a visit it keeps the real content; across visits, only the
+        layout, in <code>localStorage</code>. Pass an <code>id</code> to key it,
+        or skullet keys it by the page and the markup.
+      </p>
       <CodeBlock
         code={`<SkeletonReveal id="inbox" data={messages}>
   {(messages) => <Inbox messages={messages} />}
-</SkeletonReveal>
-
-// On sign-out
-import { forgetShapes } from "skullet";
-forgetShapes();`}
+</SkeletonReveal>`}
       />
+      <Callout>
+        <p>
+          Shapes stay in <code>localStorage</code> after sign-out, so the next
+          person on the device would see the outline of the last one’s inbox.
+          Call <code>forgetShapes()</code> on sign-out to clear them.
+        </p>
+      </Callout>
     </Section>
 
-    <Section id="shimmer" title="One shimmer">
+    <Section id="reveals" title="Reveal modes">
       <p>
-        Every skeleton on the page shares one stream of highlights sweeping
-        across it, however late each mounts — these tiles load one after
-        another. It holds still under <code>prefers-reduced-motion</code>.
+        A <em>reveal</em> is the moment content replaces its skeleton. The
+        provider’s <code>reveal</code> sets how it looks.
       </p>
-      <Demo>
-        <StatsDemo />
-      </Demo>
-    </Section>
+      <Terms items={REVEALS} code />
 
-    <Section id="reveals" title="Reveals">
+      <RevealModes />
       <p>
-        How content replaces its skeleton. <code>together</code> crossfades the
-        two whole. <code>sequence</code> brings each piece in where its bone
-        was, top to bottom. <code>sweep</code> carries the content in behind one
-        diagonal front at the shimmer&apos;s slant and pace, with a gloss
-        trailing it — giving way to a crossfade for a reveal bigger than about a
-        screen and a half, or if frames start dropping mid-way.{" "}
-        <code>smart</code>, the default, decides for each reveal as it lands:
-      </p>
-      <ol>
-        <li>
-          Someone scrolling, typing or tapping — or asking for reduced motion —
-          gets the content at once.
-        </li>
-        <li>
-          Data back within 150ms swaps straight in: a skeleton is held back that
-          long, so a fast load never flashes one. A server-rendered skeleton is
-          already on screen, and isn&apos;t held.
-        </li>
-        <li>
-          A refetch drawn from the data on screen crossfades quickly — the shape
-          is already familiar.
-        </li>
-        <li>Something small, a line or a chip, crossfades whole.</li>
-        <li>
-          Anything larger arrives in sequence: list rows and grid cards as
-          units, in screen order shared with any other reveal landing at the
-          same time, smaller text a beat behind the text it sits under.
-          What&apos;s off screen appears at once.
-        </li>
-      </ol>
-      <div className={styles.compare}>
-        {(["together", "sequence", "sweep", "smart"] as const).map((reveal) => (
-          <Demo key={reveal}>
-            <SkulletProvider reveal={reveal}>
-              <ArticleDemo />
-            </SkulletProvider>
-            <code>reveal=&quot;{reveal}&quot;</code>
-          </Demo>
-        ))}
-      </div>
-      <CodeBlock
-        code={`<SkulletProvider reveal="sequence">
-  <App />
-</SkulletProvider>`}
-      />
-    </Section>
-
-    <Section id="images" title="Images">
-      <p>
-        An image never holds anything else back. Content arrives on schedule,
-        and each image still loading keeps a bone of its own where it will be,
-        until it has loaded and decoded — then the two crossfade. One that never
-        answers gives way after ten seconds.
-      </p>
-      <p>
-        Give images a size — <code>width</code> and <code>height</code>{" "}
-        attributes, or an <code>aspect-ratio</code> — so the skeleton has room
-        for them before they load. In development, a reveal that jumps names any
-        image that had none.
+        Images never hold a reveal back. Each one still loading keeps its own
+        bone until it has decoded, then fades in. It works with any{" "}
+        <code>&lt;img&gt;</code>, <code>next/image</code> included, with no
+        wrapper to swap in.
       </p>
     </Section>
 
     <Section id="suspense" title="Suspense">
       <p>
-        <code>SkeletonSuspense</code> is a Suspense boundary whose fallback is a
-        measured skeleton. Give it the content rendered from sample data, or
-        nothing to draw the shape it last showed; when the content resolves, the
-        skeleton fades out over it.
+        <code>SkeletonSuspense</code> is a Suspense boundary with a measured
+        skeleton as its fallback. Pass the content rendered from sample data, or
+        only an <code>id</code> to draw the shape it last showed.
       </p>
-      <Demo>
-        <QuoteDemo />
-      </Demo>
       <CodeBlock
         code={`import { SkeletonSuspense } from "skullet/react";
 
 <SkeletonSuspense skeleton={<Quote quote={SAMPLE_QUOTE} />}>
-  <LoadedQuote />  {/* calls use(promise) */}
+  <LoadedQuote />
 </SkeletonSuspense>`}
       />
     </Section>
 
+    <Section id="theming" title="Theming">
+      <p>
+        Change any option and the page below re-measures with it, then copy the
+        provider.
+      </p>
+      <ThemeCreator />
+      <Terms items={THEME_OPTIONS} code />
+      <p>
+        Each option is also a custom property, like <code>--skullet-base</code>,
+        so any part of a page can set its own.
+      </p>
+    </Section>
+
+    <Section id="server" title="Server rendering">
+      <Callout>
+        <p>
+          Skip this step on React 19 or later, the stylesheet is imported for
+          you.
+        </p>
+      </Callout>
+      <p>
+        Server HTML paints before any JavaScript runs. An inline script measures
+        each skeleton before that first paint, so nothing changes on hydration.
+        The stylesheet has the same problem: import it once, so the server’s
+        HTML is styled before any script runs.
+      </p>
+      <CodeBlock code={`import "skullet/styles.css";`} />
+    </Section>
+
     <Section id="accessibility" title="Accessibility">
-      <ul>
-        <li>
-          A loading reveal is <code>aria-busy</code>, and its skeleton is hidden
-          from screen readers and <code>inert</code> — nothing in it can be
-          focused, server-rendered or not.
-        </li>
-        <li>
-          A <code>label</code> is read in the skeleton&apos;s place:{" "}
-          <code>label=&quot;Loading profile&quot;</code>.
-        </li>
-        <li>
-          Reveals and the shimmer all hold still under{" "}
-          <code>prefers-reduced-motion</code>.
-        </li>
-        <li>Content arriving never moves focus.</li>
-      </ul>
+      <p>
+        A loading reveal is <code>aria-busy</code>, and its skeleton is hidden
+        from screen readers and <code>inert</code>. A <code>label</code> is read
+        in its place. Under <code>prefers-reduced-motion</code>, bones hold
+        still and every reveal is instant.
+      </p>
       <CodeBlock
         code={`<SkeletonReveal data={user} sample={SAMPLE_USER} label="Loading profile">
   {(user) => <Profile user={user} />}
@@ -337,215 +375,44 @@ forgetShapes();`}
       />
     </Section>
 
-    <Section id="provider" title="Provider">
-      <p>
-        <code>SkulletProvider</code> sets skullet up for everything inside it.
-        It is per render, not global, so a nonce can differ per request.
-      </p>
-      <ul>
-        <li>
-          <code>theme</code> and <code>mode</code> — colours for light and dark,
-          and which to use: <code>light</code>, <code>dark</code>, or{" "}
-          <code>system</code> to follow the visitor.
-        </li>
-        <li>
-          <code>nonce</code> — set on the inline script and stylesheets skullet
-          renders, for a Content Security Policy.
-        </li>
-        <li>
-          <code>text</code> — where text bars run, in the type&apos;s own lines:
-          a <code>top</code> of <code>ascender</code>, <code>cap-height</code>{" "}
-          or <code>x-height</code>, and a <code>bottom</code> of{" "}
-          <code>baseline</code> or <code>descender</code>. The default, ascender
-          to descender, takes in hanging letters. They&apos;re the{" "}
-          <code>--skullet-text-top</code> and <code>--skullet-text-bottom</code>{" "}
-          custom properties too, so a section of a page can differ — try them in
-          the <Link href="/playground">playground</Link>.
-        </li>
-        <li>
-          <code>reveal</code> — how content replaces its skeleton, for every
-          reveal inside.
-        </li>
-        <li>
-          <code>debug</code> — the overlay below.
-        </li>
-      </ul>
-      <CodeBlock
-        code={`import { SkulletProvider } from "skullet/react";
-
-<SkulletProvider
-  nonce={nonce}
-  mode="system"
-  theme={{
-    light: { base: "rgb(0 0 0 / 0.07)", highlight: "rgb(255 255 255 / 0.6)" },
-    dark: { base: "rgb(255 255 255 / 0.08)", highlight: "rgb(255 255 255 / 0.1)" },
-  }}
-  reveal="smart"
->
-  <App />
-</SkulletProvider>`}
-      />
-      <p>
-        Without a provider, colours are the <code>--skullet-base</code> and{" "}
-        <code>--skullet-highlight</code> custom properties, so plain CSS can set
-        them too.
-      </p>
-    </Section>
-
-    <Section id="theming" title="Theming">
-      <p>
-        A theme sets colours for light and dark, how bones animate and how fast,
-        their corners, and where text bars run. Every option is a custom
-        property underneath, so any part of a page can set its own.
-      </p>
-      <p>
-        <Link href="/theming">Try them in the theme creator →</Link>
-      </p>
-    </Section>
-
     <Section id="debug" title="Debugging">
       <p>
-        The debug overlay outlines every reveal on the page: blue while it
-        loads, with where its skeleton came from — data, sample, remembered
-        shape, server render — then green if the content arrived without moving
-        anything, or red with how far it moved. Its x-ray shows the content each
-        skeleton was measured from, through its bones.
+        A skeleton that doesn’t match its content makes the page jump when it
+        reveals. The debug overlay finds those: it outlines every reveal, blue
+        while it loads, with where its skeleton came from, then green if nothing
+        moved or red with how far it did. Turn it on with <code>debug</code> on
+        the provider, or add <code>?skullet-debug</code> to the URL.
       </p>
       <p>
-        Turn it on with <code>debug</code> on the provider, by adding{" "}
-        <code>?skullet-debug</code> to the URL, or from the{" "}
-        <Link href="/playground">playground</Link>.
+        Try it in the <Link href="/docs/playground">playground</Link>.
       </p>
-    </Section>
-
-    <Section id="server" title="Server rendering">
-      <p>
-        A server-rendered skeleton is measured as the HTML is parsed: an inline
-        script follows each one, so the page&apos;s first paint already shows
-        its bones, and nothing changes when it hydrates. Under a{" "}
-        <code>SkulletProvider</code> the script is sent once a page and every
-        skeleton after it carries a one-line call to it; without one, each
-        carries the whole script. With JavaScript off, each line of text is
-        struck through with a bar instead.
-      </p>
-      <p>
-        On React 19 the stylesheet is rendered into the page for you. Anywhere
-        else, import it once:
-      </p>
-      <CodeBlock code={`import "skullet/styles.css";`} />
-    </Section>
-
-    <Section id="frameworks" title="Vue, Svelte and vanilla">
-      <CodeBlock
-        code={`<!-- Vue -->
-<SkeletonReveal :data="user" :sample="SAMPLE_USER">
-  <template #default="{ data }">
-    <Profile :user="data" />
-  </template>
-</SkeletonReveal>`}
-      />
-      <CodeBlock
-        code={`<!-- Svelte -->
-<SkeletonReveal data={user} sample={SAMPLE_USER}>
-  {#snippet children(user)}
-    <Profile {user} />
-  {/snippet}
-</SkeletonReveal>`}
-      />
-      <CodeBlock
-        code={`import { Reveal } from "skullet";
-
-const reveal = new Reveal(element, { id: "profile" });
-reveal.load(renderProfile(SAMPLE_USER));
-reveal.show(renderProfile(user));
-reveal.load(); // drawn from the profile last shown`}
-      />
     </Section>
 
     <Section id="api" title="API">
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>Prop</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {[
-            [
-              "data",
-              "T | null",
-              "Loading while empty; passed to children once it isn't.",
-            ],
-            ["sample", "T", "Stands in for data to draw the first skeleton."],
-            ["loading", "boolean", "Shows the skeleton. Wins over data."],
-            ["label", "string", "Read to screen readers while loading."],
-            [
-              "id",
-              "string",
-              "Remembers the shape across visits under this key.",
-            ],
-            [
-              "skeleton",
-              "ReactNode",
-              "Shown while loading instead of the measured skeleton.",
-            ],
-            ["error", "ReactNode", "Shown instead of the content when set."],
-            [
-              "empty",
-              "boolean",
-              "Shows emptyMessage, or the content if there's none.",
-            ],
-            ["emptyMessage", "ReactNode", ""],
-          ].map(([prop, type, description]) => (
-            <tr key={prop}>
-              <td>
-                <code>{prop}</code>
-              </td>
-              <td>
-                <code>{type}</code>
-              </td>
-              <td>{description}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {API.map(([title, rows]) => (
+        <div key={title} className={styles.api}>
+          <h3>
+            <code>{title}</code>
+          </h3>
+          <table className={styles.table}>
+            <tbody>
+              {rows.map(([name, type, description]) => (
+                <tr key={name}>
+                  <td>
+                    <code>{name}</code>
+                  </td>
+                  <td>{type && <code>{type}</code>}</td>
+                  <td>{description}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
     </Section>
 
-    <Section id="hints" title="Hints">
-      <ul>
-        <li>
-          <code>skullet-block</code> draws an element as one block.
-        </li>
-        <li>
-          <code>skullet-ignore</code> draws nothing for an element.
-        </li>
-        <li>
-          In React, a component with a static <code>Skeleton</code> is rendered
-          as that instead.
-        </li>
-        <li>Give images a size, so their box is known before they load.</li>
-      </ul>
-      <CodeBlock
-        code={`<div skullet-block>…</div>
-
-Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
-      />
-    </Section>
-
-    <Section id="bars" title="Single bars">
-      <p>For a skeleton of your own, a bar on the same shimmer.</p>
-      <div className={styles.bars}>
-        <Skeleton width="70%" />
-        <Skeleton width="45%" />
-        <Skeleton width={40} height={40} radius="50%" />
-      </div>
-      <CodeBlock
-        code={`import { SkulletProvider, Skeleton } from "skullet/react";
-
-<Skeleton width="70%" height="1em" radius="0.25em" />`}
-      />
+    <Section id="how" title="How it works">
+      <Terms items={HOW} />
     </Section>
   </DocsLayout>
 );

@@ -1,7 +1,6 @@
 import styles from "./styles.module.scss";
 
 import { version } from "./../../../../packages/skullet/package.json";
-import Link from "next/link";
 
 export const Footer = () => {
   return (
@@ -32,12 +31,6 @@ export const Footer = () => {
         >
           GitHub
         </a>
-        {" • "}
-        <Link href="/docs">Docs</Link>
-        {" • "}
-        <Link href="/theming">Theming</Link>
-        {" • "}
-        <Link href="/playground">Playground</Link>
       </div>
     </footer>
   );

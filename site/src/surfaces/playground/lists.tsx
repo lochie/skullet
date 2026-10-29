@@ -2,6 +2,8 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { SkeletonReveal } from "skullet/react";
 
 import styles from "./styles.module.scss";
+import { Demo } from "@/components/demo";
+import { SegmentedControl } from "@/components/segmented-control";
 
 type Row = { id: number; name: string; amount: string; when: string };
 
@@ -103,7 +105,6 @@ const PerPage = () => {
 
   return (
     <div className={styles.listColumn}>
-      <h4>One reveal per page</h4>
       <div ref={frame} className={styles.listFrame}>
         {pages.map((rows, i) => (
           <SkeletonReveal key={i} data={rows} sample={SAMPLE}>
@@ -135,7 +136,6 @@ const Whole = () => {
 
   return (
     <div className={styles.listColumn}>
-      <h4>One reveal for the whole list</h4>
       <div ref={frame} className={styles.listFrame}>
         <SkeletonReveal data={rows} loading={loading}>
           {(rows) => <Rows rows={rows} />}
@@ -149,9 +149,28 @@ const Whole = () => {
   );
 };
 
-export const Lists = () => (
-  <div className={styles.lists}>
-    <PerPage />
-    <Whole />
-  </div>
-);
+const KINDS = ["page", "list"] as const;
+const KIND_LABELS = {
+  page: "One reveal per page",
+  list: "One for the whole list",
+};
+
+export const Lists = () => {
+  const [kind, setKind] = useState<(typeof KINDS)[number]>("page");
+
+  return (
+    <Demo
+      controls={
+        <SegmentedControl
+          label="Reveals"
+          options={KINDS}
+          value={kind}
+          onChange={setKind}
+          format={(option) => KIND_LABELS[option]}
+        />
+      }
+    >
+      {kind === "page" ? <PerPage /> : <Whole />}
+    </Demo>
+  );
+};

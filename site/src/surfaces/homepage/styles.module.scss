@@ -50,22 +50,15 @@
   flex-direction: column;
   gap: 0.25rem;
 
+  max-width: 12rem;
+  margin: 0 auto;
+
   h1 {
     text-align: center;
     font-size: 1.5rem;
     font-weight: 500;
     color: #ffffff;
     font-weight: 500;
-  }
-
-  .framework {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    img {
-      display: block;
-    }
   }
 
   button {
@@ -87,10 +80,6 @@
       }
     }
   }
-}
-
-.docs {
-  width: 100%;
 }
 
 .install {

@@ -1,0 +1,33 @@
+.control {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.125rem;
+  align-self: flex-start;
+  padding: 0.1875rem;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--border);
+
+  button {
+    padding: 0.3125rem 0.75rem;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-muted);
+    transition: 100ms ease;
+    transition-property: color, background;
+
+    &:hover {
+      color: var(--color);
+    }
+
+    &[aria-checked="true"] {
+      color: #ffffff;
+      background: rgb(255 255 255 / 0.08);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-color);
+      outline-offset: 1px;
+    }
+  }
+}

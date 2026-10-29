@@ -10,7 +10,7 @@ type User = { name: string; handle: string };
 const USER: User = { name: "Lochie Axon", handle: "@lochieaxon" };
 
 export const ProfileDemo = () => {
-  const [user, reload] = useLoad(USER, 900);
+  const user = useLoad(USER, 900);
 
   return (
     <div className={styles.card}>

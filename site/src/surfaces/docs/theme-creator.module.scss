@@ -1,21 +1,42 @@
+@use "../../components/docs-layout/aside";
+
 .creator {
-  display: grid;
-  grid-template-columns: 15rem minmax(0, 1fr);
+  position: relative;
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
+}
 
-  > :last-child {
-    grid-column: 1 / -1;
-  }
+// Out in the docs layout's aside column, alongside the creator for as long as it's on screen
+.panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(100% + 4rem);
+  width: 15rem;
 
-  @media (max-width: 860px) {
-    grid-template-columns: minmax(0, 1fr);
+  @media (max-width: aside.$breakpoint) {
+    position: static;
+    width: auto;
   }
 }
 
 .controls {
+  position: sticky;
+  top: 5rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.875rem;
+  background: var(--bg-1);
+
+  @media (max-width: aside.$breakpoint) {
+    position: static;
+    padding: 0;
+    border: 0;
+  }
 }
 
 .field {
@@ -26,26 +47,6 @@
   > span {
     font-size: 0.75rem;
     color: var(--color-muted);
-  }
-}
-
-.options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-
-  button {
-    padding: 0.25rem 0.625rem;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    color: var(--color);
-
-    &[data-active="true"] {
-      color: #ffffff;
-      border-color: var(--color-muted);
-    }
   }
 }
 

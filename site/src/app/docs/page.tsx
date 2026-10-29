@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+import { getDownloads } from "@/components/docs-layout/downloads";
 import { Docs } from "@/surfaces/docs";
 
 export const metadata: Metadata = {
-  title: "Docs – Skullet",
+  title: "Docs 🦴 Skullet",
   description:
     "Skeletons measured from your content, for React, Vue, Svelte and vanilla JavaScript.",
 };
 
-export default function Page() {
-  return <Docs />;
+export default async function Page() {
+  return <Docs downloads={await getDownloads()} />;
 }

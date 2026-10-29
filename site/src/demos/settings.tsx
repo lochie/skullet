@@ -12,7 +12,7 @@ const SETTINGS: Setting[] = [
 ];
 
 export const SettingsDemo = () => {
-  const [settings] = useLoad(SETTINGS, 700);
+  const settings = useLoad(SETTINGS, 700);
 
   return (
     <div className={styles.frame}>

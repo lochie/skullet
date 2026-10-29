@@ -1,6 +1,7 @@
 import { SkeletonReveal } from "skullet/react";
 
 import styles from "./preview-page.module.scss";
+import { Avatar } from "@/components/avatar";
 
 export const REGIONS = [
   "topbar",
@@ -50,7 +51,7 @@ export const PreviewPage = ({
   <div className={styles.page}>
     <SkeletonReveal loading={loading("topbar")}>
       <header className={styles.topbar}>
-        <span className={styles.logo}>Ledger</span>
+        <span className={styles.logo}>Dashboard</span>
         <nav>
           <span>Dashboard</span>
           <span>Docs</span>
@@ -77,8 +78,8 @@ export const PreviewPage = ({
         <SkeletonReveal loading={loading("header")}>
           <div className={styles.heading}>
             <div>
-              <h2>Good morning, Lochie</h2>
-              <p>Here&apos;s what happened with your business this week.</p>
+              <h2>Good morning</h2>
+              <p>Here’s what happened with your business this week.</p>
             </div>
             <span className={styles.button}>New invoice</span>
           </div>
@@ -103,7 +104,8 @@ export const PreviewPage = ({
               <p>Last 12 weeks</p>
               <div className={styles.chart}>
                 {BARS.map((height, i) => (
-                  <span key={i} style={{ height: `${height}%` }} />
+                  // Not a span: an empty text tag gets filler to measure, which would widen it
+                  <div key={i} style={{ height: `${height}%` }} />
                 ))}
               </div>
             </section>
@@ -114,13 +116,8 @@ export const PreviewPage = ({
               <h3>Activity</h3>
               <ul className={styles.activity}>
                 {ACTIVITY.map((item) => (
-                  <li key={item.who}>
-                    <span className={styles.initials}>
-                      {item.who
-                        .split(" ")
-                        .map((part) => part[0])
-                        .join("")}
-                    </span>
+                  <li key={item.who + item.when}>
+                    <Avatar name={item.who} size={24} />
                     <span className={styles.line}>
                       <b>{item.who}</b> {item.what}
                     </span>
@@ -138,9 +135,9 @@ export const PreviewPage = ({
             <div>
               <h3>Closing the books faster</h3>
               <p>
-                Reconciling a month of payments shouldn&apos;t take a week. Here
-                is how teams on Ledger close in a day — matching payouts as they
-                land, and flagging only what needs a person.
+                Reconciling a month of payments shouldn’t take a week. Here is
+                how teams close in a day, matching payouts as they land, and
+                flagging only what needs a person.
               </p>
               <span className={styles.meta}>Guides · 6 min read</span>
             </div>

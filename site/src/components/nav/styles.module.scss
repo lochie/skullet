@@ -1,0 +1,22 @@
+.nav {
+  ul {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: rgba(255, 255, 255, 0.12);
+    li {
+      a {
+        display: block;
+        color: var(--color-muted);
+        transition: color 100ms ease;
+        &:hover {
+          color: #fff;
+        }
+
+        &:before {
+          display: none;
+        }
+      }
+    }
+  }
+}

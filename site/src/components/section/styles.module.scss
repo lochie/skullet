@@ -1,0 +1,44 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  scroll-margin-top: 2rem;
+
+  > h2 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #ffffff;
+
+    a {
+      color: inherit;
+    }
+  }
+
+  // Not inside a specimen: page markup under test, which keeps its own styles
+  :is(p, li):not([data-specimen] *) {
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--color);
+  }
+
+  ol,
+  ul {
+    padding-bottom: 0;
+  }
+
+  // Inline, unlike the global `code`, which is styled as a block to copy
+  :is(p, li, td, dd, dt, h3):not([data-specimen] *) code {
+    display: inline;
+    padding: 0;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    line-height: inherit;
+    color: #ffffff;
+    user-select: auto;
+
+    &::before,
+    &::after {
+      content: none;
+    }
+  }
+}

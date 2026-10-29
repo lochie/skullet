@@ -16,9 +16,15 @@ import {
   type SkulletAnimation,
   type SkulletSpeed,
 } from "skullet";
-import { SkulletProvider, SkeletonReveal, SkeletonSuspense } from "skullet/react";
+import {
+  SkulletProvider,
+  SkeletonReveal,
+  SkeletonSuspense,
+} from "skullet/react";
 
 import styles from "./styles.module.scss";
+import { Demo } from "@/components/demo";
+import { SegmentedControl } from "@/components/segmented-control";
 
 type Post = { id: number; name: string; meta: string; text: string };
 
@@ -73,25 +79,16 @@ const Button = ({ children, ...props }: ComponentProps<"button">) => (
   </button>
 );
 
-const Choice = <T extends string>({
-  options,
-  value,
-  onChange,
+const Field = ({
+  label,
+  children,
 }: {
-  options: readonly T[];
-  value: T;
-  onChange: (value: T) => void;
+  label: string;
+  children: React.ReactNode;
 }) => (
-  <div className={styles.segmented}>
-    {options.map((option) => (
-      <button
-        key={option}
-        data-active={option === value}
-        onClick={() => onChange(option)}
-      >
-        {option}
-      </button>
-    ))}
+  <div className={styles.toolbarField}>
+    {label}
+    {children}
   </div>
 );
 
@@ -143,6 +140,7 @@ const DELAYS = { fast: 80, typical: 1200, slow: 2800 } as const;
 type Delay = keyof typeof DELAYS;
 
 export const RevealModes = () => {
+  const [mode, setMode] = useState<RevealMode>("smart");
   const [delay, setDelay] = useState<Delay>("typical");
   const [seed, setSeed] = useState(1);
   const [posts, setPosts] = useState<Post[] | null>(null);
@@ -171,46 +169,42 @@ export const RevealModes = () => {
   }, []);
 
   return (
-    <div className={styles.featureStack}>
-      <div className={styles.toolbar}>
-        <label>
-          Response
-          <Choice
-            options={Object.keys(DELAYS) as Delay[]}
-            value={delay}
-            onChange={setDelay}
-          />
-        </label>
-        <div className={styles.toolbarActions}>
+    <Demo
+      controls={
+        <>
+          <Field label="Reveal">
+            <SegmentedControl
+              label="Reveal"
+              options={MODES}
+              value={mode}
+              onChange={setMode}
+            />
+          </Field>
+          <Field label="Response">
+            <SegmentedControl
+              label="Response"
+              options={Object.keys(DELAYS) as Delay[]}
+              value={delay}
+              onChange={setDelay}
+            />
+          </Field>
           <Button onClick={() => load(false)} disabled={fetching}>
-            Load
+            Load feed
           </Button>
           <Button onClick={() => load(true)} disabled={fetching}>
             Refetch, keeping data
           </Button>
+        </>
+      }
+    >
+      <SkulletProvider reveal={mode}>
+        <div className={styles.frame}>
+          <SkeletonReveal data={posts} loading={fetching} sample={SAMPLE_FEED}>
+            {(posts) => <Feed posts={posts} />}
+          </SkeletonReveal>
         </div>
-      </div>
-      <div className={styles.columns} data-count={MODES.length}>
-        {MODES.map((mode) => (
-          <div key={mode} className={styles.column}>
-            <h4>
-              <code>{mode}</code>
-            </h4>
-            <SkulletProvider reveal={mode}>
-              <div className={styles.frame}>
-                <SkeletonReveal
-                  data={posts}
-                  loading={fetching}
-                  sample={SAMPLE_FEED}
-                >
-                  {(posts) => <Feed posts={posts} />}
-                </SkeletonReveal>
-              </div>
-            </SkulletProvider>
-          </div>
-        ))}
-      </div>
-    </div>
+      </SkulletProvider>
+    </Demo>
   );
 };
 
@@ -228,7 +222,7 @@ const PROFILES: Profile[] = [
   {
     name: "Lochie Axon",
     role: "Design engineer",
-    bio: "Builds the libraries behind the interface — skeletons, text morphs and the small motion details that hold a page together.",
+    bio: "Builds the libraries behind the interface: skeletons, text morphs and the small motion details that hold a page together.",
   },
   {
     name: "Jack Skellington",
@@ -253,7 +247,7 @@ const SOURCES = [
     key: "markup",
     title: "Markup",
     detail:
-      "Plain children with a loading prop — the content is its own skeleton.",
+      "Plain children with a loading prop. The content is its own skeleton.",
   },
   {
     key: "auto",
@@ -328,6 +322,7 @@ const Source = ({
 };
 
 export const Sources = () => {
+  const [source, setSource] = useState<SourceKey>("markup");
   const [round, setRound] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -342,10 +337,19 @@ export const Sources = () => {
     return () => window.clearTimeout(timeout);
   }, [loading, round]);
 
+  const detail = SOURCES.find((s) => s.key === source)!.detail;
+
   return (
-    <div className={styles.featureStack}>
-      <div className={styles.toolbar}>
-        <div className={styles.toolbarActions}>
+    <Demo
+      controls={
+        <>
+          <SegmentedControl
+            label="Source"
+            options={SOURCES.map((s) => s.key)}
+            value={source}
+            onChange={setSource}
+            format={(key) => SOURCES.find((s) => s.key === key)!.title}
+          />
           <Button onClick={load} disabled={loading}>
             Load again
           </Button>
@@ -358,18 +362,12 @@ export const Sources = () => {
           >
             Forget shapes and load
           </Button>
-        </div>
-      </div>
-      <div className={styles.columns} data-count={4}>
-        {SOURCES.map((source) => (
-          <div key={source.key} className={styles.column}>
-            <h4>{source.title}</h4>
-            <p>{source.detail}</p>
-            <Source source={source.key} round={round} loading={loading} />
-          </div>
-        ))}
-      </div>
-    </div>
+        </>
+      }
+    >
+      <p className={styles.demoNote}>{detail}</p>
+      <Source key={source} source={source} round={round} loading={loading} />
+    </Demo>
   );
 };
 
@@ -384,35 +382,42 @@ const ANIMATIONS: SkulletAnimation[] = [
 const SPEEDS: SkulletSpeed[] = ["slow", "fast"];
 
 export const Animations = () => {
+  const [animation, setAnimation] = useState<SkulletAnimation>("shimmer");
   const [speed, setSpeed] = useState<SkulletSpeed>("slow");
 
   return (
-    <div className={styles.featureStack}>
-      <div className={styles.toolbar}>
-        <label>
-          Speed
-          <Choice options={SPEEDS} value={speed} onChange={setSpeed} />
-        </label>
+    <Demo
+      controls={
+        <>
+          <Field label="Animation">
+            <SegmentedControl
+              label="Animation"
+              options={ANIMATIONS}
+              value={animation}
+              onChange={setAnimation}
+            />
+          </Field>
+          <Field label="Speed">
+            <SegmentedControl
+              label="Speed"
+              options={SPEEDS}
+              value={speed}
+              onChange={setSpeed}
+            />
+          </Field>
+        </>
+      }
+    >
+      <div
+        className={styles.frame}
+        style={themeVariables({ animation, speed }) as CSSProperties}
+      >
+        {/* Keyed by the theme: the animation is read from it as it starts */}
+        <SkeletonReveal key={animation + speed} loading>
+          <ProfileCard profile={PROFILES[1]!} />
+        </SkeletonReveal>
       </div>
-      <div className={styles.columns} data-count={2}>
-        {ANIMATIONS.map((animation) => (
-          <div key={animation} className={styles.column}>
-            <h4>
-              <code>{animation}</code>
-            </h4>
-            <div
-              className={styles.frame}
-              style={themeVariables({ animation, speed }) as CSSProperties}
-            >
-              {/* Keyed by speed: the animation is read from the theme as it starts */}
-              <SkeletonReveal key={speed} loading>
-                <ProfileCard profile={PROFILES[1]!} />
-              </SkeletonReveal>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    </Demo>
   );
 };
 
@@ -423,7 +428,7 @@ type Quote = { text: string; author: string };
 const QUOTES: Quote[] = [
   { text: "Nothing should move when it loads.", author: "Lochie Axon" },
   {
-    text: "A loading state is the first impression — design it like the rest of the product.",
+    text: "A loading state is the first impression. Design it like the rest of the product.",
     author: "Alex Vanderzon",
   },
   {
@@ -446,6 +451,13 @@ const LoadedQuote = ({ quote }: { quote: Promise<Quote> }) => (
 
 const subscribe = () => () => {};
 
+const FALLBACKS = ["skeleton", "id"] as const;
+type Fallback = (typeof FALLBACKS)[number];
+const FALLBACK_LABELS: Record<Fallback, string> = {
+  skeleton: "skeleton",
+  id: "id only",
+};
+
 export const Suspense = () => {
   // A promise made while rendering on the server can't reach the browser,
   // so quotes are fetched once hydrated; until then, the same skeleton
@@ -455,6 +467,7 @@ export const Suspense = () => {
     () => false,
   );
   const [round, setRound] = useState(0);
+  const [fallback, setFallback] = useState<Fallback>("skeleton");
   const [quotes] = useState(() => new Map<string, Promise<Quote>>());
   const quoteFor = (key: string) => {
     if (!quotes.has(key)) {
@@ -472,68 +485,46 @@ export const Suspense = () => {
   };
 
   return (
-    <div className={styles.featureStack}>
-      <div className={styles.toolbar}>
-        <div className={styles.toolbarActions}>
+    <Demo
+      controls={
+        <>
+          <Field label="Fallback">
+            <SegmentedControl
+              label="Fallback"
+              options={FALLBACKS}
+              value={fallback}
+              onChange={setFallback}
+              format={(option) => FALLBACK_LABELS[option]}
+            />
+          </Field>
           <Button onClick={() => setRound(round + 1)}>Suspend again</Button>
-        </div>
+        </>
+      }
+    >
+      <div className={styles.frame}>
+        {!hydrated ? (
+          <SkeletonReveal data={null} sample={QUOTES[0]!} label="Loading quote">
+            {(quote) => <QuoteCard quote={quote} />}
+          </SkeletonReveal>
+        ) : fallback === "skeleton" ? (
+          <SkeletonSuspense
+            key={round}
+            skeleton={<QuoteCard quote={QUOTES[0]!} />}
+            label="Loading quote"
+          >
+            <LoadedQuote quote={quoteFor(`given-${round}`)} />
+          </SkeletonSuspense>
+        ) : (
+          <SkeletonSuspense
+            key={round}
+            id="playground-quote"
+            label="Loading quote"
+          >
+            <LoadedQuote quote={quoteFor(`remembered-${round}`)} />
+          </SkeletonSuspense>
+        )}
       </div>
-      <div className={styles.columns} data-count={2}>
-        <div className={styles.column}>
-          <h4>
-            With <code>skeleton</code>
-          </h4>
-          <p>Measured from a quote rendered with sample data.</p>
-          <div className={styles.frame}>
-            {hydrated ? (
-              <SkeletonSuspense
-                key={round}
-                skeleton={<QuoteCard quote={QUOTES[0]!} />}
-                label="Loading quote"
-              >
-                <LoadedQuote quote={quoteFor(`given-${round}`)} />
-              </SkeletonSuspense>
-            ) : (
-              <SkeletonReveal
-                data={null}
-                sample={QUOTES[0]!}
-                label="Loading quote"
-              >
-                {(quote) => <QuoteCard quote={quote} />}
-              </SkeletonReveal>
-            )}
-          </div>
-        </div>
-        <div className={styles.column}>
-          <h4>
-            With <code>id</code> only
-          </h4>
-          <p>
-            Drawn from the shape remembered last time — nothing on a first
-            visit, then the last quote&apos;s shape.
-          </p>
-          <div className={styles.frame}>
-            {hydrated ? (
-              <SkeletonSuspense
-                key={round}
-                id="playground-quote"
-                label="Loading quote"
-              >
-                <LoadedQuote quote={quoteFor(`remembered-${round}`)} />
-              </SkeletonSuspense>
-            ) : (
-              <SkeletonReveal
-                data={null}
-                sample={QUOTES[0]!}
-                label="Loading quote"
-              >
-                {(quote) => <QuoteCard quote={quote} />}
-              </SkeletonReveal>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+    </Demo>
   );
 };
 
@@ -592,48 +583,43 @@ export const Accessibility = () => {
   }, []);
 
   return (
-    <div className={styles.featureStack}>
-      <div className={styles.toolbar}>
-        <div className={styles.toolbarActions}>
-          <Button onClick={() => setLoading(true)} disabled={loading}>
-            Load again
-          </Button>
-        </div>
+    <Demo
+      controls={
+        <Button onClick={() => setLoading(true)} disabled={loading}>
+          Load again
+        </Button>
+      }
+    >
+      <div ref={frame} className={styles.frame}>
+        <SkeletonReveal
+          data={loading ? null : PROFILES[0]!}
+          sample={SAMPLE_PROFILE}
+          label="Loading profile"
+        >
+          {(profile) => <ProfileCard profile={profile} />}
+        </SkeletonReveal>
       </div>
-      <div className={styles.columns} data-count={2}>
-        <div className={styles.column}>
-          <div ref={frame} className={styles.frame}>
-            <SkeletonReveal
-              data={loading ? null : PROFILES[0]!}
-              sample={SAMPLE_PROFILE}
-              label="Loading profile"
-            >
-              {(profile) => <ProfileCard profile={profile} />}
-            </SkeletonReveal>
-          </div>
-        </div>
-        <dl className={styles.readout}>
-          <dt>aria-busy</dt>
-          <dd data-on={readout?.busy}>{readout?.busy ? "true" : "—"}</dd>
-          <dt>Announced</dt>
-          <dd data-on={!!readout?.busy}>
-            {readout?.busy ? `“${readout.status}”` : "the content"}
-          </dd>
-          <dt>Skeleton</dt>
-          <dd data-on={!!readout?.busy}>
-            {readout?.busy
-              ? [readout.inert && "inert", readout.hidden && "aria-hidden"]
-                  .filter(Boolean)
-                  .join(", ")
-              : "—"}
-          </dd>
-          <dt>Reduced motion</dt>
-          <dd data-on={reduced}>
-            {reduced ? "on — still bones, instant reveals" : "off"}
-          </dd>
-        </dl>
-      </div>
-    </div>
+      <dl className={styles.readout}>
+        <dt>aria-busy</dt>
+        <dd data-on={readout?.busy}>{readout?.busy ? "true" : "—"}</dd>
+        <dt>Announced</dt>
+        <dd data-on={!!readout?.busy}>
+          {readout?.busy ? `“${readout.status}”` : "the content"}
+        </dd>
+        <dt>Skeleton</dt>
+        <dd data-on={!!readout?.busy}>
+          {readout?.busy
+            ? [readout.inert && "inert", readout.hidden && "aria-hidden"]
+                .filter(Boolean)
+                .join(", ")
+            : "—"}
+        </dd>
+        <dt>Reduced motion</dt>
+        <dd data-on={reduced}>
+          {reduced ? "on: still bones, instant reveals" : "off"}
+        </dd>
+      </dl>
+    </Demo>
   );
 };
 
@@ -691,39 +677,22 @@ export const Images = () => {
   };
 
   return (
-    <div className={styles.featureStack}>
-      <div className={styles.toolbar}>
-        <div className={styles.toolbarActions}>
-          <Button onClick={load} disabled={loading}>
-            Load with new images
-          </Button>
-        </div>
+    <Demo
+      controls={
+        <Button onClick={load} disabled={loading}>
+          Load with new images
+        </Button>
+      }
+    >
+      <div className={styles.frame}>
+        <SkeletonReveal
+          data={loading ? null : shots(round, query)}
+          sample={shots(0)}
+        >
+          {(shots) => <Shots shots={shots} />}
+        </SkeletonReveal>
       </div>
-      <div className={styles.columns} data-count={2}>
-        {(["together", "smart"] as const).map((mode) => (
-          <div key={mode} className={styles.column}>
-            <h4>
-              <code>{mode}</code>
-            </h4>
-            <p>
-              {mode === "together"
-                ? "Waits for every image, up to 600ms, then fades in whole."
-                : "Text arrives on time; each image's bone holds until that image has loaded."}
-            </p>
-            <SkulletProvider reveal={mode}>
-              <div className={styles.frame}>
-                <SkeletonReveal
-                  data={loading ? null : shots(round, query)}
-                  sample={shots(0)}
-                >
-                  {(shots) => <Shots shots={shots} />}
-                </SkeletonReveal>
-              </div>
-            </SkulletProvider>
-          </div>
-        ))}
-      </div>
-    </div>
+    </Demo>
   );
 };
 
@@ -731,7 +700,7 @@ export const Images = () => {
 
 const BIOS = {
   short: "Builds skeletons.",
-  long: "Builds the libraries behind the interface — skeletons, text morphs and the small motion details that hold a page together. Currently measuring every line of text on the page.",
+  long: "Builds the libraries behind the interface: skeletons, text morphs and the small motion details that hold a page together. Currently measuring every line of text on the page.",
 };
 
 export const Resizing = () => {
@@ -751,40 +720,37 @@ export const Resizing = () => {
   };
 
   return (
-    <div className={styles.featureStack}>
-      <div className={styles.toolbar}>
-        <div className={styles.toolbarActions}>
+    <Demo
+      controls={
+        <>
           <Button onClick={() => load("short")} disabled={loading}>
             Load a shorter bio
           </Button>
           <Button onClick={() => load("long")} disabled={loading}>
             Load a longer bio
           </Button>
-        </div>
+        </>
+      }
+    >
+      <div ref={frame} className={styles.frame}>
+        <SkeletonReveal
+          data={loading ? null : { ...PROFILES[0]!, bio: BIOS[bio] }}
+          sample={PROFILES[0]!}
+        >
+          {(profile) => <ProfileCard profile={profile} />}
+        </SkeletonReveal>
       </div>
-      <div className={styles.columns} data-count={2}>
-        <div className={styles.column}>
-          <div ref={frame} className={styles.frame}>
-            <SkeletonReveal
-              data={loading ? null : { ...PROFILES[0]!, bio: BIOS[bio] }}
-              sample={PROFILES[0]!}
-            >
-              {(profile) => <ProfileCard profile={profile} />}
-            </SkeletonReveal>
-          </div>
-          <span
-            className={styles.moved}
-            data-jump={loading || moved === null ? undefined : moved !== 0}
-          >
-            {loading || moved === null
-              ? "loading…"
-              : moved === 0
-                ? "no movement"
-                : `eased ${moved > 0 ? "+" : ""}${moved}px`}
-          </span>
-        </div>
-      </div>
-    </div>
+      <span
+        className={styles.moved}
+        data-jump={loading || moved === null ? undefined : moved !== 0}
+      >
+        {loading || moved === null
+          ? "loading…"
+          : moved === 0
+            ? "no movement"
+            : `eased ${moved > 0 ? "+" : ""}${moved}px`}
+      </span>
+    </Demo>
   );
 };
 
@@ -811,59 +777,58 @@ export const States = () => {
 
   const done = !loading;
   return (
-    <div className={styles.featureStack}>
-      <div className={styles.toolbar}>
-        <div className={styles.toolbarActions}>
+    <Demo
+      controls={
+        <>
           <Button onClick={() => load("content")} disabled={loading}>
             Load the team
           </Button>
           <Button onClick={() => load("empty")} disabled={loading}>
-            Load nobody
+            Load an empty team
           </Button>
           <Button onClick={() => load("error")} disabled={loading}>
-            Fail
+            Load an error
           </Button>
-        </div>
+        </>
+      }
+    >
+      <div className={styles.frame}>
+        <SkeletonReveal
+          data={
+            loading || outcome === "error"
+              ? null
+              : outcome === "empty"
+                ? []
+                : TEAM
+          }
+          sample={TEAM}
+          empty={done && outcome === "empty"}
+          emptyMessage={
+            <p className={styles.feedMeta}>No one on this team yet.</p>
+          }
+          error={
+            done &&
+            outcome === "error" && (
+              <p className={styles.stateError}>
+                Couldn’t load the team.{" "}
+                <button onClick={() => load("content")}>Retry</button>
+              </p>
+            )
+          }
+        >
+          {(team) => (
+            <ul className={styles.team}>
+              {team.map((member) => (
+                <li key={member.name}>
+                  <span className={styles.feedName}>{member.name}</span>
+                  <span className={styles.feedMeta}>{member.team}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </SkeletonReveal>
       </div>
-      <div className={styles.columns} data-count={2}>
-        <div className={styles.frame}>
-          <SkeletonReveal
-            data={
-              loading || outcome === "error"
-                ? null
-                : outcome === "empty"
-                  ? []
-                  : TEAM
-            }
-            sample={TEAM}
-            empty={done && outcome === "empty"}
-            emptyMessage={
-              <p className={styles.feedMeta}>No one on this team yet.</p>
-            }
-            error={
-              done &&
-              outcome === "error" && (
-                <p className={styles.stateError}>
-                  Couldn&apos;t load the team.{" "}
-                  <button onClick={() => load("content")}>Retry</button>
-                </p>
-              )
-            }
-          >
-            {(team) => (
-              <ul className={styles.team}>
-                {team.map((member) => (
-                  <li key={member.name}>
-                    <span className={styles.feedName}>{member.name}</span>
-                    <span className={styles.feedMeta}>{member.team}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </SkeletonReveal>
-        </div>
-      </div>
-    </div>
+    </Demo>
   );
 };
 
@@ -904,21 +869,31 @@ const HINTS = [
   },
 ] as const;
 
-export const Hints = () => (
-  <div className={styles.columns} data-count={3}>
-    {HINTS.map(({ title, hint, detail }) => (
-      <div key={title} className={styles.column}>
-        <h4>{hint ? <code>{title}</code> : title}</h4>
-        <p>{detail}</p>
-        <div className={styles.frame}>
-          <SkeletonReveal loading>
-            <Tagged hint={hint} />
-          </SkeletonReveal>
-        </div>
+export const Hints = () => {
+  const [index, setIndex] = useState(0);
+  const { hint, detail } = HINTS[index]!;
+
+  return (
+    <Demo
+      controls={
+        <SegmentedControl
+          label="Hint"
+          options={HINTS.map((_, i) => i)}
+          value={index}
+          onChange={setIndex}
+          format={(i) => HINTS[i]!.title}
+        />
+      }
+    >
+      <p className={styles.demoNote}>{detail}</p>
+      <div className={styles.frame}>
+        <SkeletonReveal key={index} loading>
+          <Tagged hint={hint} />
+        </SkeletonReveal>
       </div>
-    ))}
-  </div>
-);
+    </Demo>
+  );
+};
 
 /* Scoped themes */
 
@@ -959,18 +934,28 @@ const SCOPES = [
   },
 ];
 
-export const ScopedThemes = () => (
-  <div className={styles.columns} data-count={3}>
-    {SCOPES.map((scope) => (
-      <div key={scope.title} className={styles.column}>
-        <h4>{scope.title}</h4>
-        <p>{scope.detail}</p>
-        <div className={styles.frame} style={scope.style as CSSProperties}>
-          <SkeletonReveal loading>
-            <ProfileCard profile={PROFILES[1]!} />
-          </SkeletonReveal>
-        </div>
+export const ScopedThemes = () => {
+  const [index, setIndex] = useState(0);
+  const scope = SCOPES[index]!;
+
+  return (
+    <Demo
+      controls={
+        <SegmentedControl
+          label="Theme"
+          options={SCOPES.map((_, i) => i)}
+          value={index}
+          onChange={setIndex}
+          format={(i) => SCOPES[i]!.title}
+        />
+      }
+    >
+      <p className={styles.demoNote}>{scope.detail}</p>
+      <div className={styles.frame} style={scope.style as CSSProperties}>
+        <SkeletonReveal key={index} loading>
+          <ProfileCard profile={PROFILES[1]!} />
+        </SkeletonReveal>
       </div>
-    ))}
-  </div>
-);
+    </Demo>
+  );
+};

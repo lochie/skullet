@@ -7,11 +7,11 @@ skullet is a smart skeleton loading component. pnpm workspace, published from `p
 | Path                                                 | What                                                                                        |
 | ---------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | [packages/skullet/](packages/skullet/)               | The library. Core + React / Vue / Svelte wrappers. The only published package.              |
-| [packages/test-cases/](packages/test-cases/)         | Shared geometry corpus. Consumed by vitest _and_ the site playground.                       |
+| [packages/test-cases/](packages/test-cases/)         | Shared geometry corpus. Consumed by vitest _and_ the site's `/lab`.                         |
 | [site/](site/)                                       | Next.js docs site — skullet.lochie.me.                                                      |
 | [apps/](apps/)                                       | One integration example per framework. Not published, ignored by changesets.                |
 | [e2e/](e2e/)                                         | Playwright against the built site: goldens and pixel checks, three browsers plus Safari 18. |
-| [scripts/bundle-sizes.mjs](scripts/bundle-sizes.mjs) | Measures dist gzip sizes into the playground. Runs in `site:build`.                         |
+| [scripts/bundle-sizes.mjs](scripts/bundle-sizes.mjs) | Measures dist gzip sizes into `/lab`. Runs in `site:build`.                                 |
 
 ## Commands
 
@@ -123,12 +123,12 @@ Under Node 25, happy-dom's `localStorage` is shadowed by Node's own, which doesn
 
 ### Test cases
 
-[packages/test-cases/](packages/test-cases/) holds the geometry corpus and its checks: coverage (every line, image and surface has a bone, and no bone covers nothing), no jump, recall, recall from storage, and auto key. The skullet API is _injected_ rather than imported so one definition runs twice: vitest passes the source, the site playground passes the bundle. Expectations are marked inline — `data-expect="block"`, `"lines"`, `"clipped"`. A case added to `cases.ts` shows up in both.
+[packages/test-cases/](packages/test-cases/) holds the geometry corpus and its checks: coverage (every line, image and surface has a bone, and no bone covers nothing), no jump, recall, recall from storage, and auto key. The skullet API is _injected_ rather than imported so one definition runs twice: vitest passes the source, the site's `/lab` passes the bundle. Expectations are marked inline — `data-expect="block"`, `"lines"`, `"clipped"`. A case added to `cases.ts` shows up in both.
 
 ## Site
 
 - `app/` — routes only. Thin; a page composes a surface.
-- `surfaces/` — one folder per page (`homepage/`, `docs/`, `playground/`).
+- `surfaces/` — one folder per page (`homepage/`, `docs/`, `playground/`). `/lab`, the test bench, shares `playground/`'s demos and lives there too.
 - `demos/` — demos shown on more than one page (the homepage and the docs share them). There is no shared demo folder; the second page to want a demo is what earns one.
 - `components/` — reusable UI, `index.tsx` + `styles.module.scss` per folder.
 - SCSS modules. The shared palette and fonts are CSS custom properties in [styles/modules/variables.scss](site/src/styles/modules/variables.scss) — use `var(--border)` etc. rather than re-picking a theme colour; one-off literals inline are fine.

@@ -10,6 +10,7 @@ import { forgetShapes } from "skullet";
 import { SkeletonReveal } from "skullet/react";
 
 import styles from "./styles.module.scss";
+import { Demo } from "@/components/demo";
 
 type Logged = { source: string; width: number; height: number };
 
@@ -72,7 +73,8 @@ function LiveSource<T>({
   const loading = fetching || (!data && !error);
 
   useLayoutEffect(() => {
-    const reveal = frame.current?.querySelector<HTMLElement>("[skullet-reveal]");
+    const reveal =
+      frame.current?.querySelector<HTMLElement>("[skullet-reveal]");
     if (!reveal) return;
 
     if (loading) {
@@ -111,8 +113,8 @@ function LiveSource<T>({
   }, [loading, data]);
 
   return (
-    <>
-      <div className={styles.controls}>
+    <Demo
+      controls={
         <div className={styles.actions}>
           <button onClick={() => start(round + 1, false)} disabled={loading}>
             Load another
@@ -122,8 +124,8 @@ function LiveSource<T>({
           </button>
           <button onClick={() => forgetShapes()}>Forget shapes</button>
         </div>
-      </div>
-
+      }
+    >
       <div ref={frame} className={styles.liveFrame}>
         <SkeletonReveal
           id={id}
@@ -133,7 +135,7 @@ function LiveSource<T>({
           error={
             error && (
               <div className={styles.error}>
-                Couldn&apos;t load: {error}
+                Couldn’t load: {error}
                 <button onClick={() => start(round, false)}>Retry</button>
               </div>
             )
@@ -161,7 +163,7 @@ function LiveSource<T>({
           </div>
         )}
       </div>
-    </>
+    </Demo>
   );
 }
 
@@ -243,7 +245,7 @@ const PER_PAGE = 6;
 
 const STORIES: Story[] = Array.from({ length: PER_PAGE }, (_, i) => ({
   id: i,
-  title: "Show HN: A skeleton loader that measures what's coming",
+  title: "Show HN: A skeleton loader that measures what’s coming",
   url: "https://example.com",
   score: 120,
   by: "someone",
@@ -381,7 +383,7 @@ type Issue = {
 const ISSUES: Issue[] = Array.from({ length: 5 }, (_, i) => ({
   id: i,
   number: 30000 + i,
-  title: "Bug: something renders twice when it shouldn't",
+  title: "Bug: something renders twice when it shouldn’t",
   comments: 3,
   user: { login: "someone", avatar_url: "" },
   labels: [{ id: 1, name: "Status: Unconfirmed", color: "d4c5f9" }],

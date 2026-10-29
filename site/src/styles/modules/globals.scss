@@ -98,9 +98,9 @@ a {
   text-decoration: none;
 }
 
+// Prose lists only: a list with a class is a component's, with its own look
 main {
-  ol,
-  ul {
+  :is(ol, ul):not([class]) {
     list-style: none;
     display: block;
     position: relative;
@@ -122,7 +122,7 @@ main {
       letter-spacing: -0.00563rem;
     }
   }
-  ul {
+  ul:not([class]) {
     li {
       &:before {
         content: "";
@@ -141,7 +141,7 @@ main {
     }
   }
 
-  ol {
+  ol:not([class]) {
     counter-reset: list;
     padding-left: 1rem;
     li {

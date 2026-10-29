@@ -14,7 +14,7 @@ const STATS: Stat[] = [
 
 // Each tile loads on its own; they join one shimmer however late each mounts
 const Tile = ({ stat, delay }: { stat: Stat; delay: number }) => {
-  const [data] = useLoad(stat, delay);
+  const data = useLoad(stat, delay);
 
   return (
     <SkeletonReveal data={data} sample={stat}>

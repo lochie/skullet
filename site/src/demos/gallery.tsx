@@ -9,7 +9,7 @@ type Board = { title: string; shots: string[] };
 
 // A query of its own each load, so the photos come over the network every time; the sample's stay put for the server render
 const board = (query?: number): Board => ({
-  title: "Moodboard",
+  title: "Gallery",
   shots: Array.from(
     { length: 6 },
     (_, i) =>
@@ -21,11 +21,11 @@ const SAMPLE = board();
 
 export const GalleryDemo = () => {
   const [fresh] = useState(() => board(Math.random()));
-  const [loaded] = useLoad(fresh, 750);
+  const loaded = useLoad(fresh, 750);
 
   return (
     <div className={styles.frame}>
-      <SkeletonReveal data={loaded} sample={SAMPLE} label="Loading moodboard">
+      <SkeletonReveal data={loaded} sample={SAMPLE} label="Loading gallery">
         {(board) => (
           <div className={styles.gallery}>
             <div className={styles.top}>

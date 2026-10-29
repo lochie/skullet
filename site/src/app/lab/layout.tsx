@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-export default function PlaygroundLayout({
+export default function LabLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

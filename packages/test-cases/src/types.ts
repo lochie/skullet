@@ -1,5 +1,5 @@
 // Injected rather than imported so one definition can run against both builds:
-// vitest resolves skullet from source, the playground from the bundle.
+// vitest resolves skullet from source, the site's /lab from the bundle.
 export type SkulletApi = {
   Ghost: new (
     root: HTMLElement,

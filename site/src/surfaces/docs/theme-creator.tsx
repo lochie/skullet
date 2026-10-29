@@ -2,16 +2,19 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   DEFAULT_COLORS,
   themeVariables,
+  type RevealMode,
   type SkulletAnimation,
   type SkulletSpeed,
   type SkeleTheme,
   type TextBottom,
   type TextTop,
 } from "skullet";
+import { SkulletProvider } from "skullet/react";
 
 import styles from "./theme-creator.module.scss";
 import { ARRIVALS, PreviewPage, REGIONS, type Region } from "./preview-page";
 import { CodeBlock } from "@/components/codeblock";
+import { SegmentedControl } from "@/components/segmented-control";
 
 type Mode = "light" | "dark";
 type Color = { hex: string; alpha: number };
@@ -23,6 +26,7 @@ const ANIMATIONS: SkulletAnimation[] = [
   "pulse",
   "none",
 ];
+const REVEALS: RevealMode[] = ["smart", "together", "sequence", "sweep"];
 const TOPS: TextTop[] = ["ascender", "cap-height", "x-height"];
 const BOTTOMS: TextBottom[] = ["descender", "baseline"];
 
@@ -44,9 +48,7 @@ const rgb = ({ hex, alpha }: Color) => {
 
 const Choice = <T extends string>({
   label,
-  options,
-  value,
-  onChange,
+  ...props
 }: {
   label: string;
   options: readonly T[];
@@ -55,17 +57,7 @@ const Choice = <T extends string>({
 }) => (
   <div className={styles.field}>
     <span>{label}</span>
-    <div className={styles.options}>
-      {options.map((option) => (
-        <button
-          key={option}
-          data-active={option === value}
-          onClick={() => onChange(option)}
-        >
-          {option}
-        </button>
-      ))}
-    </div>
+    <SegmentedControl label={label} {...props} />
   </div>
 );
 
@@ -144,6 +136,7 @@ export const ThemeCreator = () => {
   const [pixels, setPixels] = useState(4);
   const [animation, setAnimation] = useState<SkulletAnimation>("shimmer");
   const [speed, setSpeed] = useState<SkulletSpeed>("slow");
+  const [reveal, setReveal] = useState<RevealMode>("smart");
   const [top, setTop] = useState<TextTop>("ascender");
   const [bottom, setBottom] = useState<TextBottom>("descender");
   // Regions whose data has arrived; none at first, so the page opens as its skeleton
@@ -198,7 +191,7 @@ export const ThemeCreator = () => {
     JSON.stringify(theme.dark) === JSON.stringify(DEFAULT_COLORS.dark);
 
   const code = `<SkulletProvider
-  mode="system"
+  mode="system"${reveal === "smart" ? "" : `\n  reveal="${reveal}"`}
   theme={${JSON.stringify(
     isDefault ? { ...theme, light: undefined, dark: undefined } : theme,
     null,
@@ -212,58 +205,71 @@ export const ThemeCreator = () => {
 
   return (
     <div className={styles.creator}>
-      <div className={styles.controls}>
-        <Choice
-          label="Preview"
-          options={["light", "dark"] as const}
-          value={mode}
-          onChange={setMode}
-        />
-        <Swatch
-          label="Base"
-          color={colors[mode].base}
-          onChange={edit("base")}
-        />
-        <Swatch
-          label="Highlight"
-          color={colors[mode].highlight}
-          onChange={edit("highlight")}
-        />
-        <Choice
-          label="Radius"
-          options={["auto", "px", "pill"] as const}
-          value={radius}
-          onChange={setRadius}
-        />
-        {radius === "px" && (
-          <Slider
-            label=""
-            value={pixels}
-            min={0}
-            max={16}
-            unit="px"
-            onChange={setPixels}
+      <div className={styles.panel}>
+        <div className={styles.controls}>
+          <Choice
+            label="Preview"
+            options={["light", "dark"] as const}
+            value={mode}
+            onChange={setMode}
           />
-        )}
-        <Choice
-          label="Animation"
-          options={ANIMATIONS}
-          value={animation}
-          onChange={setAnimation}
-        />
-        <Choice
-          label="Speed"
-          options={["slow", "fast"] as const}
-          value={speed}
-          onChange={setSpeed}
-        />
-        <Choice label="Text top" options={TOPS} value={top} onChange={setTop} />
-        <Choice
-          label="Text bottom"
-          options={BOTTOMS}
-          value={bottom}
-          onChange={setBottom}
-        />
+          <Swatch
+            label="Base"
+            color={colors[mode].base}
+            onChange={edit("base")}
+          />
+          <Swatch
+            label="Highlight"
+            color={colors[mode].highlight}
+            onChange={edit("highlight")}
+          />
+          <Choice
+            label="Radius"
+            options={["auto", "px", "pill"] as const}
+            value={radius}
+            onChange={setRadius}
+          />
+          {radius === "px" && (
+            <Slider
+              label=""
+              value={pixels}
+              min={0}
+              max={16}
+              unit="px"
+              onChange={setPixels}
+            />
+          )}
+          <Choice
+            label="Animation"
+            options={ANIMATIONS}
+            value={animation}
+            onChange={setAnimation}
+          />
+          <Choice
+            label="Speed"
+            options={["slow", "fast"] as const}
+            value={speed}
+            onChange={setSpeed}
+          />
+          <Choice
+            label="Reveal"
+            options={REVEALS}
+            value={reveal}
+            onChange={setReveal}
+          />
+          <Choice
+            label="Text top"
+            options={TOPS}
+            value={top}
+            onChange={setTop}
+          />
+          <Choice
+            label="Text bottom"
+            options={BOTTOMS}
+            value={bottom}
+            onChange={setBottom}
+          />
+        </div>
       </div>
 
       <div className={styles.stage} data-mode={mode}>
@@ -274,9 +280,9 @@ export const ThemeCreator = () => {
             <i />
           </span>
           <span className={styles.address}>lochie.me</span>
-          <button onClick={load}>{loaded ? "Reload" : "Load page"}</button>
+          <button onClick={load}>{loaded ? "Reload page" : "Load page"}</button>
           <button onClick={reset} disabled={arrived.size === 0}>
-            Skeleton
+            Show skeleton
           </button>
         </div>
         <div
@@ -284,7 +290,9 @@ export const ThemeCreator = () => {
           key={JSON.stringify(theme) + mode}
           style={themeVariables(theme, mode) as CSSProperties}
         >
-          <PreviewPage loading={(region) => !arrived.has(region)} />
+          <SkulletProvider reveal={reveal}>
+            <PreviewPage loading={(region) => !arrived.has(region)} />
+          </SkulletProvider>
         </div>
       </div>
 

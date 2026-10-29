@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import { Playground } from "@/surfaces/playground";
+import { getDownloads } from "@/components/docs-layout/downloads";
+import { Lab } from "@/surfaces/playground/lab";
 
 // Written by `scripts/bundle-sizes.mjs` and gitignored, so it may not exist.
 // cwd is the site through the workspace, the repo root when next runs directly.
@@ -14,6 +15,8 @@ function readBundleSizes() {
   return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : [];
 }
 
-export default function Page() {
-  return <Playground bundleSizes={readBundleSizes()} />;
+export default async function Page() {
+  return (
+    <Lab bundleSizes={readBundleSizes()} downloads={await getDownloads()} />
+  );
 }

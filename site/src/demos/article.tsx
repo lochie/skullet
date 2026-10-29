@@ -1,23 +1,68 @@
+import { useEffect, useState } from "react";
 import { SkeletonReveal } from "skullet/react";
 
 import styles from "./styles.module.scss";
-import { useLoad } from "./use-load";
 
 type Post = { title: string; excerpt: string; author: string; read: string };
 
-const POST: Post = {
+const api = "https://api.adviceslip.com/";
+const jokeApi = "https://icanhazdadjoke.com/";
+
+const getRandomAdvice = async () => {
+  // The API caches its slip for a couple of seconds; a fresh one per load
+  const response = await fetch(`${api}advice`, { cache: "no-store" });
+  const data = await response.json();
+  return data.slip.advice;
+};
+
+const getRandomJoke = async () => {
+  const response = await fetch(jokeApi, {
+    headers: { Accept: "application/json" },
+  });
+  const data = await response.json();
+  return data.joke;
+};
+
+const getRandomPost = async (): Promise<Post> => {
+  const [advice, joke] = await Promise.all([
+    getRandomAdvice(),
+    getRandomJoke(),
+  ]);
+  return {
+    title: advice,
+    excerpt: joke,
+    author: "Lochie Axon",
+    read: "4 min read",
+  };
+};
+
+const DELAY = 1000;
+
+const SAMPLE: Post = {
   title: "Designing for the wait",
   excerpt:
     "Loading states are the first thing people see, and on a slow connection the thing they see most.",
-  author: "Lochie Axon",
+  author: "John Doe",
   read: "4 min read",
 };
 
-// Static here, so the first skeleton can be exact; a live app's last data and remembered shapes take over after
-const SAMPLE = POST;
-
 export const ArticleDemo = () => {
-  const [post] = useLoad(POST, 1000);
+  const [post, setPost] = useState<Post | null>(null);
+
+  // A new post per mount, so a reload fetches again
+  useEffect(() => {
+    let current = true;
+    // Never sooner than the delay, so a fast response still shows its skeleton, and the sample if the APIs fail
+    Promise.all([
+      getRandomPost().catch(() => SAMPLE),
+      new Promise((resolve) => setTimeout(resolve, DELAY)),
+    ]).then(([next]) => {
+      if (current) setPost(next);
+    });
+    return () => {
+      current = false;
+    };
+  }, []);
 
   return (
     <div className={styles.frame}>

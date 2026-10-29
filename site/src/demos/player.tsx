@@ -19,12 +19,17 @@ const TRACK: Track = {
   progress: 0.35,
 };
 
-const Icon = ({ d }: { d: string }) => (
+// Filled and stroked alike with round joins, so every corner comes out soft
+const Icon = ({ d, size = 26 }: { d: string; size?: number }) => (
   <svg
     viewBox="0 0 24 24"
-    width="20"
-    height="20"
+    width={size}
+    height={size}
     fill="currentColor"
+    stroke="currentColor"
+    strokeWidth={2.5}
+    strokeLinecap="round"
+    strokeLinejoin="round"
     aria-hidden
   >
     <path d={d} />
@@ -32,7 +37,7 @@ const Icon = ({ d }: { d: string }) => (
 );
 
 export const PlayerDemo = () => {
-  const [track] = useLoad(TRACK, 950);
+  const track = useLoad(TRACK, 950);
 
   return (
     <div className={styles.frame}>
@@ -55,9 +60,9 @@ export const PlayerDemo = () => {
               <span>{track.duration}</span>
             </div>
             <div className={styles.transport}>
-              <Icon d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
-              <Icon d="M8 5v14l11-7z" />
-              <Icon d="M16 6h2v12h-2zM6 18l8.5-6L6 6z" />
+              <Icon d="M6 6.5v11M18 7v10l-7.5-5z" />
+              <Icon d="M8 6v12l10-6z" size={34} />
+              <Icon d="M18 6.5v11M6 7v10l7.5-5z" />
             </div>
           </div>
         )}

@@ -9,6 +9,8 @@ import { forgetShapes } from "skullet";
 import { SkeletonReveal } from "skullet/react";
 
 import styles from "./styles.module.scss";
+import { Demo } from "@/components/demo";
+import { SegmentedControl } from "@/components/segmented-control";
 import { CHAINS, fetchReserves, SAMPLE, type Reserve } from "./aave";
 
 const usd = new Intl.NumberFormat("en", {
@@ -95,7 +97,8 @@ export const Live = () => {
   const name = CHAINS.find((c) => c.id === chain)!.name;
 
   useLayoutEffect(() => {
-    const reveal = frame.current?.querySelector<HTMLElement>("[skullet-reveal]");
+    const reveal =
+      frame.current?.querySelector<HTMLElement>("[skullet-reveal]");
     if (!reveal) return;
 
     if (loading) {
@@ -136,27 +139,25 @@ export const Live = () => {
   }, [loading, chain, name, reserves]);
 
   return (
-    <>
-      <div className={styles.controls}>
-        <div className={styles.chains}>
-          {CHAINS.map((c) => (
-            <button
-              key={c.id}
-              data-active={c.id === chain}
-              onClick={() => load(c.id, false)}
-            >
-              {c.name}
+    <Demo
+      controls={
+        <>
+          <SegmentedControl
+            label="Chain"
+            options={CHAINS.map((c) => c.id)}
+            value={chain}
+            onChange={(id) => load(id, false)}
+            format={(id) => CHAINS.find((c) => c.id === id)?.name}
+          />
+          <div className={styles.actions}>
+            <button onClick={() => load(chain, true)} disabled={loading}>
+              Refetch, keeping data
             </button>
-          ))}
-        </div>
-        <div className={styles.actions}>
-          <button onClick={() => load(chain, true)} disabled={loading}>
-            Refetch, keeping data
-          </button>
-          <button onClick={() => forgetShapes()}>Forget shapes</button>
-        </div>
-      </div>
-
+            <button onClick={() => forgetShapes()}>Forget shapes</button>
+          </div>
+        </>
+      }
+    >
       <div ref={frame} className={styles.liveFrame}>
         <SkeletonReveal
           id={`aave-${chain}`}
@@ -166,7 +167,7 @@ export const Live = () => {
           error={
             error && (
               <div className={styles.error}>
-                Couldn&apos;t reach Aave: {error}
+                Couldn’t reach Aave: {error}
                 <button onClick={() => load(chain, false)}>Retry</button>
               </div>
             )
@@ -195,6 +196,6 @@ export const Live = () => {
           </div>
         )}
       </div>
-    </>
+    </Demo>
   );
 };

@@ -23,7 +23,7 @@ const MESSAGES: Message[] = [
   {
     from: "Pugson",
     name: "Pugson",
-    preview: "The skeletons are shimmering in sync now??",
+    preview: "The skeletons shimmer in sync now??",
     time: "1h",
     hue: 200,
   },
@@ -39,7 +39,7 @@ const MESSAGES: Message[] = [
 const SAMPLE = MESSAGES;
 
 export const InboxDemo = () => {
-  const [messages] = useLoad(MESSAGES, 800);
+  const messages = useLoad(MESSAGES, 800);
 
   return (
     <div className={styles.frame}>

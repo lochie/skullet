@@ -28,7 +28,7 @@ const total = (holdings: Holding[]) =>
 
 /** The first load is a skeleton; every update after keeps the data on screen and morphs it. */
 export const WalletDemo = () => {
-  const [loaded] = useLoad(true, 900);
+  const loaded = useLoad(true, 900);
   const [tick] = useState(0);
   const holdings = loaded ? at(tick) : null;
   const change = (total(at(tick)) / total(at(tick - 1)) - 1) * 100;
@@ -54,7 +54,7 @@ export const WalletDemo = () => {
             <ul className={styles.holdings}>
               {holdings.map((holding) => (
                 <li key={holding.symbol}>
-                  <Avatar name={holding.name} hue={holding.hue} />
+                  <Avatar name={holding.symbol} hue={holding.hue} />
                   <div className={styles.body}>
                     <span className={styles.from}>{holding.symbol}</span>
                     <span className={styles.label}>{holding.name}</span>

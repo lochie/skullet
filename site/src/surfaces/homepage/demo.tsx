@@ -2,7 +2,6 @@ import { useState } from "react";
 import { SkulletProvider } from "skullet/react";
 
 import styles from "./demo.module.scss";
-import { Button } from "@/components/button";
 import { ArticleDemo } from "@/demos/article";
 import { ChatDemo } from "@/demos/chat";
 import { GalleryDemo } from "@/demos/gallery";
@@ -21,9 +20,6 @@ const COLUMNS = [
 ];
 
 export const Demo = () => {
-  // Remounting the grid is a reload: every demo starts over on its own delay
-  const [round, setRound] = useState(0);
-  const [reveal, setReveal] = useState<"smart" | "sweep">("sweep");
   // One count per card: bumping it remounts just that demo, so its loader starts over
   const [loads, setLoads] = useState<Record<string, number>>({});
   const reload = (card: string) =>
@@ -31,8 +27,8 @@ export const Demo = () => {
 
   return (
     <div className={styles.demo}>
-      <SkulletProvider reveal={reveal}>
-        <div className={styles.grid} key={round}>
+      <SkulletProvider reveal="sweep">
+        <div className={styles.grid}>
           {COLUMNS.map((column, i) => (
             <div key={i} className={styles.column}>
               {column.map((DemoComponent, j) => {
