@@ -42,7 +42,7 @@ const HINTS = [
   },
 ] as const;
 
-export const Hints = () => {
+export const HintsDemo = () => {
   const [index, setIndex] = useState(0);
   const { hint, detail } = HINTS[index]!;
 

@@ -53,8 +53,7 @@ function boot(script: Element | null) {
       measureBones(ghost, layer, { mark: false, onCovered: cover }),
     );
   };
-  // Its first callback measures, after layout and before paint — measured here instead, every skeleton forces a layout mid-parse, and the page paints in pieces.
-  // Then until the framework's Ghost takes over: the skeleton can be shown, resized, or re-set by a web font
+  // Measures in the first callback, after layout and before paint, then until Ghost takes over
   const observer = new ResizeObserver(draw);
   observer.observe(root);
   document.fonts?.ready.then(draw);

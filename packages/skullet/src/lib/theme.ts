@@ -1,3 +1,5 @@
+import type { TextBottom, TextTop } from "./measure";
+
 export type SkulletColors = {
   /** The bones' fill. */
   base: string;
@@ -16,10 +18,7 @@ export type SkulletAnimation = "shimmer" | "group-shimmer" | "pulse" | "none";
 export type SkulletSpeed = "slow" | "fast";
 
 /** How much of each line of text is drawn: from the font's `top` line down to its `bottom` line. */
-export type SkeleText = {
-  top?: "ascender" | "cap-height" | "x-height";
-  bottom?: "baseline" | "descender";
-};
+export type SkeleText = { top?: TextTop; bottom?: TextBottom };
 
 /** `system` follows `prefers-color-scheme`; the others pin one set of colours. */
 export type SkulletMode = "light" | "dark" | "system";

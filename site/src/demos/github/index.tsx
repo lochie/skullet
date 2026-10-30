@@ -60,7 +60,7 @@ const Issues = ({ issues }: { issues: Issue[] }) => (
   </ul>
 );
 
-export const GitHub = () => (
+export const GitHubDemo = () => (
   <LiveSource id="live-github" load={loadIssues} sample={ISSUES}>
     {(issues) => <Issues issues={issues} />}
   </LiveSource>

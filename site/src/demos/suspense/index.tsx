@@ -43,9 +43,8 @@ const FALLBACK_LABELS: Record<Fallback, string> = {
   id: "id only",
 };
 
-export const Suspense = () => {
-  // A promise made while rendering on the server can't reach the browser,
-  // so quotes are fetched once hydrated; until then, the same skeleton
+export const SuspenseDemo = () => {
+  // A promise made on the server can't reach the browser: fetched once hydrated, the same skeleton until then
   const hydrated = useSyncExternalStore(
     subscribe,
     () => true,

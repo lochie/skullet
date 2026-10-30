@@ -44,7 +44,7 @@ const SCOPES = [
   },
 ];
 
-export const ScopedThemes = () => {
+export const ScopedThemesDemo = () => {
   const [index, setIndex] = useState(0);
   const scope = SCOPES[index]!;
 

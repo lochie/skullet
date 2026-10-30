@@ -23,5 +23,10 @@ export function exitDuration(mode?: RevealMode) {
   if (spec === sequence) return CASCADE_SPREAD + FADE_DURATION;
   if (spec === smart) return hold + CASCADE_SPREAD + FADE_DURATION;
   if (spec === sweep) return hold + SWEEP_SPREAD + FADE_DURATION;
-  return hold + Math.max(spec.delay ?? 0, 0) + MAX_DELAY + MAX_DURATION;
+  if (spec.duration === 0) return 0;
+  // A choice can bring its own delay, as long as the cap allows
+  const delay = spec.choose
+    ? MAX_DELAY
+    : Math.min(Math.max(spec.delay ?? 0, 0), MAX_DELAY);
+  return hold + delay + MAX_DELAY + MAX_DURATION;
 }

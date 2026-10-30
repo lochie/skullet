@@ -1,22 +1,22 @@
 [
   {
     "name": "core",
-    "raw": 48422,
-    "gzip": 16925,
+    "raw": 52716,
+    "gzip": 18632,
     "publishedRaw": null,
     "publishedGzip": null
   },
   {
     "name": "react",
-    "raw": 5814,
-    "gzip": 2534,
+    "raw": 5852,
+    "gzip": 2551,
     "publishedRaw": null,
     "publishedGzip": null
   },
   {
     "name": "vue",
-    "raw": 3327,
-    "gzip": 1415,
+    "raw": 3396,
+    "gzip": 1437,
     "publishedRaw": null,
     "publishedGzip": null
   },

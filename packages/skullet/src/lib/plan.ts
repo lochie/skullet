@@ -135,17 +135,17 @@ function listen() {
   }
 }
 
-const loading = new WeakMap<Element, { since: number; exact: boolean }>();
+const loading = new WeakMap<Element, { since: number; refetch: boolean }>();
 
-/** Notes a skeleton going up in `reveal` — when, and whether it was drawn from the data on screen. */
+/** Notes a skeleton going up in `reveal` — when, and whether it's a refetch over the data on screen. */
 export function noteSkeleton(
   reveal: Element,
-  { served, exact }: { served: boolean; exact: boolean },
+  { served, refetch }: { served: boolean; refetch: boolean },
 ) {
   listen();
   const since = loading.get(reveal)?.since ?? performance.now();
   // Server-rendered: up since the page began, so never a flash
-  loading.set(reveal, { since: served ? -Infinity : since, exact });
+  loading.set(reveal, { since: served ? -Infinity : since, refetch });
 }
 
 // What a reveal brings in one by one: anything holding text or media of its own
@@ -175,7 +175,7 @@ function unitOf(piece: Element, root: Element): Element {
     element = element.parentElement
   ) {
     const parent = element.parentElement;
-    if (!parent || parent === root.parentElement) break;
+    if (!parent) break;
     const alike = [...parent.children].filter(
       (sibling) =>
         sibling.localName === element!.localName &&
@@ -311,7 +311,7 @@ export function planReveal(
         reveal: root,
         waited: info ? performance.now() - info.since : Infinity,
         input: performance.now() - lastInput < ACTIVE_WINDOW,
-        refetch: !!info?.exact,
+        refetch: !!info?.refetch,
         height: content.getBoundingClientRect().height,
         pieces: pieces(content).length,
       }),

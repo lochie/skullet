@@ -51,12 +51,7 @@ export const STEPS = 12; // stops per ramp — enough for an eased curve to read
 // Every gradient ramps on this (a scrim), so no stop shows as a hard line
 export const ease = (t: number) => (1 - Math.cos(Math.PI * t)) / 2;
 
-/**
- * An endless stream of highlights, `SPACING` band-widths apart along the
- * slant. Stops are in px from the gradient's start, which a slanted gradient
- * anchors at the box's top left whatever its size — so a box this wide repeats
- * the stream seamlessly, and every bone draws the same one.
- */
+/** Highlights `SPACING` band-widths apart, in px from the box's corner, so every bone draws the same stream. */
 function highlights(band: number) {
   const period = band * SPACING;
   const stop = (at: number, alpha: number) =>
@@ -190,8 +185,7 @@ export function drawBones(layer: HTMLElement, bones: Bone[]) {
       borderRadius: bone.radius,
     });
 
-    // Restarting an unmoved bone's animation would change nothing; skip the churn
-    // The page's width too: a page-wide sweep's pace is set by it
+    // Restarted only when its place, group, the page's width or the motion changes
     const key = `${Math.round(group.left + bone.x)}|${Math.round(bone.y)}|${Math.round(bone.height)}|${Math.round(group.left)}|${Math.round(group.width)}|${Math.round(group.height)}|${document.documentElement.clientWidth}|${motion.animation}|${motion.duration}`;
     if (element.dataset.motion !== key) {
       element.dataset.motion = key;

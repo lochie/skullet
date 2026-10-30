@@ -9,7 +9,7 @@ type Outcome = "content" | "empty" | "error";
 
 const TEAM = AUTHORS.map(([name, team]) => ({ name, team }));
 
-export const States = () => {
+export const StatesDemo = () => {
   const [outcome, setOutcome] = useState<Outcome>("content");
   const [loading, setLoading] = useState(true);
 

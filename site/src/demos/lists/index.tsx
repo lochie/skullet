@@ -116,7 +116,7 @@ const KIND_LABELS = {
   list: "One for the whole list",
 };
 
-export const Lists = () => {
+export const ListsDemo = () => {
   const [kind, setKind] = useState<(typeof KINDS)[number]>("page");
   const perPage = usePerPage();
   const whole = useWhole();

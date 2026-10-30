@@ -11,7 +11,6 @@ export const REGIONS = [
   "stats",
   "chart",
   "activity",
-  "article",
 ] as const;
 
 export type Region = (typeof REGIONS)[number];
@@ -24,7 +23,6 @@ export const ARRIVALS: Record<Region, number> = {
   stats: 520,
   chart: 700,
   activity: 820,
-  article: 1000,
 };
 
 const NAV = ["Overview", "Payments", "Customers", "Reports", "Settings"];
@@ -124,21 +122,6 @@ export const PreviewPage = ({
             </ul>
           </section>
         </SkeletonReveal>
-
-        {/* <SkeletonReveal loading={loading("article")}>
-          <article className={styles.article}>
-            <div className={styles.cover} />
-            <div>
-              <h3>Closing the books faster</h3>
-              <p>
-                Reconciling a month of payments shouldn’t take a week. Here is
-                how teams close in a day, matching payouts as they land, and
-                flagging only what needs a person.
-              </p>
-              <span className={styles.meta}>Guides · 6 min read</span>
-            </div>
-          </article>
-        </SkeletonReveal> */}
       </main>
     </div>
   </div>

@@ -111,7 +111,7 @@ const Source = ({
   );
 };
 
-export const Sources = () => {
+export const SkeletonSourcesDemo = () => {
   const [source, setSource] = useState<SourceKey>("markup");
   const [round, setRound] = useState(0);
   const [loading, setLoading] = useState(true);

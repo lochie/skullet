@@ -15,6 +15,7 @@ export const Homepage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Long enough to see the top of the page as a skeleton first
     const timer = setTimeout(() => setLoading(false), 2000);
     return () => clearTimeout(timer);
   }, []);

@@ -42,9 +42,7 @@ const Fallback = ({
       reveal.removeAttribute("aria-busy");
       if (!pane.isConnected) return;
 
-      // React drops a fallback the moment its content resolves; a copy stays behind to fade out over it.
-      // Measured now, while the fallback still stands — but only placed once React has really removed
-      // it: StrictMode rehearses this cleanup with the fallback staying put.
+      // A copy stays to fade out over the content, placed only once React has really removed the fallback: StrictMode rehearses this
       const box = boxOf(pane);
       const copy = pane.cloneNode(true) as HTMLElement;
       queueMicrotask(() => {

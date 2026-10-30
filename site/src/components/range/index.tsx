@@ -1,9 +1,6 @@
 import styles from "./styles.module.scss";
 
-/**
- * A slider as a pill, filled up to its value, which shows inside it. The
- * native range input underneath, so keys, touch and screen readers work as ever.
- */
+/** A slider as a pill filled to its value, over the native range input so keys and screen readers still work. */
 export const Range = ({
   value,
   min = 0,

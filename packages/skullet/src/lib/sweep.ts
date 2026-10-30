@@ -111,11 +111,7 @@ const svg = (tag: string, attributes: Record<string, string | number>) => {
   return node;
 };
 
-/**
- * The band trailing the front: an SVG filter on the incoming pane that lifts
- * what the content paints toward white, so the surface around it —
- * transparent in the pane — never lights up.
- */
+// The band trailing the front: a filter lifting what the content paints toward white, never the surface around it
 const gloss: Wipe["effect"] = (element, { rect, reveal, progress }) => {
   if (prefersReducedTransparency()) return;
   const from = uOf(rect);
@@ -199,8 +195,7 @@ const gloss: Wipe["effect"] = (element, { rect, reveal, progress }) => {
   const tick = () => {
     const at = centre();
     if (at - half > span || !element.isConnected) {
-      // Off the pane before the filter goes: Safari doesn't render an element whose filter points at nothing.
-      // By id, not exact text — the style reads back quoted
+      // Cleared first, matched by id: Safari won't draw an element whose filter is gone, and the style reads back quoted
       if (element.style.filter.includes(id)) element.style.filter = "";
       filter.remove();
       return;

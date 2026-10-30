@@ -63,7 +63,7 @@ const Artworks = ({ artworks }: { artworks: Artwork[] }) => (
   </div>
 );
 
-export const Met = () => (
+export const MetDemo = () => (
   <LiveSource id="live-met" load={loadArtworks} sample={ARTWORKS}>
     {(artworks) => <Artworks artworks={artworks} />}
   </LiveSource>

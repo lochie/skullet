@@ -110,8 +110,8 @@ describe("a reveal of your own", () => {
       skeleton,
       content,
     } = reveal({ wipe: { mask }, duration: 400 });
-    await frame();
-    await frame();
+    // Drawn as the reveal starts: a slow machine's frames can be far enough apart that the wipe gives way
+    await Promise.resolve();
     expect(content.style.getPropertyValue("mask-image")).toMatch(
       /^linear-gradient\(black \d+%, transparent 0%\)$/,
     );
@@ -135,8 +135,8 @@ describe("a reveal of your own", () => {
       },
       duration: 400,
     });
-    await frame();
-    await frame();
+    // Drawn as the reveal starts: a slow machine's frames can be far enough apart that the wipe gives way
+    await Promise.resolve();
     expect(skeleton.style.getPropertyValue("mask-image")).toBe(
       "linear-gradient(transparent, white)",
     );

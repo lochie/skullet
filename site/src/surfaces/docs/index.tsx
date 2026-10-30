@@ -13,12 +13,12 @@ import { ProfileDemo } from "@/demos/profile";
 
 import { Projects } from "./projects";
 import { ThemeCreator } from "./theme-creator";
-import { InstallCommands } from "../homepage/install-cmd";
-import { Frameworks } from "../homepage/frameworks";
+import { InstallCommands } from "./install-cmd";
+import { Frameworks } from "./frameworks";
 import { Section } from "@/components/section";
-import { Resizing } from "@/demos/resizing";
-import { RevealModes } from "@/demos/reveal-modes";
-import { Suspense } from "@/demos/suspense";
+import { ResizingDemo } from "@/demos/resizing";
+import { RevealModesDemo } from "@/demos/reveal-modes";
+import { SuspenseDemo } from "@/demos/suspense";
 import Link from "next/link";
 
 const REVEALS: [string, React.ReactNode][] = [
@@ -281,7 +281,7 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
       </Demo>
       <Callout>
         <p>
-          Build your skeleton from Skullet&apos;s exported{" "}
+          Build your skeleton from Skullet’s exported{" "}
           <code>&lt;Skeleton&gt;</code> rather than a grey box of your own. Each
           bar joins the page’s one shimmer, in step with every other skeleton
           however late it mounts, and follows the theme’s colours, animation and
@@ -312,7 +312,7 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
         A reveal remembers the shape it showed, so its next skeleton is exact.
         Within a visit it keeps the real content; across visits, only the
         layout, in <code>localStorage</code>. Pass an <code>id</code> to key it,
-        or skullet keys it by the page and the markup.
+        or Skullet keys it by the page and the markup.
       </p>
       <CodeBlock
         code={`<SkeletonReveal id="inbox" data={messages}>
@@ -335,7 +335,7 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
       </p>
       <Terms items={REVEALS} code />
 
-      <RevealModes />
+      <RevealModesDemo />
       <Callout>
         <p>
           Under <code>smart</code>, data that lands within 150ms shows at once
@@ -358,10 +358,10 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
 
     <Section id="resizing" title="Changing size">
       <p>
-        {`A skeleton drawn from old data might not match the new data's shape. The reveal eases to the new height
-        rather than snapping.`}
+        A skeleton drawn from old data might not match the new data’s shape. The
+        reveal eases to the new height rather than snapping.
       </p>
-      <Resizing />
+      <ResizingDemo />
     </Section>
 
     <Section id="own-reveal" title="Your own reveal">
@@ -408,7 +408,7 @@ const wipeDown: RevealSpec = {
         skeleton as its fallback. Pass the content rendered from sample data, or
         only an <code>id</code> to draw the shape it last showed.
       </p>
-      <Suspense />
+      <SuspenseDemo />
       <CodeBlock
         code={`import { SkeletonSuspense } from "skullet/react";
 
@@ -430,7 +430,7 @@ const wipeDown: RevealSpec = {
     <Section id="server" title="Server rendering">
       <Callout>
         <p>
-          Skip this step on React 19 or later, the stylesheet is imported for
+          Skip this step on React 19 or later: the stylesheet is imported for
           you.
         </p>
       </Callout>

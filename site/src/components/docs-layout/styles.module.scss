@@ -5,10 +5,6 @@
   gap: 4rem;
   justify-content: center;
 
-  &[data-wide="true"] {
-    grid-template-columns: var(--sidebar-width) minmax(0, 60rem);
-  }
-
   // A wide main column whose text keeps to 40rem, leaving room on the right for a block that spans it
   &[data-aside="true"] {
     grid-template-columns: var(--sidebar-width) minmax(0, 60rem);
@@ -24,7 +20,6 @@
 
   @media (max-width: 860px) {
     &,
-    &[data-wide="true"],
     &[data-aside="true"] {
       grid-template-columns: minmax(0, 1fr);
       gap: 2rem;
@@ -56,9 +51,15 @@
     transition: color 100ms ease;
     padding: 0.25rem 0;
 
-    &:hover,
-    &:target-current {
+    &:hover {
       color: var(--fg-1);
+    }
+
+    // In @supports, or the minifier merges it into the hover rule, which browsers without it then drop whole
+    @supports selector(:target-current) {
+      &:target-current {
+        color: var(--fg-1);
+      }
     }
   }
 

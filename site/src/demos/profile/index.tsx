@@ -4,6 +4,7 @@ import styles from "./styles.module.scss";
 import { useLoad } from "../parts/use-load";
 import { Avatar } from "@/components/avatar";
 import { Button } from "@/components/button";
+import { TWITTER_INTENT } from "@/utils/consts";
 
 type User = { name: string; handle: string };
 
@@ -25,7 +26,12 @@ export const ProfileDemo = () => {
               </div>
             </div>
             <div className={styles.follow}>
-              <Button variant="secondary" disabled>
+              <Button
+                variant="secondary"
+                href={TWITTER_INTENT}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Follow
               </Button>
             </div>

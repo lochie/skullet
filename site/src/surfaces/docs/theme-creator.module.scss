@@ -28,19 +28,10 @@ section:has(> .creator) {
   top: 5rem;
 }
 
-.narrow {
-  display: none;
-  color: var(--color-muted);
-}
-
 // Too narrow for the preview and the panel side by side: the options below still list every one
 @container creator (max-width: 720px) {
   .workspace {
     display: none;
-  }
-
-  .narrow {
-    display: block;
   }
 }
 
@@ -121,11 +112,4 @@ section:has(> .creator) {
     outline: 2px solid var(--focus-color);
     outline-offset: 2px;
   }
-}
-
-.hint {
-  margin-top: -1rem;
-  font-size: 0.6875rem;
-  text-align: right;
-  color: var(--color-muted);
 }

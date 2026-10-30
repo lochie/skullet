@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import useSound from "use-sound";
 
@@ -29,8 +27,7 @@ export const useSfx = ({
     },
   });
 
-  // An optional per-call playbackRate overrides the hook's default for this
-  // play only (handy for pitch-varying a one-shot on every trigger).
+  // A playbackRate here overrides the hook's, for this play only
   const play = (opts?: { playbackRate?: number }) => {
     if (isPlaying && !interrupt) return;
     setCount((prev) => prev + 1);

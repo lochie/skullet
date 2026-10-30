@@ -82,7 +82,7 @@ function start() {
     shadow.innerHTML = `<style>${PANEL_CSS}</style><div class="boxes"></div>`;
     document.body.append(host);
   }
-  // The panel is for the whole page; a `[skullet-debug]` subtree sets its own x-ray
+  // The panel, and its x-ray toggle, are for the whole page only
   const shadow = host.shadowRoot!;
   if (enabled && !shadow.querySelector(".panel")) {
     const panel = document.createElement("div");

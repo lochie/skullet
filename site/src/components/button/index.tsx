@@ -1,12 +1,10 @@
 import Link from "next/link";
-import { CSSProperties, Ref } from "react";
+import { Ref } from "react";
 import styles from "./styles.module.scss";
 
 type Props = {
   children: React.ReactNode;
-  wide?: boolean;
-  variant?: "primary" | "secondary";
-  style?: CSSProperties;
+  variant?: "secondary";
 };
 
 /** A button, or a link styled as one when given `href`. */
@@ -15,30 +13,20 @@ export const Button = (
     (
       | ({ href?: undefined; ref?: Ref<HTMLButtonElement> } & Omit<
           React.ButtonHTMLAttributes<HTMLButtonElement>,
-          "style"
+          "className"
         >)
       | ({ href: string } & Omit<
           React.AnchorHTMLAttributes<HTMLAnchorElement>,
-          "href" | "style"
+          "href" | "className"
         >)
     ),
 ) => {
-  const { children, wide, variant, style, ...rest } = props;
-  const shared = {
-    className: styles.button,
-    "data-variant": variant,
-    style: { width: wide ? "100%" : "auto", ...style },
-  };
+  const { children, variant, ...rest } = props;
+  const shared = { className: styles.button, "data-variant": variant };
 
   if (rest.href !== undefined) {
     return (
-      <Link
-        {...rest}
-        {...shared}
-        // Next's types pin an older csstype than React's
-        style={shared.style as React.ComponentProps<typeof Link>["style"]}
-        href={rest.href}
-      >
+      <Link {...rest} {...shared} href={rest.href}>
         {children}
       </Link>
     );

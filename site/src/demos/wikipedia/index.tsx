@@ -50,7 +50,7 @@ const ArticleCard = ({ article }: { article: Article }) => (
   </article>
 );
 
-export const Wikipedia = () => (
+export const WikipediaDemo = () => (
   <LiveSource id="live-wikipedia" load={loadArticle} sample={ARTICLE}>
     {(article) => <ArticleCard article={article} />}
   </LiveSource>

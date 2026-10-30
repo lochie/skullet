@@ -10,7 +10,7 @@ const BIOS = {
   long: "Builds the libraries behind the interface: skeletons, text morphs and the small motion details that hold a page together. Currently measuring every line of text on the page.",
 };
 
-export const Resizing = () => {
+export const ResizingDemo = () => {
   const [bio, setBio] = useState<keyof typeof BIOS>("long");
   const [loading, setLoading] = useState(true);
   const { frame } = useMovement(loading);

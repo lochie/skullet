@@ -46,13 +46,11 @@ const compact = new Intl.NumberFormat("en", {
 
 /** The docs' pages: a sticky nav of the whole docs beside one column. */
 export const DocsLayout = ({
-  wide,
   aside,
   sections,
   downloads,
   children,
 }: {
-  wide?: boolean;
   /** Room on the right of the text for a block that spans the main column, like the theme editor. */
   aside?: boolean;
   /** A page outside the docs lists its own sections first, like the lab. */
@@ -61,7 +59,7 @@ export const DocsLayout = ({
   children: React.ReactNode;
 }) => {
   return (
-    <div className={styles.page} data-wide={wide} data-aside={aside}>
+    <div className={styles.page} data-aside={aside}>
       <nav className={styles.nav}>
         <Link href="/" className={styles.home}>
           <Mascot size={56} />
@@ -103,6 +101,7 @@ export const DocsLayout = ({
           </div>
         ))}
 
+        {/* Shown once it's a number worth showing */}
         {downloads !== undefined && downloads > 10000 && (
           <span className={styles.downloads}>
             {compact.format(downloads)} downloads

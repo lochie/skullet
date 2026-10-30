@@ -26,15 +26,15 @@ import { DocsLayout } from "@/components/docs-layout";
 import { Section } from "@/components/section";
 import { SegmentedControl } from "@/components/segmented-control";
 import { DebugToggle } from "./parts";
-import { GitHub } from "@/demos/github";
-import { HackerNews } from "@/demos/hacker-news";
-import { Met } from "@/demos/met";
-import { Wikipedia } from "@/demos/wikipedia";
-import { Accessibility } from "@/demos/accessibility";
-import { Hints } from "@/demos/hints";
-import { ScopedThemes } from "@/demos/scoped-themes";
-import { Sources } from "@/demos/skeleton-sources";
-import { States } from "@/demos/states";
+import { GitHubDemo } from "@/demos/github";
+import { HackerNewsDemo } from "@/demos/hacker-news";
+import { MetDemo } from "@/demos/met";
+import { WikipediaDemo } from "@/demos/wikipedia";
+import { AccessibilityDemo } from "@/demos/accessibility";
+import { HintsDemo } from "@/demos/hints";
+import { ScopedThemesDemo } from "@/demos/scoped-themes";
+import { SkeletonSourcesDemo } from "@/demos/skeleton-sources";
+import { StatesDemo } from "@/demos/states";
 
 const api = { Ghost, Reveal, forgetShapes };
 
@@ -52,7 +52,7 @@ const SECTIONS = [
   ["size", "Bundle sizes"],
 ] as const;
 
-export type BundleSize = {
+type BundleSize = {
   name: string;
   raw: number;
   gzip: number;
@@ -183,7 +183,7 @@ export const Lab = ({
           <code>empty</code> and <code>error</code> panes crossfade in the way
           content does, from the same skeleton.
         </p>
-        <States />
+        <StatesDemo />
       </Section>
 
       <Section id="sources" title="Where a skeleton comes from">
@@ -193,7 +193,7 @@ export const Lab = ({
           <code>sample</code>, and moves. Once anything has shown, every source
           holds still.
         </p>
-        <Sources />
+        <SkeletonSourcesDemo />
       </Section>
 
       <Section id="hints" title="Hints">
@@ -202,7 +202,7 @@ export const Lab = ({
           <code>skullet-block</code> draws an element as one block and{" "}
           <code>skullet-ignore</code> leaves it out.
         </p>
-        <Hints />
+        <HintsDemo />
       </Section>
 
       <Section id="scoped" title="Scoped themes">
@@ -210,7 +210,7 @@ export const Lab = ({
           Every theme option is a custom property, so any part of a page can set
           its own, with <code>themeVariables</code> as a style or in plain CSS.
         </p>
-        <ScopedThemes />
+        <ScopedThemesDemo />
       </Section>
 
       <Section id="accessibility" title="Accessibility">
@@ -219,7 +219,7 @@ export const Lab = ({
           is hidden from assistive tech and focus, with a <code>label</code>{" "}
           read in its place.
         </p>
-        <Accessibility />
+        <AccessibilityDemo />
       </Section>
 
       <Section id="hacker-news" title="Live: Hacker News">
@@ -227,7 +227,7 @@ export const Lab = ({
           The front page, six stories at a time: titles from three words to two
           lines, with a site or without.
         </p>
-        <HackerNews />
+        <HackerNewsDemo />
       </Section>
 
       <Section id="met" title="Live: The Met">
@@ -236,7 +236,7 @@ export const Lab = ({
           open-access collection. Titles run from a word to several lines, and
           some have no artist, date or image.
         </p>
-        <Met />
+        <MetDemo />
       </Section>
 
       <Section id="github" title="Live: GitHub">
@@ -244,7 +244,7 @@ export const Lab = ({
           React’s open issues, a page at a time, with any number of labels and
           titles of any length.
         </p>
-        <GitHub />
+        <GitHubDemo />
         <Callout>
           <p>
             These requests are unauthenticated, so GitHub allows about 60 loads
@@ -258,7 +258,7 @@ export const Lab = ({
           A random article each load. Each skeleton is drawn from the last
           article, the hardest case for a remembered shape.
         </p>
-        <Wikipedia />
+        <WikipediaDemo />
       </Section>
 
       <Section id="geometry" title="Geometry">

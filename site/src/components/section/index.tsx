@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 
 import styles from "./styles.module.scss";
-
-const COPIED_FOR = 1500;
+import { COPIED_FOR } from "@/utils/consts";
 
 const Bone = () => (
   <svg

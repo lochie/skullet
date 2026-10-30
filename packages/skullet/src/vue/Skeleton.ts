@@ -93,8 +93,7 @@ const Loading = defineComponent({
     watch(() => [props.id, props.exact, props.refetch], attach);
     onBeforeUnmount(() => ghost?.destroy());
 
-    // The snapshot and bones are filled by Ghost, never by Vue. The script
-    // draws the bones as server-rendered HTML is parsed, before the first paint.
+    // Snapshot and bones are Ghost's to fill, never Vue's
     return () => [
       props.label ? h("span", { [ATTR_STATUS]: "" }, props.label) : null,
       h(

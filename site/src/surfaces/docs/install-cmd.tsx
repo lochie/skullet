@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useWebHaptics } from "web-haptics/react";
 
-import styles from "./styles.module.scss";
+import styles from "./install.module.scss";
 import { TextMorph } from "torph/react";
 import { CodeBlock } from "@/components/codeblock";
 
-const pkgCmds = {
+const COMMANDS = {
   npm: "npm i skullet",
   pnpm: "pnpm i skullet",
   yarn: "yarn add skullet",
@@ -15,10 +15,12 @@ const pkgCmds = {
 export const InstallCommands = () => {
   const [cmdIndex, setCmdIndex] = useState(0);
   const { trigger } = useWebHaptics();
+  const command =
+    COMMANDS[Object.keys(COMMANDS)[cmdIndex] as keyof typeof COMMANDS];
   return (
     <div className={styles.install}>
       <div className={styles.commands}>
-        {Object.keys(pkgCmds).map((cmd, i) => (
+        {Object.keys(COMMANDS).map((cmd, i) => (
           <button
             key={cmd}
             onClick={() => {
@@ -32,9 +34,7 @@ export const InstallCommands = () => {
         ))}
       </div>
       <div className={styles.cmd}>
-        <CodeBlock
-          code={pkgCmds[Object.keys(pkgCmds)[cmdIndex] as keyof typeof pkgCmds]}
-        >
+        <CodeBlock code={command}>
           <span
             style={{
               opacity: 0.4,
@@ -43,9 +43,7 @@ export const InstallCommands = () => {
           >
             {"$ "}
           </span>
-          <TextMorph>
-            {pkgCmds[Object.keys(pkgCmds)[cmdIndex] as keyof typeof pkgCmds]}
-          </TextMorph>
+          <TextMorph>{command}</TextMorph>
         </CodeBlock>
       </div>
     </div>

@@ -129,7 +129,7 @@ const ModesDemo = ({
 };
 
 /** The feed under each mode, with the code for the one chosen. */
-export const RevealModes = () => {
+export const RevealModesDemo = () => {
   const [mode, setMode] = useState<(typeof MODES)[number]>("smart");
   return (
     <>

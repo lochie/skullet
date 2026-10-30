@@ -98,9 +98,10 @@ function roundedBy(
     .join(" ");
 }
 
+// Clipped to a sliver, it isn't seen: a visually hidden label, say, cut to a 1px box
 const clipped = (rect: Rect, clip: Clip): Rect | null => {
   const box = intersect(clip, rect);
-  return box.right - box.left >= 1 && box.bottom - box.top >= 1 ? box : null;
+  return box.right - box.left >= 2 && box.bottom - box.top >= 2 ? box : null;
 };
 
 type Line = {
@@ -178,11 +179,7 @@ const rule = <T extends string>(
   return allowed.includes(value) ? value : fallback;
 };
 
-/**
- * The bar for text laid out in `rect`, between the lines the typography rules
- * name: `--skullet-text-top` and `--skullet-text-bottom`. The baseline sits where
- * the font's box puts it, half-leading in from the rect's edges.
- */
+// Between the font lines `--skullet-text-top` and `--skullet-text-bottom` name, the baseline half-leading in
 function barOf(rect: Rect, style: CSSStyleDeclaration, fontSize: number) {
   const metrics = metricsOf(style);
   if (!metrics) {
@@ -240,14 +237,18 @@ const isRule = (shadow: string) => {
     shadow.replace(/rgba?\([^)]*\)|#\w+/g, "").match(/-?[\d.]+px/g) ?? []
   ).map(parseFloat);
   return (
-    shadow.includes("inset") && !blur && !spread && (x === 0) !== (y === 0)
+    shadow.includes("inset") &&
+    !blur &&
+    !spread &&
+    (x === 0) !== (y === 0) &&
+    Math.abs(x + y) <= 2
   );
 };
 
 const shadowPaints = (boxShadow: string) =>
   isSet(boxShadow, "none") && !boxShadow.split(/,(?![^(]*\))/).every(isRule);
 
-export const isPainted = (style: CSSStyleDeclaration) =>
+const isPainted = (style: CSSStyleDeclaration) =>
   (isSet(style.backgroundColor, "transparent") &&
     !TRANSPARENT.test(style.backgroundColor)) ||
   isSet(style.backgroundImage, "none") ||
@@ -261,13 +262,12 @@ const isEmptyText = (element: Element) =>
   !element.firstElementChild &&
   !element.textContent?.trim();
 
-/** Labels inside an element, counting text leaves left empty by missing data. */
 /**
  * Labels inside: one per piece of text however many lines it wraps to, and
  * pieces side by side on a line joined — one label split across many nodes,
  * as a text morph renders it, is still one.
  */
-export const countLabels = (element: Element) => {
+const countLabels = (element: Element) => {
   const walker = document.createTreeWalker(
     element,
     NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,

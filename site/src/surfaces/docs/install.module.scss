@@ -1,0 +1,52 @@
+.install {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: -1rem 0 0;
+
+  .cmd {
+    width: 100%;
+  }
+
+  .commands {
+    display: flex;
+    gap: 1rem;
+
+    a,
+    button {
+      padding: 1rem 0;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--fg-1);
+      opacity: 0.35;
+      transition: opacity 100ms ease;
+      &:hover,
+      &[data-active="true"] {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.example {
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 0 1rem;
+
+    @media (max-width: 480px) {
+      button {
+        padding: 0.75rem;
+        .name {
+          display: none;
+        }
+        .logo {
+          svg {
+            transform: none;
+          }
+        }
+      }
+    }
+  }
+}

@@ -63,7 +63,7 @@ const Stories = ({ stories }: { stories: Story[] }) => (
   </ol>
 );
 
-export const HackerNews = () => (
+export const HackerNewsDemo = () => (
   <LiveSource id="live-hn" load={loadStories} sample={STORIES}>
     {(stories) => <Stories stories={stories} />}
   </LiveSource>

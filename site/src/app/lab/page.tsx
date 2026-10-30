@@ -3,8 +3,7 @@ import path from "node:path";
 import { getDownloads } from "@/components/docs-layout/downloads";
 import { Lab } from "@/surfaces/lab/lab";
 
-// Written by `scripts/bundle-sizes.mjs` and gitignored, so it may not exist.
-// cwd is the site through the workspace, the repo root when next runs directly.
+// Written by `scripts/bundle-sizes.mjs`, gitignored: it may not exist. cwd is the site or the repo root
 function readBundleSizes() {
   const root = fs.existsSync("packages") ? "." : "..";
   const file = path.join(root, "site/src/surfaces/lab/bundle-sizes.json");

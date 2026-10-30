@@ -31,7 +31,7 @@ const observeReadout = (frame: HTMLElement, onChange: (r: Readout) => void) => {
   return () => observer.disconnect();
 };
 
-export const Accessibility = () => {
+export const AccessibilityDemo = () => {
   const [loading, setLoading] = useState(true);
   const [readout, setReadout] = useState<Readout | null>(null);
   const frame = useRef<HTMLDivElement>(null);

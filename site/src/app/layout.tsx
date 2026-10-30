@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   },
   other: {
     "msapplication-navbutton-color": "#000000",
-    "apple-mobile-web-app-status-bar-style": "#000000",
+    "apple-mobile-web-app-status-bar-style": "black",
   },
 };
 

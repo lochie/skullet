@@ -295,7 +295,7 @@ export const ThemeCreator = () => {
               />
               {radius === "px" && (
                 <Slider
-                  label=""
+                  label="Radius in px"
                   value={pixels}
                   min={0}
                   max={32}

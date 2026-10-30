@@ -12,13 +12,9 @@ import styles from "./styles.module.scss";
 import { Demo } from "@/components/demo";
 import { Button } from ".";
 
-export type Logged = { source: string; width: number; height: number };
+type Logged = { source: string; width: number; height: number };
 
-/**
- * One live API behind a reveal: load another (a new shape, drawn from the last
- * one), refetch over the data on screen, or forget remembered shapes. Every
- * reveal is measured, and the log says what its skeleton was drawn from.
- */
+/** One live API behind a reveal, its log saying what each skeleton was drawn from and whether it moved. */
 export function LiveSource<T>({
   id,
   load,

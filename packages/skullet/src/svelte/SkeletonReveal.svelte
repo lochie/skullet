@@ -5,6 +5,7 @@
     ATTR_BONES,
     ATTR_GHOST,
     ATTR_LOADING,
+    ATTR_OWN,
     ATTR_PANE,
     ATTR_REVEAL,
     ATTR_SNAPSHOT,
@@ -92,8 +93,7 @@
   let remembered: Memory | null = null;
   const boxes = new WeakMap<Element, PaneBox>();
 
-  // Before Svelte swaps the branch: the page is still settled, so measuring
-  // here can't make the browser's scroll anchoring see anything move
+  // Before Svelte swaps the branch, while measuring can't trip scroll anchoring
   $effect.pre(() => {
     key;
     untrack(() => {
@@ -171,13 +171,12 @@
   {#if loading}
     <div {...pane} use:track in:enter out:exit>
       {#if props.skeleton}
-        {@render props.skeleton()}
+        <div {...{ [ATTR_OWN]: '' }} aria-hidden="true">{@render props.skeleton()}</div>
       {:else}
         {#if props.label}
           <span {...{ [ATTR_STATUS]: '' }}>{props.label}</span>
         {/if}
-        <!-- The snapshot and bones are filled by Ghost, never by Svelte. The script
-             draws the bones as server-rendered HTML is parsed, before the first paint. -->
+        <!-- Snapshot and bones are Ghost's to fill, never Svelte's -->
         <div
           {...{ [ATTR_LOADING]: '' }}
           aria-hidden="true"

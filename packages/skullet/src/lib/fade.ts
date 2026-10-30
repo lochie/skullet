@@ -71,10 +71,7 @@ function clearStandIns(root: Element) {
   standIns.delete(root);
 }
 
-/**
- * Content landing over a skeleton with images still loading: each image stays
- * hidden behind a bone of its own until it's ready, so nothing else waits on it.
- */
+// Each image still loading stays hidden behind a bone of its own until it's ready, so nothing else waits on it
 function holdImages(element: HTMLElement, root: HTMLElement) {
   const images = pendingImages(element);
   const overSkeleton = [...root.children].some(
@@ -360,7 +357,7 @@ export function fadeOut(element: HTMLElement, box?: PaneBox): Promise<void> {
 
     // Content stays until the skeleton replacing it shows — which may be never
     if (plan?.kind === "skeleton") return fade(plan.hold, FADE_DURATION);
-    if (prefersReducedMotion() || plan?.kind === "instant") {
+    if (instant) {
       element.style.opacity = "0";
       return;
     }
@@ -439,13 +436,7 @@ function clearMask(element: HTMLElement) {
   }
 }
 
-/**
- * A wipe crossing one pane: incoming content shows behind the front, the
- * skeleton ahead of it. Both panes share the plan's clock, so the two masks
- * meet exactly. Only the plainest mask, rewritten each frame: Safari 18 drops
- * a mask's size once its position animates, and doesn't repaint for a custom
- * property animated inside one.
- */
+// A wipe across one pane on the plan's shared clock; the plainest mask, rewritten each frame, for Safari 18
 function wipe(element: HTMLElement, plan: WipePlan, incoming: boolean) {
   const pane = { rect: element.getBoundingClientRect(), reveal: plan.reveal };
   const { mask, out } = plan.wipe;

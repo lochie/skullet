@@ -1,13 +1,13 @@
 import { Button } from "@/components/button";
 import { TextMorph } from "torph/react";
 import { useState } from "react";
-import styles from "./styles.module.scss";
+import styles from "./install.module.scss";
 import { useWebHaptics } from "web-haptics/react";
 import { examples } from "./usage";
 import * as Logos from "./logos";
 import { CodeBlock } from "@/components/codeblock";
 
-const frameworks = [
+const FRAMEWORKS = [
   {
     name: "React",
     imports: `import { SkeletonReveal } from "skullet/react";`,
@@ -38,14 +38,14 @@ export const Frameworks = () => {
   const [frameworkIndex, setFrameworkIndex] = useState(0);
   const { trigger } = useWebHaptics();
 
-  const framework = frameworks[frameworkIndex];
+  const framework = FRAMEWORKS[frameworkIndex];
   const codeExample = `${framework.imports}
 
 ${framework.example}`;
   return (
     <div className={styles.example}>
       <div className={styles.controls}>
-        {frameworks.map((f, i) => (
+        {FRAMEWORKS.map((f, i) => (
           <Button
             key={f.name}
             disabled={frameworkIndex === i}

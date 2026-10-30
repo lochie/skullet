@@ -2,11 +2,7 @@ import { useState } from "react";
 
 import styles from "./styles.module.scss";
 
-/**
- * A live demo in the docs. Clicking remounts it, so its loader starts over,
- * or runs `onClick` instead; `disabled` ignores clicks while it loads.
- * `controls` sit under the box; with them and no `onClick`, the box is still.
- */
+/** A live demo: a click remounts it, or runs `onClick`; with `controls` (under it) and no `onClick`, it's still. */
 export const Demo = ({
   children,
   hint,

@@ -121,8 +121,7 @@ export const Loading = ({
     return () => ghost.destroy();
   }, [id, exact, refetch]);
 
-  // The snapshot and bones are filled by Ghost, never by React. The script
-  // draws the bones as server-rendered HTML is parsed, before the first paint.
+  // Snapshot and bones are Ghost's to fill, never React's
   return (
     <>
       {label && <span {...{ [ATTR_STATUS]: "" }}>{label}</span>}
@@ -201,11 +200,7 @@ type SettledProps = {
   registry: PaneRegistry;
 };
 
-/**
- * Measures panes that are about to leave in the one moment React offers
- * before it changes the DOM: the page is still settled, so reading layout
- * here can't make the browser's scroll anchoring see anything move.
- */
+/** Measures leaving panes before React changes the DOM, while reading layout can't trip scroll anchoring. */
 export class Settled extends React.Component<SettledProps> {
   getSnapshotBeforeUpdate(previous: SettledProps) {
     for (const id of this.props.exiting) {
@@ -219,6 +214,7 @@ export class Settled extends React.Component<SettledProps> {
     return null;
   }
 
+  // Required beside getSnapshotBeforeUpdate, or React warns
   componentDidUpdate() {}
 
   render() {

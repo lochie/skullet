@@ -52,11 +52,7 @@ export const SKULLET_CSS = `
   background-repeat: no-repeat;
 }
 
-/*
- * Containers keep their surface; what they hold is drawn by bones instead.
- * Those are measured before the first paint — by an inline script when
- * server-rendered — so this is all a loading skeleton ever looks like.
- */
+/* Containers keep their surface; what they hold is drawn by bones, measured before the first paint */
 @scope ([${ATTR_LOADING}]) to ([${ATTR_OWN}], [${ATTR_BONES}]) {
   :scope,
   :scope * {
@@ -70,18 +66,12 @@ export const SKULLET_CSS = `
     color: transparent !important;
   }
 
-  /*
-   * Gives text leaves left empty by missing data a line to measure. Content
-   * only — never a size, or a span sized into a dot would grow round its filler.
-   */
+  /* A line to measure in empty text; content only, never a size, or a dot-sized span would grow round it */
   :scope :is(${text}):empty:not(svg *)::before {
     content: "000000";
   }
 
-  /*
-   * Leaves are text, media or a painted chip — each drawn by a bone, so their
-   * own paint never shows. visibility, not paint removed: measuring reads it.
-   */
+  /* Leaves are drawn by bones, so their own paint never shows; visibility, as measuring reads it */
   :scope :is(:not(:has(*)), ${media}, [${ATTR_COVERED}], [${ATTR_BLOCK}]):not(svg *) {
     visibility: hidden !important;
   }
