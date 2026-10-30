@@ -4,6 +4,11 @@
   width: 100cqw;
 }
 
+// The browser anchors scrolling to the section around the editor, and its sticky panel threw that off: a link straight here landed, then drifted a screen down
+section:has(> .creator) {
+  overflow-anchor: none;
+}
+
 .workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 18rem;
