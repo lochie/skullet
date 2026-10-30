@@ -23,16 +23,23 @@ const getRandomJoke = async () => {
   return data.joke;
 };
 
+const getRandomAuthor = async () => {
+  // Simulate an API call for a random author
+  const authors = ["John Doe", "Jane Smith", "Alice Johnson", "Bob Brown"];
+  return authors[Math.floor(Math.random() * authors.length)];
+};
+
 const getRandomPost = async (): Promise<Post> => {
   const [advice, joke] = await Promise.all([
     getRandomAdvice(),
     getRandomJoke(),
   ]);
+
   return {
     title: advice,
     excerpt: joke,
-    author: "Lochie Axon",
-    read: "4 min read",
+    author: await getRandomAuthor(),
+    read: `${Math.floor(Math.random() * 10) + 1} min read`,
   };
 };
 

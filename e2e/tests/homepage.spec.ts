@@ -13,10 +13,29 @@ const holdSvg = (page: Page) =>
     }
   });
 
-// Images from the network, which no golden can hold still
+// The article demo's APIs answer at random, and its height follows: answered the same every run
+const fixedPost = (page: Page) =>
+  Promise.all([
+    page.route("https://api.adviceslip.com/**", (route) =>
+      route.fulfill({
+        json: { slip: { id: 1, advice: "Measure twice, reveal once." } },
+      }),
+    ),
+    page.route("https://icanhazdadjoke.com/**", (route) =>
+      route.fulfill({
+        json: {
+          id: "skullet",
+          joke: "Skeletons never fight. They don't have the guts.",
+        },
+      }),
+    ),
+  ]);
+
+// Images from the network, and the wallet's prices, new each load: nothing a golden can hold still
 const remote = (page: Page) => [
   page.locator('img[src^="http"]'),
   page.locator('img[src*="picsum"]'),
+  page.locator("[data-varies]"),
 ];
 
 test("loads and hydrates without a console error", async ({
@@ -63,6 +82,7 @@ test("every skeleton is drawn, before any data", async ({ page }) => {
 });
 
 test("every demo settles into its content", async ({ page }) => {
+  await fixedPost(page);
   await page.goto("/");
   await page.waitForTimeout(4000);
   await holdSvg(page);
@@ -76,6 +96,7 @@ test("every demo settles into its content", async ({ page }) => {
 test("no demo is ever blank while it reveals", async ({ page }) => {
   // Tall enough for every demo: a full-page screenshot resizes the viewport, which re-measures what it's checking
   await page.setViewportSize({ width: 1400, height: 2000 });
+  await fixedPost(page);
   await page.goto("/");
   await page.waitForTimeout(3000);
   // Every card at once, as the reveals would land together
