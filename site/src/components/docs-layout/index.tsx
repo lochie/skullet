@@ -66,8 +66,10 @@ export const DocsLayout = ({
       <nav className={styles.nav}>
         <Link href="/" className={styles.home}>
           <Mascot size={56} />
-          <span className={styles.name}>Skullet</span>
-          <span className={styles.tagline}>Smart skeleton states</span>
+          <div className={styles.text}>
+            <span className={styles.name}>Skullet</span>
+            <span className={styles.tagline}>Smart skeleton states</span>
+          </div>
         </Link>
 
         {sections && (
@@ -102,7 +104,7 @@ export const DocsLayout = ({
           </div>
         ))}
 
-        {downloads !== undefined && (
+        {downloads !== undefined && downloads > 10000 && (
           <span className={styles.downloads}>
             {compact.format(downloads)} downloads
           </span>

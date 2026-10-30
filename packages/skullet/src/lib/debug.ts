@@ -1,4 +1,4 @@
-import { ATTR_XRAY } from "./constants";
+import { ATTR_DEBUG, ATTR_XRAY } from "./constants";
 
 type Entry = {
   state: "loading" | "shown";
@@ -22,9 +22,15 @@ function fromPage() {
   }
 }
 
-/** On with `?skullet-debug` in the URL, `skullet:debug` = "1" in localStorage, or `setDebug(true)`. */
-export const debugging = () =>
+const everywhere = () =>
   (enabled ??= typeof window !== "undefined" && fromPage());
+
+/**
+ * On with `?skullet-debug` in the URL, `skullet:debug` = "1" in localStorage,
+ * or `setDebug(true)`; for `element`, also inside a `[skullet-debug]`.
+ */
+export const debugging = (element?: Element | null) =>
+  everywhere() || !!element?.closest(`[${ATTR_DEBUG}]`);
 
 export function setDebug(on: boolean) {
   enabled = on;
@@ -33,7 +39,7 @@ export function setDebug(on: boolean) {
 }
 
 export function reportLoading(reveal: Element | null, source: string) {
-  if (!reveal || !debugging()) return;
+  if (!reveal || !debugging(reveal)) return;
   entries.set(reveal, { state: "loading", source });
   start();
 }
@@ -42,7 +48,7 @@ export function reportReveal(
   reveal: Element | null,
   moved: { width: number; height: number },
 ) {
-  if (!reveal || !debugging()) return;
+  if (!reveal || !debugging(reveal)) return;
   entries.set(reveal, { ...entries.get(reveal), state: "shown", moved });
   start();
 }
@@ -68,30 +74,39 @@ const PANEL_CSS = `
 
 function start() {
   if (typeof document === "undefined") return;
-  if (!host) {
+  if (!host?.isConnected) {
     host = document.createElement("div");
     host.style.cssText =
       "position:fixed;inset:0;pointer-events:none;z-index:2147483647";
     const shadow = host.attachShadow({ mode: "open" });
-    shadow.innerHTML = `<style>${PANEL_CSS}</style><div class="boxes"></div>
-<div class="panel">skullet debug <label><input type="checkbox" class="xray"> x-ray</label></div>`;
-    shadow.querySelector(".xray")!.addEventListener("change", (event) => {
+    shadow.innerHTML = `<style>${PANEL_CSS}</style><div class="boxes"></div>`;
+    document.body.append(host);
+  }
+  // The panel is for the whole page; a `[skullet-debug]` subtree sets its own x-ray
+  const shadow = host.shadowRoot!;
+  if (enabled && !shadow.querySelector(".panel")) {
+    const panel = document.createElement("div");
+    panel.className = "panel";
+    panel.innerHTML = `skullet debug <label><input type="checkbox" class="xray"> x-ray</label>`;
+    panel.querySelector(".xray")!.addEventListener("change", (event) => {
       document.documentElement.toggleAttribute(
         ATTR_XRAY,
         (event.target as HTMLInputElement).checked,
       );
     });
-    document.body.append(host);
+    shadow.append(panel);
   }
   if (!frame) frame = requestAnimationFrame(draw);
 }
 
 function stop() {
+  host?.shadowRoot?.querySelector(".panel")?.remove();
+  document.documentElement.removeAttribute(ATTR_XRAY);
+  if ([...entries.keys()].some((reveal) => debugging(reveal))) return;
   cancelAnimationFrame(frame);
   frame = 0;
   host?.remove();
   host = null;
-  document.documentElement.removeAttribute(ATTR_XRAY);
 }
 
 const describe = ({ state, source, moved }: Entry) => {
@@ -113,7 +128,7 @@ function draw() {
   const boxes = host.shadowRoot.querySelector(".boxes")!;
 
   for (const reveal of entries.keys()) {
-    if (!reveal.isConnected) entries.delete(reveal);
+    if (!reveal.isConnected || !debugging(reveal)) entries.delete(reveal);
   }
 
   const items = [...entries];
@@ -136,5 +151,5 @@ function draw() {
     box.firstElementChild!.textContent = text;
   });
 
-  if (enabled) frame = requestAnimationFrame(draw);
+  if (enabled || entries.size) frame = requestAnimationFrame(draw);
 }

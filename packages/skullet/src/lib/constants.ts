@@ -17,7 +17,8 @@ export const GHOSTED = Symbol.for("skullet.ghost"); // On a loading root once it
 export const UNCOVER = Symbol.for("skullet.uncover"); // On a served loading root: drops the inline script's sheet hiding covered paint, once Ghost marks it
 export const BOOT = "skullet.boot"; // Symbol.for key on window: the inline script's measuring, sent once a page — later skeletons' stubs call it, or queue for it
 export const ATTR_STATUS = "skullet-status"; // Read to screen readers in place of the skeleton
-export const ATTR_XRAY = "skullet-xray"; // Debug: shows the ghost through its bones
+export const ATTR_XRAY = "skullet-xray"; // Debug, on any ancestor: shows the ghost through its bones
+export const ATTR_DEBUG = "skullet-debug"; // Debug outlines for this subtree alone
 
 // Themed by SkulletProvider; the fallbacks are translucent so one grey reads on light and dark pages alike
 export const BASE = "var(--skullet-base, rgb(128 128 128 / 0.2))";

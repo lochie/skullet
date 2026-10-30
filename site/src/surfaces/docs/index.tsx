@@ -14,7 +14,6 @@ import { ThemeCreator } from "./theme-creator";
 import { InstallCommands } from "../homepage/install-cmd";
 import { Frameworks } from "../homepage/frameworks";
 import { Section } from "@/components/section";
-import { DebugToggle } from "../lab/parts";
 import { Resizing, RevealModes, Suspense } from "../lab/features";
 import { Lists } from "../lab/lists";
 
@@ -185,6 +184,13 @@ const SPEC: [string, React.ReactNode][] = [
   ],
 ];
 
+/** The resizing demo under the debug overlay and x-ray, scoped to it. */
+const DebugExample = () => (
+  <div skullet-debug="" skullet-xray="">
+    <Resizing />
+  </div>
+);
+
 const Terms = ({
   items,
   code,
@@ -260,7 +266,8 @@ export const Docs = ({ downloads }: { downloads?: number }) => (
         that instead.
       </p>
       <CodeBlock
-        code={`import { Skeleton } from "skullet/react";
+        code={`import { useState } from "react";
+import { Skeleton } from "skullet/react";
 
 Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
       />
@@ -458,8 +465,12 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
         moved or red with how far it did. Turn it on with <code>debug</code> on
         the provider, or add <code>?skullet-debug</code> to the URL.
       </p>
-      <p>Try it on this page:</p>
-      <DebugToggle />
+      <p>
+        To outline one part of the page instead, put <code>skullet-debug</code>{" "}
+        on any element around it. Add <code>skullet-xray</code> to see what was
+        measured: the hidden content shows through the skeleton while it loads.
+      </p>
+      <DebugExample />
     </Section>
 
     <Section id="api" title="API">

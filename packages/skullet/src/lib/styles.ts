@@ -127,8 +127,8 @@ export const SKULLET_CSS = `
 }
 
 /* Debug x-ray: the ghost shown through its bones, to see what was measured */
-:root[${ATTR_XRAY}] [${ATTR_LOADING}] [${ATTR_GHOST}],
-:root[${ATTR_XRAY}] [${ATTR_LOADING}] [${ATTR_GHOST}] *:not(svg *) {
+[${ATTR_XRAY}] [${ATTR_LOADING}] [${ATTR_GHOST}],
+[${ATTR_XRAY}] [${ATTR_LOADING}] [${ATTR_GHOST}] *:not(svg *) {
   visibility: visible !important;
   color: rgb(255 0 80 / 0.7) !important;
   -webkit-text-fill-color: rgb(255 0 80 / 0.7) !important;

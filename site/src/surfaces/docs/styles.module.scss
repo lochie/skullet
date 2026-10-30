@@ -26,7 +26,12 @@
     padding: 0.625rem 1rem 0.625rem 0;
     text-align: left;
     vertical-align: top;
+  }
+  tr {
     border-bottom: 1px solid var(--border);
+    &:last-child {
+      border-bottom: none;
+    }
   }
 
   th {
@@ -42,9 +47,6 @@
 .terms {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  margin: 0;
-  border-top: 1px solid var(--border);
 
   > div {
     display: grid;
@@ -56,6 +58,10 @@
     @media (max-width: 640px) {
       grid-template-columns: minmax(0, 1fr);
       gap: 0.25rem;
+    }
+
+    &:last-child {
+      border-bottom: none;
     }
   }
 
@@ -77,11 +83,11 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  padding: 0 0 1rem;
 
   h3 {
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: 1rem;
+    font-weight: 400;
     color: #ffffff;
   }
 }
-

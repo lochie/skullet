@@ -34,7 +34,7 @@ export class Memory {
       ? trackShape(this.key, () => this.save())
       : () => {};
 
-    if (isDev || debugging()) this.check();
+    if (isDev || debugging(element)) this.check();
     this.save();
 
     this.mutations = new MutationObserver(this.schedule);
