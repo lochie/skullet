@@ -6,8 +6,8 @@ import { Avatar } from "@/components/avatar";
 export const AUTHORS = [
   ["Lochie Axon", "Design engineering"],
   ["Alex Vanderzon", "Design"],
-  ["Jack Skellington", "Design"],
-  ["Pugson", "Engineering"],
+  ["Jack Skellington", "Product"],
+  ["Pugson", "Design engineering"],
 ] as const;
 
 export const Button = ({ children, ...props }: ComponentProps<"button">) => (
