@@ -4,7 +4,7 @@
   margin: 0.25rem 0 0;
   font-size: 1rem;
   font-weight: 500;
-  color: #ffffff;
+  color: var(--fg-1);
 }
 
 .label {
@@ -46,7 +46,7 @@
 .progressFill {
   height: 100%;
   border-radius: inherit;
-  background: #ffffff;
+  background: var(--fg-1);
 }
 
 .times {
@@ -64,5 +64,5 @@
   gap: 1.5rem;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  color: var(--fg-1);
 }

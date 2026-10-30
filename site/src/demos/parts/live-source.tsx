@@ -10,6 +10,7 @@ import { SkeletonReveal } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { Demo } from "@/components/demo";
+import { Button } from ".";
 
 export type Logged = { source: string; width: number; height: number };
 
@@ -114,15 +115,15 @@ export function LiveSource<T>({
   return (
     <Demo
       controls={
-        <div className={styles.actions}>
-          <button onClick={() => start(round + 1, false)} disabled={loading}>
+        <>
+          <Button onClick={() => start(round + 1, false)} disabled={loading}>
             Load another
-          </button>
-          <button onClick={() => start(round, true)} disabled={loading}>
+          </Button>
+          <Button onClick={() => start(round, true)} disabled={loading}>
             Refetch, keeping data
-          </button>
-          <button onClick={() => forgetShapes()}>Forget shapes</button>
-        </div>
+          </Button>
+          <Button onClick={() => forgetShapes()}>Forget shapes</Button>
+        </>
       }
     >
       <div ref={frame} className={styles.liveFrame}>

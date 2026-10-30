@@ -3,7 +3,7 @@ import { TextMorph } from "torph/react";
 
 import styles from "./projects.module.scss";
 
-const WORDS = ["Torph", "Text Morph", "TextMorph"];
+const WORDS = ["Morph", "Text Morph", "Torph"];
 
 const Morphing = () => {
   const [index, setIndex] = useState(0);

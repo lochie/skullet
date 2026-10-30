@@ -10,7 +10,7 @@
         color: var(--color-muted);
         transition: color 100ms ease;
         &:hover {
-          color: #fff;
+          color: var(--fg-1);
         }
 
         &:before {

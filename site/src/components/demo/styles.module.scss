@@ -5,7 +5,8 @@
   gap: 1rem;
   padding: 5rem;
   border-radius: 1rem;
-  border: 1px dashed var(--border);
+  outline: 1px dashed var(--border);
+  outline-offset: -1px;
   cursor: pointer;
   user-select: none;
 

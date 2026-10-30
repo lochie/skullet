@@ -12,7 +12,7 @@
   }
 
   &[data-aside="true"] {
-    grid-template-columns: var(--sidebar-width) minmax(0, 40rem) 15rem;
+    grid-template-columns: var(--sidebar-width) minmax(0, 40rem) 18rem;
 
     @media (max-width: aside.$breakpoint) {
       grid-template-columns: var(--sidebar-width) minmax(0, 40rem);
@@ -55,7 +55,7 @@
 
     &:hover,
     &:target-current {
-      color: #ffffff;
+      color: var(--fg-1);
     }
   }
 
@@ -87,7 +87,7 @@
 .name {
   font-size: 1rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--fg-1);
 }
 
 .tagline {

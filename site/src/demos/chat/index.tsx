@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -8,8 +9,8 @@ import { SkeletonReveal } from "skullet/react";
 import { useSfx } from "@/hooks/useSfx";
 import { SOUNDS } from "@/utils/consts";
 
-type Message = { mine: boolean; text: string };
-
+type Preview = { href: string; title: string; site: string; image: string };
+type Message = { mine: boolean; text?: string; preview?: Preview };
 const THREAD: Message[] = [
   { mine: true, text: "Wait, how does it know the content length?" },
   { mine: false, text: "it renders sample data invisibly" },
@@ -21,18 +22,30 @@ const THREAD: Message[] = [
   { mine: false, text: "skeletons usually are 💀" },
 ];
 
-// Each send is a question of mine, then Lochie's answer
-const FOLLOW_UPS: [mine: string, reply: string][] = [
-  [
-    "What about server rendering?",
-    "a tiny inline script measures the html before first paint",
-  ],
-  ["And with no sample data?", "it remembers the shape it showed last time"],
-  ["Does anything move when it loads?", "not a pixel"],
-  ["Ok I’m sold", "npm i skullet"],
+// A link sent on its own, which iMessage unfurls into a card
+const DOCS: Preview = {
+  href: "/docs",
+  title: "Skullet docs",
+  site: "skullet.lochie.me",
+  image: "/opengraph-image.png",
+};
+
+// Each send is a question of mine, then Lochie's answers, one after another
+const FOLLOW_UPS: { ask: string; replies: (string | Preview)[] }[] = [
+  {
+    ask: "What about server rendering?",
+    replies: ["a tiny inline script measures the html before first paint"],
+  },
+  {
+    ask: "And with no sample data?",
+    replies: ["it remembers the shape it showed last time"],
+  },
+  { ask: "Does anything move when it loads?", replies: ["not a pixel"] },
+  { ask: "Ok I’m sold", replies: ["check out the docs", DOCS] },
 ];
 
 const REPLY_DELAY = 1200;
+const NEXT_REPLY = 900; // A second reply follows the first after this
 const TYPE_SPEED = 35;
 
 // Keyed per message, so each one types in from empty
@@ -57,18 +70,30 @@ export const ChatDemo = () => {
   // Not a dependency: the reply's timer would restart on every render
   const onReply = useEffectEvent(() => replySound.play());
 
-  // Two messages per step, so a step is done once its reply is in
-  const step = Math.floor(extra.length / 2);
+  const [step, setStep] = useState(0);
   const next = FOLLOW_UPS[step];
 
   useEffect(() => {
     if (!replying || !next) return;
-    const timeout = setTimeout(() => {
-      setExtra((messages) => [...messages, { mine: false, text: next[1] }]);
-      setReplying(false);
-      onReply();
-    }, REPLY_DELAY);
-    return () => clearTimeout(timeout);
+    const timeouts = next.replies.map((reply, i) =>
+      setTimeout(
+        () => {
+          setExtra((messages) => [
+            ...messages,
+            typeof reply === "string"
+              ? { mine: false, text: reply }
+              : { mine: false, preview: reply },
+          ]);
+          onReply();
+          if (i === next.replies.length - 1) {
+            setStep((current) => current + 1);
+            setReplying(false);
+          }
+        },
+        REPLY_DELAY + i * NEXT_REPLY,
+      ),
+    );
+    return () => timeouts.forEach(clearTimeout);
   }, [replying, next]);
 
   const messages = useMemo(
@@ -81,7 +106,7 @@ export const ChatDemo = () => {
     if (!thread || !next) return;
     event.stopPropagation();
     if (replying) return;
-    setExtra((messages) => [...messages, { mine: true, text: next[0] }]);
+    setExtra((messages) => [...messages, { mine: true, text: next.ask }]);
     setReplying(true);
     sendSound.play();
   };
@@ -105,6 +130,7 @@ export const ChatDemo = () => {
                       layout="position"
                       layoutId={`message-${i}`}
                       data-mine={message.mine}
+                      data-preview={!!message.preview || undefined}
                       initial={{
                         opacity: 0,
                         scale: 0.8,
@@ -127,7 +153,30 @@ export const ChatDemo = () => {
                         ease: "easeInOut",
                       }}
                     >
-                      {message.text}
+                      {message.preview ? (
+                        // Its own click: following it shouldn't also reload the card
+                        <Link
+                          href={message.preview.href}
+                          className={styles.preview}
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element -- a plain image is what's measured */}
+                          <img
+                            src={message.preview.image}
+                            alt=""
+                            width={1440}
+                            height={760}
+                          />
+                          <span className={styles.previewTitle}>
+                            {message.preview.title}
+                          </span>
+                          <span className={styles.previewSite}>
+                            {message.preview.site}
+                          </span>
+                        </Link>
+                      ) : (
+                        message.text
+                      )}
                     </motion.li>
                   ))}
                 </AnimatePresence>
@@ -143,7 +192,7 @@ export const ChatDemo = () => {
                 {replying || !next ? (
                   "Type a message…"
                 ) : (
-                  <Typed key={step} text={next[0]} />
+                  <Typed key={step} text={next.ask} />
                 )}
               </div>
               <div className={styles.send}>Send</div>

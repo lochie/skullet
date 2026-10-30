@@ -21,7 +21,7 @@
     }
 
     &[aria-checked="true"] {
-      color: #ffffff;
+      color: var(--fg-1);
       background: rgb(255 255 255 / 0.08);
     }
 

@@ -1,7 +1,7 @@
 .feedName {
   font-size: 0.8125rem;
   font-weight: 500;
-  color: #ffffff;
+  color: var(--fg-1);
 }
 
 .feedMeta {
@@ -44,5 +44,5 @@
   border-radius: 0.5rem;
   font-size: 0.75rem;
   color: var(--color-muted);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--body-light);
 }

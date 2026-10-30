@@ -189,7 +189,8 @@ export const ThemeCreator = () => {
     settle();
     setArrived(new Set());
   };
-  const loaded = arrived.size === REGIONS.length;
+  // Showing the skeleton, a click loads the page; loading or loaded, it goes back to the skeleton
+  const toggle = () => (arrived.size === 0 ? load() : reset());
 
   const theme: SkeleTheme = {
     light: {
@@ -243,90 +244,100 @@ export const ThemeCreator = () => {
     <div className={styles.creator}>
       <div className={styles.panel}>
         <div className={styles.controls}>
-          <Choice
-            label="Preview"
-            options={["light", "dark"] as const}
-            value={mode}
-            onChange={setMode}
-          />
-          <Swatch
-            label="Base"
-            color={colors[mode].base}
-            onChange={edit("base")}
-          />
-          <Swatch
-            label="Highlight"
-            color={colors[mode].highlight}
-            onChange={edit("highlight")}
-          />
-          <Choice
-            label="Radius"
-            options={["auto", "px", "pill"] as const}
-            value={radius}
-            onChange={setRadius}
-          />
-          {radius === "px" && (
-            <Slider
-              label=""
-              value={pixels}
-              min={0}
-              max={16}
-              unit="px"
-              onChange={setPixels}
+          <div className={styles.group} role="group" aria-label="Colour">
+            <span className={styles.heading}>Colour</span>
+            <Choice
+              label="Preview"
+              options={["light", "dark"] as const}
+              value={mode}
+              onChange={setMode}
             />
-          )}
-          <Choice
-            label="Animation"
-            options={ANIMATIONS}
-            value={animation}
-            onChange={setAnimation}
-          />
-          <Choice
-            label="Speed"
-            options={["slow", "fast"] as const}
-            value={speed}
-            onChange={setSpeed}
-          />
-          <Choice
-            label="Reveal"
-            options={REVEALS}
-            value={reveal}
-            onChange={setReveal}
-          />
-          <Choice
-            label="Enter"
-            options={ENTER_NAMES}
-            value={enter}
-            onChange={setEnter}
-          />
-          <Choice
-            label="Text top"
-            options={TOPS}
-            value={top}
-            onChange={setTop}
-          />
-          <Choice
-            label="Text bottom"
-            options={BOTTOMS}
-            value={bottom}
-            onChange={setBottom}
-          />
+            <Swatch
+              label="Base"
+              color={colors[mode].base}
+              onChange={edit("base")}
+            />
+            <Swatch
+              label="Highlight"
+              color={colors[mode].highlight}
+              onChange={edit("highlight")}
+            />
+          </div>
+          <div className={styles.group} role="group" aria-label="Shape">
+            <span className={styles.heading}>Shape</span>
+            <Choice
+              label="Radius"
+              options={["auto", "px", "pill"] as const}
+              value={radius}
+              onChange={setRadius}
+            />
+            {radius === "px" && (
+              <Slider
+                label=""
+                value={pixels}
+                min={0}
+                max={16}
+                unit="px"
+                onChange={setPixels}
+              />
+            )}
+            <Choice
+              label="Text top"
+              options={TOPS}
+              value={top}
+              onChange={setTop}
+            />
+            <Choice
+              label="Text bottom"
+              options={BOTTOMS}
+              value={bottom}
+              onChange={setBottom}
+            />
+          </div>
+          <div className={styles.group} role="group" aria-label="Motion">
+            <span className={styles.heading}>Motion</span>
+            <Choice
+              label="Animation"
+              options={ANIMATIONS}
+              value={animation}
+              onChange={setAnimation}
+            />
+            <Choice
+              label="Speed"
+              options={["slow", "fast"] as const}
+              value={speed}
+              onChange={setSpeed}
+            />
+            <Choice
+              label="Reveal"
+              options={REVEALS}
+              value={reveal}
+              onChange={setReveal}
+            />
+            <Choice
+              label="Enter"
+              options={ENTER_NAMES}
+              value={enter}
+              onChange={setEnter}
+            />
+          </div>
         </div>
       </div>
 
-      <div className={styles.stage} data-mode={mode}>
-        <div className={styles.chrome}>
-          <span className={styles.dots}>
-            <i />
-            <i />
-            <i />
-          </span>
-          <span className={styles.address}>lochie.me</span>
-          <button onClick={load}>{loaded ? "Reload page" : "Load page"}</button>
-          <button onClick={reset} disabled={arrived.size === 0}>
-            Show skeleton
-          </button>
-        </div>
+      <div
+        className={styles.stage}
+        data-mode={mode}
+        role="button"
+        tabIndex={0}
+        aria-label={arrived.size === 0 ? "Load the page" : "Show the skeleton"}
+        onClick={toggle}
+        onKeyDown={(event) => {
+          if (event.target !== event.currentTarget) return;
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          toggle();
+        }}
+      >
         <div
           // Applied here only, so the theme stays inside the preview; remounted to measure each change
           key={JSON.stringify(theme) + mode}
@@ -338,6 +349,11 @@ export const ThemeCreator = () => {
         </div>
       </div>
 
+      <span className={styles.hint}>
+        {arrived.size === 0
+          ? "Click the preview to load it"
+          : "Click the preview for its skeleton"}
+      </span>
       <CodeBlock code={code} />
     </div>
   );

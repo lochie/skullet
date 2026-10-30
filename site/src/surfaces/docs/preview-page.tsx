@@ -2,6 +2,7 @@ import { SkeletonReveal } from "skullet/react";
 
 import styles from "./preview-page.module.scss";
 import { Avatar } from "@/components/avatar";
+import { Mascot } from "@/components/mascot";
 
 export const REGIONS = [
   "topbar",
@@ -30,8 +31,6 @@ const NAV = ["Overview", "Payments", "Customers", "Reports", "Settings"];
 const STATS = [
   { label: "Revenue", value: "$48,210", delta: "+12.4%" },
   { label: "Customers", value: "2,314", delta: "+3.1%" },
-  { label: "Refunds", value: "$1,092", delta: "-0.8%" },
-  { label: "Churn", value: "1.9%", delta: "-0.2%" },
 ];
 const BARS = [42, 58, 51, 66, 73, 61, 80, 77, 88, 70, 92, 85];
 const ACTIVITY = [
@@ -51,14 +50,11 @@ export const PreviewPage = ({
   <div className={styles.page}>
     <SkeletonReveal loading={loading("topbar")}>
       <header className={styles.topbar}>
-        <span className={styles.logo}>Dashboard</span>
-        <nav>
-          <span>Dashboard</span>
-          <span>Docs</span>
-          <span>Support</span>
-        </nav>
+        <span className={styles.logo}>
+          <Mascot size={24} />
+        </span>
         <span className={styles.search}>Search…</span>
-        <Avatar name="Lochie Axon" size={32} />
+        <Avatar name="Lochie Axon" size={18} />
       </header>
     </SkeletonReveal>
 
@@ -85,21 +81,21 @@ export const PreviewPage = ({
           </div>
         </SkeletonReveal>
 
-        <SkeletonReveal loading={loading("stats")}>
-          <div className={styles.stats}>
-            {STATS.map((stat) => (
-              <div key={stat.label} className={styles.stat}>
-                <span>{stat.label}</span>
-                <strong>{stat.value}</strong>
-                <em data-up={!stat.delta.startsWith("-")}>{stat.delta}</em>
-              </div>
-            ))}
-          </div>
-        </SkeletonReveal>
-
         <div className={styles.columns}>
-          <SkeletonReveal loading={loading("chart")}>
-            <section className={styles.card}>
+          <SkeletonReveal loading={loading("stats")}>
+            <div className={styles.stats}>
+              {STATS.map((stat) => (
+                <div key={stat.label} className={styles.stat}>
+                  <span>{stat.label}</span>
+                  <strong>{stat.value}</strong>
+                  <em data-up={!stat.delta.startsWith("-")}>{stat.delta}</em>
+                </div>
+              ))}
+            </div>
+          </SkeletonReveal>
+
+          <section className={styles.card}>
+            <SkeletonReveal loading={loading("chart")}>
               <h3>Revenue</h3>
               <p>Last 12 weeks</p>
               <div className={styles.chart}>
@@ -108,28 +104,28 @@ export const PreviewPage = ({
                   <div key={i} style={{ height: `${height}%` }} />
                 ))}
               </div>
-            </section>
-          </SkeletonReveal>
-
-          <SkeletonReveal loading={loading("activity")}>
-            <section className={styles.card}>
-              <h3>Activity</h3>
-              <ul className={styles.activity}>
-                {ACTIVITY.map((item) => (
-                  <li key={item.who + item.when}>
-                    <Avatar name={item.who} size={24} />
-                    <span className={styles.line}>
-                      <b>{item.who}</b> {item.what}
-                    </span>
-                    <time>{item.when}</time>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </SkeletonReveal>
+            </SkeletonReveal>
+          </section>
         </div>
 
-        <SkeletonReveal loading={loading("article")}>
+        <SkeletonReveal loading={loading("activity")}>
+          <section className={styles.card}>
+            <h3>Activity</h3>
+            <ul className={styles.activity}>
+              {ACTIVITY.map((item) => (
+                <li key={item.who + item.when}>
+                  <Avatar name={item.who} size={18} />
+                  <span className={styles.line}>
+                    <b>{item.who.split(" ")[0]}</b> {item.what}
+                  </span>
+                  <time>{item.when}</time>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </SkeletonReveal>
+
+        {/* <SkeletonReveal loading={loading("article")}>
           <article className={styles.article}>
             <div className={styles.cover} />
             <div>
@@ -142,7 +138,7 @@ export const PreviewPage = ({
               <span className={styles.meta}>Guides · 6 min read</span>
             </div>
           </article>
-        </SkeletonReveal>
+        </SkeletonReveal> */}
       </main>
     </div>
   </div>

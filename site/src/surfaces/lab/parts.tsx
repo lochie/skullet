@@ -1,7 +1,7 @@
 import { useState, useSyncExternalStore } from "react";
 import { debugging, setDebug } from "skullet";
 
-import styles from "./styles.module.scss";
+import { Button } from "@/demos/parts";
 
 const subscribe = () => () => {};
 
@@ -12,8 +12,7 @@ export const DebugToggle = () => {
   const on = toggled ?? initial;
 
   return (
-    <button
-      className={styles.debugToggle}
+    <Button
       data-active={on}
       onClick={() => {
         setDebug(!on);
@@ -21,6 +20,6 @@ export const DebugToggle = () => {
       }}
     >
       {on ? "Hide" : "Show"} debug overlay
-    </button>
+    </Button>
   );
 };

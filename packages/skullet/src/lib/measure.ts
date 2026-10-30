@@ -18,8 +18,11 @@ export type Bone = {
 
 type Rect = { left: number; right: number; top: number; bottom: number };
 
-// Overflow a box hides, which a bone must not paint past; null while nothing clips
-type Clip = Rect | null;
+// Corner radii in px: top left, top right, bottom right, bottom left
+type Corners = [number, number, number, number];
+
+// Overflow a box hides, which a bone must not paint past, with the corners it rounds; null while nothing clips
+type Clip = (Rect & { corners: Corners }) | null;
 
 const intersect = (clip: Clip, rect: Rect): Rect =>
   clip
@@ -30,6 +33,70 @@ const intersect = (clip: Clip, rect: Rect): Rect =>
         bottom: Math.min(clip.bottom, rect.bottom),
       }
     : rect;
+
+const cornersOf = (rect: Rect): [number, number][] => [
+  [rect.left, rect.top],
+  [rect.right, rect.top],
+  [rect.right, rect.bottom],
+  [rect.left, rect.bottom],
+];
+
+const near = (a: [number, number], b: [number, number]) =>
+  Math.abs(a[0] - b[0]) < 1 && Math.abs(a[1] - b[1]) < 1;
+
+function radiiOf(style: CSSStyleDeclaration, rect: Rect): Corners {
+  const size = Math.min(rect.right - rect.left, rect.bottom - rect.top);
+  const px = (value: string) =>
+    value.endsWith("%")
+      ? (parseFloat(value) / 100) * size
+      : parseFloat(value) || 0;
+  return [
+    px(style.borderTopLeftRadius),
+    px(style.borderTopRightRadius),
+    px(style.borderBottomRightRadius),
+    px(style.borderBottomLeftRadius),
+  ];
+}
+
+// A clip within a clip: each corner rounds as whichever box's corner it is
+function clipWithin(clip: Clip, rect: Rect, style: CSSStyleDeclaration): Clip {
+  const box = intersect(clip, rect);
+  const own = radiiOf(style, rect);
+  const outer = clip ? cornersOf(clip) : [];
+  const ownCorners = cornersOf(rect);
+  const corners = cornersOf(box).map((corner, i) =>
+    near(corner, ownCorners[i]!)
+      ? own[i]!
+      : clip && near(corner, outer[i]!)
+        ? clip.corners[i]!
+        : 0,
+  ) as Corners;
+  // Sides by name: a DOMRect's are getters, which spreading leaves behind
+  const { left, right, top, bottom } = box;
+  return { left, right, top, bottom, corners };
+}
+
+// A block in a rounded corner of what clips it is cut by that corner, so takes it
+function roundedBy(
+  clip: Clip,
+  box: Rect,
+  own: string,
+  style: CSSStyleDeclaration,
+) {
+  if (!clip) return own;
+  const clipCorners = cornersOf(clip);
+  const touching = cornersOf(box).map(
+    (corner, i) => clip.corners[i]! > 0 && near(corner, clipCorners[i]!),
+  );
+  if (!touching.some(Boolean)) return own;
+  const mine = radiiOf(style, box);
+  return touching
+    .map((touches, i) =>
+      touches ? Math.max(mine[i]!, clip.corners[i]!) : mine[i]!,
+    )
+    .map((r) => `${r}px`)
+    .join(" ");
+}
 
 const clipped = (rect: Rect, clip: Clip): Rect | null => {
   const box = intersect(clip, rect);
@@ -167,11 +234,24 @@ const bordered = (style: CSSStyleDeclaration) =>
       isSet(style[`border${side}Width`], "0px"),
   );
 
+// An inset hairline along one side, drawn as a shadow, is a divider like a one-sided border
+const isRule = (shadow: string) => {
+  const [x = 0, y = 0, blur = 0, spread = 0] = (
+    shadow.replace(/rgba?\([^)]*\)|#\w+/g, "").match(/-?[\d.]+px/g) ?? []
+  ).map(parseFloat);
+  return (
+    shadow.includes("inset") && !blur && !spread && (x === 0) !== (y === 0)
+  );
+};
+
+const shadowPaints = (boxShadow: string) =>
+  isSet(boxShadow, "none") && !boxShadow.split(/,(?![^(]*\))/).every(isRule);
+
 export const isPainted = (style: CSSStyleDeclaration) =>
   (isSet(style.backgroundColor, "transparent") &&
     !TRANSPARENT.test(style.backgroundColor)) ||
   isSet(style.backgroundImage, "none") ||
-  isSet(style.boxShadow, "none") ||
+  shadowPaints(style.boxShadow) ||
   bordered(style);
 
 const isMedia = (element: Element) => MEDIA.has(element.localName);
@@ -382,7 +462,7 @@ export function measureBones(
             y: box.top,
             width: box.right - box.left,
             height: box.bottom - box.top,
-            radius: radiusOf(element, style),
+            radius: roundedBy(clip, visible, radiusOf(element, style), style),
           });
         }
         if (!isMedia(element)) covered.add(element);
@@ -400,7 +480,7 @@ export function measureBones(
         style.overflowX !== "visible" || style.overflowY !== "visible";
       visit(
         element,
-        clips ? intersect(clip, element.getBoundingClientRect()) : clip,
+        clips ? clipWithin(clip, element.getBoundingClientRect(), style) : clip,
       );
     }
   };
