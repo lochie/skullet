@@ -1,5 +1,6 @@
 import styles from "./styles.module.scss";
-import { AVATAR_URL, GITHUB_URL, TWITTER_URL } from "@/utils/consts";
+import { Avatar } from "@/components/avatar";
+import { GITHUB_URL, TWITTER_URL } from "@/utils/consts";
 
 import { version } from "./../../../../packages/skullet/package.json";
 
@@ -9,7 +10,7 @@ export const Footer = () => {
       <div className={styles.credits}>
         Crafted for the web by
         <a href={TWITTER_URL} target="_blank" rel="noopener noreferrer">
-          <img src={AVATAR_URL} alt="Avatar of Lochie" width={20} height={20} />
+          <Avatar name="Lochie Axon" size={20} />
           Lochie
         </a>
       </div>

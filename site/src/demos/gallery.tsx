@@ -23,7 +23,7 @@ export const GalleryDemo = () => {
   const loaded = useLoad(fresh, 750);
 
   return (
-    <div className={styles.frame}>
+    <div>
       <SkeletonReveal data={loaded} sample={SAMPLE} label="Loading gallery">
         {(board) => (
           <div className={styles.gallery}>

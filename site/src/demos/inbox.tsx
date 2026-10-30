@@ -42,7 +42,7 @@ export const InboxDemo = () => {
   const messages = useLoad(MESSAGES, 800);
 
   return (
-    <div className={styles.frame}>
+    <div>
       {/* `id` remembers the shape across visits, so a return visit's first load is exact */}
       <SkeletonReveal id="demo-inbox" data={messages} sample={SAMPLE}>
         {(messages) => (

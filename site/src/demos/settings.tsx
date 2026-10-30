@@ -15,7 +15,7 @@ export const SettingsDemo = () => {
   const settings = useLoad(SETTINGS, 700);
 
   return (
-    <div className={styles.frame}>
+    <div>
       <SkeletonReveal
         data={settings}
         sample={SETTINGS}

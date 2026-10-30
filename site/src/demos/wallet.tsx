@@ -23,6 +23,10 @@ const RANGES: Record<string, [min: number, max: number]> = {
 
 const usd = new Intl.NumberFormat("en", { style: "currency", currency: "USD" });
 
+type Portfolio = { holdings: Holding[]; change: number };
+
+const SAMPLE: Portfolio = { holdings: HOLDINGS, change: 2.4 };
+
 const randomHoldings = (): Holding[] =>
   HOLDINGS.map((holding) => {
     const [min, max] = RANGES[holding.symbol]!;
@@ -34,20 +38,22 @@ const total = (holdings: Holding[]) =>
 
 /** New holdings each load, so a reload shows the skeleton fitting different numbers. */
 export const WalletDemo = () => {
-  // Drawn once per mount, on the client: the server only ever renders the skeleton
-  const [fresh] = useState(randomHoldings);
-  const holdings = useLoad(fresh, 900);
-  // The day's change, drawn with them: within a few percent either way
-  const [change] = useState(() => Math.random() * 10 - 4);
+  // Drawn once per mount; only shown once loaded, so the server's draw never renders
+  const [fresh] = useState<Portfolio>(() => ({
+    holdings: randomHoldings(),
+    // The day's change: within a few percent either way
+    change: Math.random() * 10 - 4,
+  }));
+  const portfolio = useLoad(fresh, 900);
 
   return (
-    <div className={`${styles.frame} ${styles.wide}`}>
+    <div className={styles.wide}>
       <SkeletonReveal
-        data={holdings}
-        sample={HOLDINGS}
+        data={portfolio}
+        sample={SAMPLE}
         label="Loading portfolio"
       >
-        {(holdings) => (
+        {({ holdings, change }) => (
           <div className={styles.wallet}>
             <div className={styles.walletTotal}>
               <span className={styles.label}>Portfolio</span>

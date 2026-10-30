@@ -43,9 +43,6 @@ const served = new WeakSet<Element>(
     : document.querySelectorAll(`[${ATTR_LOADING}]`),
 );
 
-/** Whether a loading root came with the page's HTML. */
-export const isServed = (root: Element) => served.has(root);
-
 const loadingSizes = new WeakMap<
   Element,
   {

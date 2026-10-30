@@ -17,6 +17,7 @@ import {
 } from "skullet/react";
 
 import styles from "./styles.module.scss";
+import { Avatar } from "@/components/avatar";
 import { CodeBlock } from "@/components/codeblock";
 import { Demo } from "@/components/demo";
 import { SegmentedControl } from "@/components/segmented-control";
@@ -57,7 +58,7 @@ const Feed = ({ posts }: { posts: Post[] }) => (
   <ul className={styles.feed}>
     {posts.map((post) => (
       <li key={post.id}>
-        <span className={styles.avatar} data-hue={post.id % 4} />
+        <Avatar name={post.name} />
         <div>
           <p className={styles.feedName}>{post.name}</p>
           <p className={styles.feedMeta}>{post.meta}</p>
@@ -248,7 +249,7 @@ const PROFILES: Profile[] = [
 
 const ProfileCard = ({ profile }: { profile: Profile }) => (
   <div className={styles.profile}>
-    <span className={styles.avatar} data-hue={profile.name.length % 4} />
+    <Avatar name={profile.name} />
     <div>
       <p className={styles.feedName}>{profile.name}</p>
       <p className={styles.feedMeta}>{profile.role}</p>
@@ -709,7 +710,7 @@ const TAGS = ["Motion", "Type", "Systems"];
 
 const Tagged = ({ hint }: { hint?: "skullet-block" | "skullet-ignore" }) => (
   <div className={styles.profile}>
-    <span className={styles.avatar} data-hue={1} />
+    <Avatar name={PROFILES[1]!.name} />
     <div>
       <p className={styles.feedName}>{PROFILES[1]!.name}</p>
       <p className={styles.feedMeta}>{PROFILES[1]!.role}</p>

@@ -33,7 +33,7 @@ const Tile = ({ stat, delay }: { stat: Stat; delay: number }) => {
 
 export const StatsDemo = () => {
   return (
-    <div className={styles.frame}>
+    <div>
       <div className={styles.tiles}>
         {STATS.map((stat, i) => (
           <Tile key={stat.label} stat={stat} delay={500 + i * 250} />

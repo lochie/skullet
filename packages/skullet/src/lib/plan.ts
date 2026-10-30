@@ -71,10 +71,10 @@ export type RevealMode =
   | RevealSpec;
 
 export const SKELETON_DELAY = 150; // A skeleton up for less than this is a flash — smart holds it back
-export const QUICK_FADE = 120; // A refetch, already familiar
-export const SMALL_HEIGHT = 72;
-export const SMALL_PIECES = 3;
-export const SECONDARY_DELAY = 60; // Smaller text follows the text it sits under
+const QUICK_FADE = 120; // A refetch, already familiar
+const SMALL_HEIGHT = 72;
+const SMALL_PIECES = 3;
+const SECONDARY_DELAY = 60; // Smaller text follows the text it sits under
 export const BATCH_WINDOW = 150; // Reveals landing this close share one top-to-bottom order
 const ACTIVE_WINDOW = 400; // Input this recent means someone is mid-gesture
 export const MAX_SWEEP_AREA = 1.5; // in screens — a wipe bigger than this crossfades: a front across it is mostly off screen, and costly
@@ -244,7 +244,9 @@ function sequencePlan(
 
   const at = (piece: Piece) => {
     const delay = order(piece);
-    return delay === null ? null : clamp(delay, MAX_DELAY) + (spec.delay ?? 0);
+    return delay === null
+      ? null
+      : clamp(delay, MAX_DELAY) + Math.max(spec.delay ?? 0, 0);
   };
 
   return {
@@ -317,6 +319,8 @@ export function planReveal(
   }
 
   const duration = clamp(spec.duration ?? FADE_DURATION, MAX_DURATION);
+  // No floor: a wipe joining one under way starts partway, before now
+  spec = { ...spec, delay: Math.min(spec.delay ?? 0, MAX_DELAY) };
   if (!duration) return { kind: "instant" };
   const enter = enterOf(spec.enter, warn);
 
@@ -341,7 +345,12 @@ export function planReveal(
       duration,
     );
   }
-  return { kind: "together", delay: spec.delay ?? 0, duration, enter };
+  return {
+    kind: "together",
+    delay: Math.max(spec.delay ?? 0, 0),
+    duration,
+    enter,
+  };
 }
 
 /** `sequence`: each piece timed by its place in the reveal, top to bottom, then a little left to right. */

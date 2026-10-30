@@ -103,7 +103,7 @@ export const ArticleDemo = () => {
   }, []);
 
   return (
-    <div className={styles.frame}>
+    <div>
       <SkeletonReveal
         id="demo-article"
         data={post}

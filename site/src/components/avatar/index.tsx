@@ -22,16 +22,18 @@ const initialsOf = (name: string) => {
 const hueOf = (name: string) =>
   [...name].reduce((sum, char) => sum + char.charCodeAt(0) * 47, 0) % 360;
 
+/** A photo when there is one, from `src` or the names below, else initials on a colour of their own. */
 export const Avatar = ({
   name,
+  src = AVATARS[name],
   size = 32,
   hue = hueOf(name),
 }: {
   name: string;
+  src?: string;
   size?: number;
   hue?: number;
 }) => {
-  const src = AVATARS[name];
   const [failed, setFailed] = useState(false);
   const image = src && !failed;
 

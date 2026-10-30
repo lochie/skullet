@@ -102,13 +102,22 @@ const API: [title: string, rows: Row[]][] = [
   [
     "SkeletonReveal",
     [
-      ["data", "T | null", "Loading while empty; passed to children once set."],
+      [
+        "data",
+        "T | null | undefined",
+        "Loading while empty; passed to children once set.",
+      ],
       ["sample", "T", "Stands in for data to draw the first skeleton."],
       ["loading", "boolean", "Shows the skeleton, even over data."],
       ["id", "string", "Remembers the shape under this key."],
       ["label", "string", "Read to screen readers while loading."],
       ["skeleton", "ReactNode", "Shown instead of the measured skeleton."],
       ["empty", "boolean", "Shows emptyMessage in place of the content."],
+      [
+        "emptyMessage",
+        "ReactNode",
+        "Shown while empty; the content if left out.",
+      ],
       ["error", "ReactNode", "Shown in place of the content."],
     ],
   ],
@@ -130,6 +139,7 @@ const API: [title: string, rows: Row[]][] = [
       ],
       ["theme", "SkeleTheme", "Colours, animation, speed, radius and text."],
       ["mode", '"light" | "dark" | "system"', "Which colours to use."],
+      ["text", "SkeleText", "Where text bars run; overrides the theme’s."],
       ["nonce", "string", "For a Content Security Policy."],
       ["debug", "boolean", "Outlines every reveal and whether it moved."],
     ],
@@ -149,7 +159,8 @@ const SPEC: [string, React.ReactNode][] = [
     "order",
     <>
       <code>&quot;together&quot;</code>, or a function from each piece to its
-      delay in ms. A piece knows its box, its row and whether it’s smaller text.
+      delay in ms. A piece knows its box, its row, the whole reveal’s box,
+      whether it’s smaller text and how late its reveal landed.
     </>,
   ],
   [
@@ -164,9 +175,11 @@ const SPEC: [string, React.ReactNode][] = [
     "wipe",
     <>
       A mask across the whole reveal, drawn each frame from progress 0 to 1. The
-      outgoing skeleton gets its inverse.
+      outgoing skeleton gets its inverse unless you pass <code>out</code>, and{" "}
+      <code>effect</code> runs on the incoming pane.
     </>,
   ],
+  ["delay", <>In ms, before the whole reveal starts.</>],
   ["duration", <>In ms. 0 is instant.</>],
   [
     "hold",
@@ -266,8 +279,7 @@ export const Docs = ({ downloads }: { downloads?: number }) => (
         that instead.
       </p>
       <CodeBlock
-        code={`import { useState } from "react";
-import { Skeleton } from "skullet/react";
+        code={`import { Skeleton } from "skullet/react";
 
 Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
       />
@@ -398,7 +410,7 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
         <p>
           A reveal of your own still can’t move the page. Images wait behind
           their own skeleton, a wipe that drops frames finishes as a crossfade,
-          and reduced motion is always instant.
+          delays and durations stop at 1s, and reduced motion is always instant.
         </p>
       </Callout>
     </Section>

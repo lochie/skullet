@@ -40,7 +40,7 @@ export const PlayerDemo = () => {
   const track = useLoad(TRACK, 950);
 
   return (
-    <div className={styles.frame}>
+    <div>
       <SkeletonReveal data={track} sample={TRACK} label="Loading track">
         {(track) => (
           <div className={styles.player}>

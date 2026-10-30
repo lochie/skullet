@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { SkeletonReveal } from "skullet/react";
 
 import styles from "./styles.module.scss";
@@ -51,103 +51,62 @@ const Rows = ({ rows }: { rows: Row[] }) => (
   </ul>
 );
 
-// Whether the list's existing rows moved when the new ones arrived
-function useMovement(loading: boolean) {
-  const frame = useRef<HTMLDivElement>(null);
-  const before = useRef<number | null>(null);
-  const [log, setLog] = useState<string[]>([]);
-
-  useLayoutEffect(() => {
-    const height = frame.current?.offsetHeight ?? 0;
-    if (loading) {
-      before.current = height;
-      return;
-    }
-    if (before.current === null) return;
-    const moved = height - before.current;
-    before.current = null;
-    // Measurement only — the log is what this effect exists to render
-    setLog((entries) =>
-      [moved ? `moved ${moved}px` : "no movement", ...entries].slice(0, 3),
-    );
-  }, [loading]);
-
-  return { frame, log };
-}
-
-const Log = ({ log }: { log: string[] }) => (
-  <div className={styles.listLog}>
-    {log.length ? (
-      log.map((entry, i) => (
-        <span key={i} data-jump={entry !== "no movement"}>
-          {entry}
-        </span>
-      ))
-    ) : (
-      <span>Load more to compare</span>
-    )}
-  </div>
-);
-
 /** One reveal per page: shown rows are never redrawn, and the next page's skeleton holds its own space. */
-const PerPage = () => {
+function usePerPage() {
   const [pages, setPages] = useState<(Row[] | null)[]>([page(0)]);
   const loading = pages.at(-1) === null;
-  const { frame, log } = useMovement(loading);
+  // A second click can land before the render that disables the first
+  const busy = useRef(false);
 
   const more = () => {
+    if (busy.current) return;
+    busy.current = true;
     const index = pages.length;
     setPages((current) => [...current, null]);
-    fetchPage(index).then((rows) =>
-      setPages((current) => current.map((p, i) => (i === index ? rows : p))),
-    );
+    fetchPage(index).then((rows) => {
+      busy.current = false;
+      setPages((current) => current.map((p, i) => (i === index ? rows : p)));
+    });
   };
 
-  return (
-    <div className={styles.listColumn}>
-      <div ref={frame} className={styles.listFrame}>
-        {pages.map((rows, i) => (
-          <SkeletonReveal key={i} data={rows} sample={SAMPLE}>
-            {(rows) => <Rows rows={rows} />}
-          </SkeletonReveal>
-        ))}
-      </div>
-      <button onClick={more} disabled={loading}>
-        Load more
-      </button>
-      <Log log={log} />
+  const view = (
+    <div className={styles.listFrame}>
+      {pages.map((rows, i) => (
+        <SkeletonReveal key={i} data={rows} sample={SAMPLE}>
+          {(rows) => <Rows rows={rows} />}
+        </SkeletonReveal>
+      ))}
     </div>
   );
-};
+  return { view, more, loading };
+}
 
 /** One reveal for the whole list: the skeleton is the list on screen, so new rows can only arrive by pushing. */
-const Whole = () => {
+function useWhole() {
   const [rows, setRows] = useState<Row[]>(page(0));
   const [loading, setLoading] = useState(false);
-  const { frame, log } = useMovement(loading);
+  const busy = useRef(false);
 
   const more = () => {
+    if (busy.current) return;
+    busy.current = true;
     setLoading(true);
     fetchPage(rows.length / PAGE).then((next) => {
+      busy.current = false;
       setRows((current) => [...current, ...next]);
       setLoading(false);
     });
   };
 
-  return (
-    <div className={styles.listColumn}>
-      <div ref={frame} className={styles.listFrame}>
-        <SkeletonReveal data={rows} loading={loading}>
-          {(rows) => <Rows rows={rows} />}
-        </SkeletonReveal>
-      </div>
-      <button onClick={more} disabled={loading}>
-        Load more
-      </button>
-      <Log log={log} />
+  const view = (
+    <div className={styles.listFrame}>
+      <SkeletonReveal data={rows} loading={loading}>
+        {(rows) => <Rows rows={rows} />}
+      </SkeletonReveal>
     </div>
   );
-};
+  return { view, more, loading };
+}
 
 const KINDS = ["page", "list"] as const;
 const KIND_LABELS = {
@@ -157,9 +116,15 @@ const KIND_LABELS = {
 
 export const Lists = () => {
   const [kind, setKind] = useState<(typeof KINDS)[number]>("page");
+  const perPage = usePerPage();
+  const whole = useWhole();
+  const list = kind === "page" ? perPage : whole;
 
   return (
     <Demo
+      onClick={list.more}
+      disabled={list.loading}
+      hint="Click to load more"
       controls={
         <SegmentedControl
           label="Reveals"
@@ -170,7 +135,7 @@ export const Lists = () => {
         />
       }
     >
-      {kind === "page" ? <PerPage /> : <Whole />}
+      {list.view}
     </Demo>
   );
 };

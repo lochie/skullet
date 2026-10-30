@@ -11,6 +11,7 @@ import { SkeletonReveal } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { Demo } from "@/components/demo";
+import { Avatar } from "@/components/avatar";
 
 type Logged = { source: string; width: number; height: number };
 
@@ -398,16 +399,11 @@ const Issues = ({ issues }: { issues: Issue[] }) => (
   <ul className={styles.issues}>
     {issues.map((issue) => (
       <li key={issue.id}>
-        {issue.user.avatar_url ? (
-          <img
-            src={`${issue.user.avatar_url}&s=48`}
-            alt=""
-            width={24}
-            height={24}
-          />
-        ) : (
-          <span className={styles.issueAvatar} />
-        )}
+        <Avatar
+          name={issue.user.login}
+          src={issue.user.avatar_url && `${issue.user.avatar_url}&s=48`}
+          size={24}
+        />
         <div>
           <p className={styles.feedName}>{issue.title}</p>
           {issue.labels.length > 0 && (

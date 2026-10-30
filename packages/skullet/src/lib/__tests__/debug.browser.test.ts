@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { bonesIn } from "@skullet/test-cases";
 import { forgetShapes, Reveal, setDebug } from "..";
 
 const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
@@ -22,7 +21,7 @@ const reveal = (scope: Element) => {
   root.style.width = "300px";
   const reveal = new Reveal(root, { reveal: "together" });
   reveal.load(html(ROWS));
-  return { root, reveal, bones: bonesIn(root).length };
+  return { root, reveal };
 };
 
 afterEach(() => {

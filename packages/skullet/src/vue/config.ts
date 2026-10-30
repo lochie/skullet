@@ -23,7 +23,7 @@ export type SkulletConfig = {
   mode?: SkulletMode;
   /** Where text bars run: from `top` (ascender, cap-height, x-height) down to `bottom` (baseline, descender). */
   text?: SkeleText;
-  /** How content replaces its skeleton: `smart` (the default), `together`, `sequence` or `sweep`. */
+  /** How content replaces its skeleton: `smart` (the default), `together`, `sequence`, `sweep`, or a `RevealSpec` of your own. */
   reveal?: RevealMode;
   /** Outlines every reveal with where its skeleton came from and whether anything moved. */
   debug?: boolean;

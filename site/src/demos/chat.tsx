@@ -78,7 +78,7 @@ export const ChatDemo = () => {
   };
 
   return (
-    <div className={styles.frame}>
+    <div>
       <SkeletonReveal data={messages} sample={THREAD} label="Loading thread">
         {(thread) => (
           <>

@@ -58,7 +58,7 @@ export const PreviewPage = ({
           <span>Support</span>
         </nav>
         <span className={styles.search}>Search…</span>
-        <span className={styles.avatar}>LA</span>
+        <Avatar name="Lochie Axon" size={32} />
       </header>
     </SkeletonReveal>
 
