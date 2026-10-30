@@ -111,23 +111,22 @@ export const ChatDemo = () => {
                 </AnimatePresence>
               </ul>
             </div>
-            <div className={styles.chatInput} data-replying={replying}>
-              <span>
+            <button
+              className={styles.chatInput}
+              data-replying={replying}
+              onClick={onSend}
+              onKeyDown={(event) => event.stopPropagation()}
+              disabled={!thread || !next || replying}
+            >
+              <div className={styles.input}>
                 {replying || !next ? (
                   "Type a message…"
                 ) : (
                   <Typed key={step} text={next[0]} />
                 )}
-              </span>
-              <Button
-                variant="secondary"
-                onClick={onSend}
-                onKeyDown={(event) => event.stopPropagation()}
-                disabled={!thread || !next || replying}
-              >
-                Send
-              </Button>
-            </div>
+              </div>
+              <div className={styles.send}>Send</div>
+            </button>
           </>
         )}
       </SkeletonReveal>
