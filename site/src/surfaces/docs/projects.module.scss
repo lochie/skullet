@@ -135,6 +135,7 @@
     margin: -0.3125rem;
     border-radius: 50%;
     background: var(--primary);
+    box-shadow: 0 0 0 4px #0a0a0a;
     animation:
       across 2s linear infinite alternate,
       rise 2s cubic-bezier(0.2, 0, 0, 1) infinite alternate;
