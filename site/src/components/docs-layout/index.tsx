@@ -53,7 +53,7 @@ export const DocsLayout = ({
   children,
 }: {
   wide?: boolean;
-  /** Keeps a column free on the right, for panels the page floats there. */
+  /** Room on the right of the text for a block that spans the main column, like the theme editor. */
   aside?: boolean;
   /** A page outside the docs lists its own sections first, like the lab. */
   sections?: readonly (readonly [id: string, title: string])[];

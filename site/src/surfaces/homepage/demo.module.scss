@@ -25,10 +25,24 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+
+  // Its cards join the grid itself, so ON_PHONES can order them across columns
+  @media (max-width: 960px) {
+    display: contents;
+  }
 }
 
 .card {
   padding: 1.5rem;
+
+  @media (max-width: 960px) {
+    order: var(--phone-order);
+
+    &:not([data-phone]) {
+      display: none;
+    }
+  }
+
   box-shadow: inset 0 0 0 1px var(--border);
   border-radius: 1rem;
   background: var(--body-light);

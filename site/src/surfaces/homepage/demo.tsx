@@ -21,6 +21,9 @@ const COLUMNS = [
   [InboxDemo, PlayerDemo, WalletDemo],
 ];
 
+// One column on a phone: these, in this order, so it's a sample rather than a scroll through nine
+const ON_PHONES = [ArticleDemo, InboxDemo, ChatDemo];
+
 export const Demo = () => {
   // One count per card: bumping it remounts just that demo, so its loader starts over
   const [loads, setLoads] = useState<Record<string, number>>({});
@@ -42,6 +45,12 @@ export const Demo = () => {
                   <div
                     key={j}
                     className={styles.card}
+                    data-phone={ON_PHONES.includes(DemoComponent) || undefined}
+                    style={
+                      {
+                        "--phone-order": ON_PHONES.indexOf(DemoComponent),
+                      } as React.CSSProperties
+                    }
                     role="button"
                     tabIndex={0}
                     aria-label="Reload this demo"

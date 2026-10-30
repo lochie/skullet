@@ -419,10 +419,6 @@ const wipeDown: RevealSpec = {
     </Section>
 
     <Section id="theming" title="Theming">
-      <p>
-        Change any option and the page below re-measures with it, then copy the
-        provider.
-      </p>
       <ThemeCreator />
       <Terms items={THEME_OPTIONS} code />
       <p>

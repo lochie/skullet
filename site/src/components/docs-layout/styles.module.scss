@@ -1,5 +1,3 @@
-@use "aside";
-
 .page {
   --sidebar-width: 14.5rem;
   display: grid;
@@ -11,11 +9,16 @@
     grid-template-columns: var(--sidebar-width) minmax(0, 60rem);
   }
 
+  // A wide main column whose text keeps to 40rem, leaving room on the right for a block that spans it
   &[data-aside="true"] {
-    grid-template-columns: var(--sidebar-width) minmax(0, 40rem) 18rem;
+    grid-template-columns: var(--sidebar-width) minmax(0, 60rem);
 
-    @media (max-width: aside.$breakpoint) {
-      grid-template-columns: var(--sidebar-width) minmax(0, 40rem);
+    .main {
+      container-type: inline-size;
+
+      > * {
+        max-width: 40rem;
+      }
     }
   }
 
