@@ -479,9 +479,15 @@ function wipe(element: HTMLElement, plan: WipePlan, incoming: boolean) {
     };
     const done = (stalledAt: number | null = null) => {
       cancelAnimationFrame(frame);
+      clearTimeout(deadline);
       fronts.delete(element);
       resolve(stalledAt);
     };
+    // Frames can stop altogether, as in a hidden tab: the wipe still ends when its time is up
+    const deadline = setTimeout(
+      () => done(null),
+      Math.max(plan.start + plan.duration - performance.now(), 0) + STALL,
+    );
     fronts.set(element, done);
     tick();
   });

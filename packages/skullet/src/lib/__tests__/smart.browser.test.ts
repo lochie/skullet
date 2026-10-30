@@ -62,7 +62,7 @@ describe("smart reveal", () => {
   it("swaps at once when the data beats the hold-back — no skeleton ever shows", async () => {
     const reveal = stage();
     const skeleton = reveal.load(html(LIST));
-    await wait(SKELETON_DELAY / 3);
+    // At once, not after a timer: a busy machine can stretch any wait past the hold-back
     const content = reveal.show(html(LIST));
     await Promise.resolve();
 

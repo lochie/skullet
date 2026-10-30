@@ -126,6 +126,26 @@ describe("a reveal of your own", () => {
     r.destroy();
   });
 
+  it("ends a wipe on time even when frames stop, as in a hidden tab", async () => {
+    vi.stubGlobal("requestAnimationFrame", () => 0);
+    const {
+      reveal: r,
+      skeleton,
+      content,
+    } = reveal({
+      wipe: { mask: () => "linear-gradient(black, transparent)" },
+      duration: 200,
+    });
+    await Promise.resolve();
+    expect(content.style.getPropertyValue("mask-image")).not.toBe("");
+
+    await wait(400);
+    expect(content.style.getPropertyValue("mask-image")).toBe("");
+    expect(skeleton.style.opacity).toBe("0");
+    vi.unstubAllGlobals();
+    r.destroy();
+  });
+
   it("uses a wipe's own outgoing mask when it has one", async () => {
     const { reveal: r, skeleton } = reveal({
       wipe: {
