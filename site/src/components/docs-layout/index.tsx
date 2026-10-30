@@ -14,7 +14,6 @@ const NAV = [
       ["/docs#custom", "Your own skeleton"],
       ["/docs#hints", "Hints"],
       ["/docs#memory", "Memory"],
-      ["/docs#lists", "Lists that grow"],
     ],
   ],
   [

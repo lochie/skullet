@@ -1,0 +1,75 @@
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.from {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.label {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.delta {
+  padding: 0.125rem 0.375rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.12);
+
+  &[data-up="false"] {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.12);
+  }
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.wallet {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.walletTotal {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  .delta {
+    margin-top: 0.375rem;
+  }
+}
+
+.walletValue {
+  font-family: var(--font-secondary);
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.holdings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  li {
+    display: flex;
+    gap: 0.625rem;
+    align-items: center;
+  }
+}
+
+.holdingValue {
+  font-size: 0.8125rem;
+  color: #ffffff;
+}

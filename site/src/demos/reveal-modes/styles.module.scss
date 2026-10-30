@@ -1,0 +1,36 @@
+.frame {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--body-light);
+}
+
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  li {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+.feedName {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.feedMeta {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.feedText {
+  margin-top: 0.375rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color);
+}

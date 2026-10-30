@@ -1,0 +1,129 @@
+.actions button {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  color: var(--color);
+
+  &:hover,
+  &[data-active="true"] {
+    color: #ffffff;
+    border-color: var(--color-muted);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.liveFrame {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--body-light);
+}
+
+.error {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 0;
+  font-size: 0.8125rem;
+  color: #ff4d4d;
+
+  button {
+    text-decoration: underline;
+    color: inherit;
+  }
+}
+
+.toolbarField {
+  display: flex;
+  gap: 0.625rem;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.pill {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  color: var(--color);
+
+  &:hover:not(:disabled) {
+    color: #ffffff;
+    border-color: var(--color-muted);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+  }
+}
+
+.feedName {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.feedMeta {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.feedText {
+  margin-top: 0.375rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color);
+}
+
+.profile {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+
+  .feedText {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+}
+
+.sourceLog {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-height: calc(4 * 1.25rem);
+  margin-top: 1rem;
+  line-height: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-muted);
+
+  div {
+    display: grid;
+    grid-template-columns: 10rem 1fr;
+    gap: 0.75rem;
+
+    > :only-child {
+      grid-column: 1 / -1;
+    }
+
+    &[data-jump="false"] span:last-child {
+      color: #4ade80;
+    }
+
+    &[data-jump="true"] span:last-child {
+      color: #ff4d4d;
+    }
+  }
+}

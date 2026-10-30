@@ -25,6 +25,8 @@ export type GhostOptions = {
   id?: string;
   /** The ghost was rendered from real data, so it beats any remembered shape. */
   exact?: boolean;
+  /** Its data is still set: a refetch over what's on screen, not a new load. Defaults to `exact`. */
+  refetch?: boolean;
 };
 
 type Source = "ghost" | "recall" | "fallback";
@@ -110,7 +112,7 @@ export class Ghost {
     if (reveal) {
       noteSkeleton(reveal, {
         served: served.has(root),
-        exact: !!options.exact && this.hadContent,
+        exact: !!(options.refetch ?? options.exact) && this.hadContent,
       });
     }
     this.choose();

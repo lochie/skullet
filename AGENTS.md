@@ -128,8 +128,8 @@ Under Node 25, happy-dom's `localStorage` is shadowed by Node's own, which doesn
 ## Site
 
 - `app/` — routes only. Thin; a page composes a surface.
-- `surfaces/` — one folder per page (`homepage/`, `docs/`, `lab/`). `/lab` is the test bench; the docs borrow its interactive demos.
-- `demos/` — demos shown on more than one page (the homepage and the docs share them). There is no shared demo folder; the second page to want a demo is what earns one.
+- `surfaces/` — one folder per page (`homepage/`, `docs/`, `lab/`, `not-found/`). `/lab` is the test bench.
+- `demos/` — every demo, whichever page shows it: one folder each, `index.tsx` + `styles.module.scss`. A demo's styles are its own, even where another has a rule like it. Helpers two or more demos use live in `demos/parts/`.
 - `components/` — reusable UI, `index.tsx` + `styles.module.scss` per folder.
 - SCSS modules. The shared palette and fonts are CSS custom properties in [styles/modules/variables.scss](site/src/styles/modules/variables.scss) — use `var(--border)` etc. rather than re-picking a theme colour; one-off literals inline are fine.
 - `@/` aliases `site/src/`.

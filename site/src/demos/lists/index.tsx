@@ -8,6 +8,7 @@ import { SegmentedControl } from "@/components/segmented-control";
 type Row = { id: number; name: string; amount: string; when: string };
 
 const PAGE = 4;
+
 const NAMES = [
   "Coffee",
   "Groceries",
@@ -109,6 +110,7 @@ function useWhole() {
 }
 
 const KINDS = ["page", "list"] as const;
+
 const KIND_LABELS = {
   page: "One reveal per page",
   list: "One for the whole list",

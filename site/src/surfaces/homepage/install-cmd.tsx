@@ -9,7 +9,7 @@ const pkgCmds = {
   npm: "npm i skullet",
   pnpm: "pnpm i skullet",
   yarn: "yarn add skullet",
-  bun: "bun i skullet",
+  bun: "bun add skullet",
 };
 
 export const InstallCommands = () => {

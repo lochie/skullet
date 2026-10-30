@@ -1,0 +1,12 @@
+.frame {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--body-light);
+}
+
+// A line about the option a demo's control picked
+.demoNote {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}

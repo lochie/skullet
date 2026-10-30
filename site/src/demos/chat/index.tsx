@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
 import styles from "./styles.module.scss";
-import { useLoad } from "./use-load";
+import { useLoad } from "../parts/use-load";
 import { Avatar } from "@/components/avatar";
 import { SkeletonReveal } from "skullet/react";
 

@@ -7,44 +7,20 @@ import { Callout } from "@/components/callout";
 import { CodeBlock } from "@/components/codeblock";
 import { Demo } from "@/components/demo";
 import { DocsLayout } from "@/components/docs-layout";
+import { ArticleDemo } from "@/demos/article";
 import { GalleryDemo } from "@/demos/gallery";
 import { ProfileDemo } from "@/demos/profile";
 
+import { Projects } from "./projects";
 import { ThemeCreator } from "./theme-creator";
 import { InstallCommands } from "../homepage/install-cmd";
 import { Frameworks } from "../homepage/frameworks";
 import { Section } from "@/components/section";
-import { Resizing, RevealModes, Suspense } from "../lab/features";
-import { Lists } from "../lab/lists";
-
-const HOW: [string, React.ReactNode][] = [
-  [
-    "Real layout",
-    <>
-      Your content is rendered unseen, in place, so the skeleton takes exactly
-      its space.
-    </>,
-  ],
-  ["A bar per line", <>Each line of text gets a bar as wide as that line.</>],
-  [
-    "Heights from the type",
-    <>Bars run between the font’s own lines, ascender to descender.</>,
-  ],
-  [
-    "Boxes for the rest",
-    <>
-      Images, controls, buttons and chips become a block the size of their box.
-    </>,
-  ],
-  [
-    "The closest data",
-    <>
-      It renders from the data on screen, the data last shown under the same{" "}
-      <code>id</code>, a shape remembered from an earlier visit, or your{" "}
-      <code>sample</code>, whichever is nearest the real thing.
-    </>,
-  ],
-];
+import { Lists } from "@/demos/lists";
+import { Resizing } from "@/demos/resizing";
+import { RevealModes } from "@/demos/reveal-modes";
+import { Suspense } from "@/demos/suspense";
+import Link from "next/link";
 
 const REVEALS: [string, React.ReactNode][] = [
   [
@@ -197,10 +173,12 @@ const SPEC: [string, React.ReactNode][] = [
   ],
 ];
 
-/** The resizing demo under the debug overlay and x-ray, scoped to it. */
+/** A new article each click, under the debug overlay and x-ray, scoped to it. */
 const DebugExample = () => (
   <div skullet-debug="" skullet-xray="">
-    <Resizing />
+    <Demo hint="Click to reload">
+      <ArticleDemo />
+    </Demo>
   </div>
 );
 
@@ -236,6 +214,14 @@ export const Docs = ({ downloads }: { downloads?: number }) => (
     <Section id="install" title="Install">
       <InstallCommands />
       <Frameworks />
+      <Callout>
+        <p>
+          Optional: Add a <code>SkulletProvider</code> to set a{" "}
+          <Link href="#theming">theme</Link>, a{" "}
+          <Link href="#reveals">reveal mode</Link> or a CSP nonce for the whole
+          app. <Link href="#SkulletProvider">Learn more &rarr;</Link>
+        </p>
+      </Callout>
     </Section>
 
     <Section id="data" title="From data">
@@ -267,7 +253,8 @@ export const Docs = ({ downloads }: { downloads?: number }) => (
       </p>
       <CodeBlock
         code={`<SkeletonReveal loading={!user}>
-  <Profile user={user} />
+  <h2>{user?.name}</h2>
+  <p>{user?.bio}</p>
 </SkeletonReveal>`}
       />
     </Section>
@@ -288,13 +275,15 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
         <Skeleton width="70%" />
         <Skeleton width="45%" />
       </Demo>
-      <p>
-        Build your skeleton from Skullet&apos;s exported{" "}
-        <code>&lt;Skeleton&gt;</code> rather than a grey box of your own. Each
-        bar joins the page’s one shimmer, in step with every other skeleton
-        however late it mounts, and follows the theme’s colours, animation and
-        reduced motion.
-      </p>
+      <Callout>
+        <p>
+          Build your skeleton from Skullet&apos;s exported{" "}
+          <code>&lt;Skeleton&gt;</code> rather than a grey box of your own. Each
+          bar joins the page’s one shimmer, in step with every other skeleton
+          however late it mounts, and follows the theme’s colours, animation and
+          reduced motion.
+        </p>
+      </Callout>
     </Section>
 
     <Section id="hints" title="Hints">
@@ -304,8 +293,8 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
         <code>skullet-ignore</code> leaves it out.
       </p>
       <CodeBlock
-        code={`<div skullet-block>…</div>
-<span skullet-ignore>New</span>`}
+        code={`<div skullet-block="">…</div>
+<span skullet-ignore="">New</span>`}
       />
       <p>
         An image with no size is flat until it loads, so its skeleton has no
@@ -333,16 +322,6 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
           Call <code>forgetShapes()</code> on sign-out to clear them.
         </p>
       </Callout>
-    </Section>
-
-    <Section id="lists" title="Lists that grow">
-      <p>
-        A list that loads more can reveal two ways. One reveal per page leaves
-        the rows on screen alone and holds the next page’s space with its
-        skeleton. One reveal for the whole list redraws every row, and the new
-        ones push what’s below. Reach for one per page.
-      </p>
-      <Lists />
     </Section>
 
     <Section id="reveals" title="Reveal modes">
@@ -396,7 +375,9 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
       <Terms items={SPEC} code />
       <p>A wipe needs only the incoming mask:</p>
       <CodeBlock
-        code={`const wipeDown = {
+        code={`import type { RevealSpec } from "skullet";
+
+const wipeDown: RevealSpec = {
   wipe: {
     mask: (progress) => {
       const at = progress * 120;
@@ -404,7 +385,9 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
     },
   },
   duration: 400,
-};`}
+};
+
+<SkulletProvider reveal={wipeDown}>`}
       />
       <Callout>
         <p>
@@ -454,8 +437,10 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
       <p>
         Server HTML paints before any JavaScript runs. An inline script measures
         each skeleton before that first paint, so nothing changes on hydration.
-        The stylesheet has the same problem: import it once, so the server’s
-        HTML is styled before any script runs.
+        Under a <code>SkulletProvider</code>, the script goes out once a page;
+        without one, each skeleton carries its own copy. The stylesheet has the
+        same problem: import it once, so the server’s HTML is styled before any
+        script runs.
       </p>
       <CodeBlock code={`import "skullet/styles.css";`} />
     </Section>
@@ -488,8 +473,9 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
     <Section id="api" title="API">
       {API.map(([title, rows]) => (
         <div key={title} className={styles.api}>
-          <h3>
-            <code>{title}</code>
+          <h3 id={title}>
+            {/* Components read as their tag, functions by name */}
+            <code>{/^[A-Z]/.test(title) ? `<${title} />` : title}</code>
           </h3>
           <table className={styles.table}>
             <tbody>
@@ -509,7 +495,54 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
     </Section>
 
     <Section id="how" title="How it works">
-      <Terms items={HOW} />
+      <p>
+        Skullet doesn’t guess at sizes. It lets the browser lay out the real
+        content, then reads the result.
+      </p>
+      <ul>
+        <li>
+          <strong>Layout by the browser.</strong> Your content renders in place
+          from the closest data there is, with its text made transparent and its
+          media hidden. Every size and line break is the browser’s own.
+        </li>
+        <li>
+          <strong>Lines from the DOM.</strong> Each text node is measured with{" "}
+          <code>Range.getClientRects()</code>, which returns one box per line it
+          wraps to. Images, controls and painted boxes such as buttons and chips
+          are measured whole.
+        </li>
+        <li>
+          <strong>Heights from the font.</strong> A line box is taller than its
+          letters, so each bar is trimmed to the font’s own metrics, read once
+          per font with canvas <code>measureText</code>: ascender to descender
+          by default.
+        </li>
+        <li>
+          <strong>Drawn on top.</strong> The bars are absolutely positioned over
+          the unseen content, in a shadow root the page’s CSS can’t reach. Every
+          bar shares one shimmer, timed by the document clock and its place on
+          the page.
+        </li>
+        <li>
+          <strong>Kept current.</strong> A <code>ResizeObserver</code>, a{" "}
+          <code>MutationObserver</code>, image loads and font loads trigger a
+          re-measure. On the server, an inline script measures before the first
+          paint.
+        </li>
+      </ul>
+      <p>
+        The unseen content comes from the closest data Skullet has: the data on
+        screen, the data last shown under the same <code>id</code>, a shape
+        remembered from an earlier visit, then your{" "}
+        <span style={{ whiteSpace: "nowrap" }}>
+          <code>sample</code>.
+        </span>
+      </p>
+    </Section>
+
+    <Section id="thanks" title="More by Lochie">
+      <p>If you like this you might also like my other projects</p>
+      <Projects />
     </Section>
   </DocsLayout>
 );

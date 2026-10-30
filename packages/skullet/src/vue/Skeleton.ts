@@ -70,6 +70,7 @@ const Loading = defineComponent({
   props: {
     id: String,
     exact: Boolean,
+    refetch: Boolean,
     label: String,
   },
   setup(props, { slots }) {
@@ -81,11 +82,15 @@ const Loading = defineComponent({
     const attach = () => {
       ghost?.destroy();
       if (element.value) {
-        ghost = new Ghost(element.value, { id: props.id, exact: props.exact });
+        ghost = new Ghost(element.value, {
+          id: props.id,
+          exact: props.exact,
+          refetch: props.refetch,
+        });
       }
     };
     onMounted(attach);
-    watch(() => [props.id, props.exact], attach);
+    watch(() => [props.id, props.exact, props.refetch], attach);
     onBeforeUnmount(() => ghost?.destroy());
 
     // The snapshot and bones are filled by Ghost, never by Vue. The script
@@ -186,7 +191,12 @@ export const SkeletonReveal = defineComponent({
             )
           : h(
               Loading,
-              { id: props.id, exact: real != null, label: props.label },
+              {
+                id: props.id,
+                exact: real != null,
+                refetch: data != null,
+                label: props.label,
+              },
               () => show(real ?? props.sample),
             );
       } else if (props.error) {

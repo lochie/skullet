@@ -1,7 +1,7 @@
 import { SkeletonReveal } from "skullet/react";
 
 import styles from "./styles.module.scss";
-import { useLoad } from "./use-load";
+import { useLoad } from "../parts/use-load";
 
 type Setting = { label: string; hint: string; on: boolean };
 

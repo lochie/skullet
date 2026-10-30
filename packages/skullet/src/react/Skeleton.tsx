@@ -129,7 +129,12 @@ export function SkeletonReveal<T>(props: SkeletonRevealProps<T>) {
         {skeleton}
       </div>
     ) : (
-      <Loading id={id} exact={real != null} label={label}>
+      <Loading
+        id={id}
+        exact={real != null}
+        refetch={data != null}
+        label={label}
+      >
         {show(real ?? sample)}
       </Loading>
     );

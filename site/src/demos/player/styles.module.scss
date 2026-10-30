@@ -1,0 +1,68 @@
+@use "../../styles/modules/scrim";
+
+.title {
+  margin: 0.25rem 0 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.label {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.player {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.art {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.5rem;
+  background: scrim.scrim(135deg, #8a5cff 0%, #ff7a59 100%);
+}
+
+.track {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  .title {
+    margin: 0;
+  }
+}
+
+.progress {
+  grid-column: 1 / -1;
+  height: 0.25rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: inherit;
+  background: #ffffff;
+}
+
+.times {
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: space-between;
+  margin-top: -0.5rem;
+  font-size: 0.6875rem;
+  color: var(--color-muted);
+}
+
+.transport {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}

@@ -1,0 +1,42 @@
+.feedName {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.feedMeta {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.issues {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 0.5rem 0;
+
+  li {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  > li > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
+
+.labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+
+  span {
+    padding: 0.0625rem 0.4375rem;
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: 500;
+  }
+}

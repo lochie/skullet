@@ -26,14 +26,15 @@ import { DocsLayout } from "@/components/docs-layout";
 import { Section } from "@/components/section";
 import { SegmentedControl } from "@/components/segmented-control";
 import { DebugToggle } from "./parts";
-import { GitHub, HackerNews, Met, Wikipedia } from "./sources";
-import {
-  Accessibility,
-  Hints,
-  ScopedThemes,
-  Sources,
-  States,
-} from "./features";
+import { GitHub } from "@/demos/github";
+import { HackerNews } from "@/demos/hacker-news";
+import { Met } from "@/demos/met";
+import { Wikipedia } from "@/demos/wikipedia";
+import { Accessibility } from "@/demos/accessibility";
+import { Hints } from "@/demos/hints";
+import { ScopedThemes } from "@/demos/scoped-themes";
+import { Sources } from "@/demos/skeleton-sources";
+import { States } from "@/demos/states";
 
 const api = { Ghost, Reveal, forgetShapes };
 

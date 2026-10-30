@@ -3,7 +3,7 @@ import { SkeletonReveal } from "skullet/react";
 import { TextMorph } from "torph/react";
 
 import styles from "./styles.module.scss";
-import { useLoad } from "./use-load";
+import { useLoad } from "../parts/use-load";
 import { Avatar } from "@/components/avatar";
 
 type Holding = { symbol: string; name: string; value: number; hue: number };

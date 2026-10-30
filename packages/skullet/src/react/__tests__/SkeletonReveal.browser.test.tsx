@@ -148,6 +148,35 @@ describe("SkeletonReveal", () => {
     expect(reveal().offsetHeight).toBe(shown);
   });
 
+  it("reveals a reload drawn from the last data as a new load, a refetch as a quick crossfade", async () => {
+    const ui = (user: User | null, loading = false) => (
+      <SkeletonReveal data={user} loading={loading}>
+        {(u) => <Card user={u} />}
+      </SkeletonReveal>
+    );
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const wait = () =>
+      act(() => new Promise((resolve) => setTimeout(resolve, 600)));
+    const arriving = () =>
+      container
+        .querySelector("[skullet-pane]:not([skullet-exiting])")!
+        .getAnimations()
+        .map((animation) => animation.effect!.getTiming().duration);
+
+    render(ui(ADA));
+    await settle();
+    render(ui(null));
+    await wait();
+    render(ui(ADA));
+    expect(arriving()).toEqual([FADE_DURATION]);
+
+    await settle();
+    render(ui(ADA, true));
+    await wait();
+    render(ui(ADA));
+    expect(arriving()[0]).toBeLessThan(FADE_DURATION);
+  });
+
   it("draws from the last data only for the same id", () => {
     const ui = (id: string, user: User | null) => (
       <SkeletonReveal id={id} data={user} sample={SAMPLE}>

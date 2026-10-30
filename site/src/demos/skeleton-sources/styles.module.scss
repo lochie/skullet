@@ -1,0 +1,26 @@
+.frame {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--body-light);
+}
+
+.moved {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-muted);
+
+  &[data-jump="false"] {
+    color: #4ade80;
+  }
+
+  &[data-jump="true"] {
+    color: #ff4d4d;
+  }
+}
+
+// A line about the option a demo's control picked
+.demoNote {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}

@@ -182,7 +182,7 @@
           {...{ [ATTR_LOADING]: '' }}
           aria-hidden="true"
           inert
-          use:ghost={{ id: props.id, exact: real != null }}
+          use:ghost={{ id: props.id, exact: real != null, refetch: props.data != null }}
         >
           <div {...{ [ATTR_GHOST]: '' }}>{@render render(shown)}</div>
           <div {...{ [ATTR_SNAPSHOT]: '' }}></div>

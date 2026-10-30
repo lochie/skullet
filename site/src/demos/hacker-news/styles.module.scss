@@ -1,0 +1,24 @@
+.feedName {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.feedMeta {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.stories {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  font-size: 0.8125rem;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+}

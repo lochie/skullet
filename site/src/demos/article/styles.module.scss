@@ -1,0 +1,37 @@
+@use "../../styles/modules/scrim";
+
+.article {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 0.625rem;
+  background: scrim.scrim(135deg, #ffce44 0%, #ff7a59 55%, #8a5cff 100%);
+}
+
+.title {
+  margin: 0.25rem 0 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.excerpt {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color);
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}

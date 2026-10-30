@@ -1,7 +1,7 @@
 import { SkeletonReveal } from "skullet/react";
 
-import styles from "./profile.module.scss";
-import { useLoad } from "./use-load";
+import styles from "./styles.module.scss";
+import { useLoad } from "../parts/use-load";
 import { Avatar } from "@/components/avatar";
 import { Button } from "@/components/button";
 

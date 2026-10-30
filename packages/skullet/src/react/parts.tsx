@@ -91,11 +91,18 @@ type LoadingProps = {
   children: React.ReactNode;
   id?: string;
   exact: boolean;
+  refetch?: boolean;
   /** Read to screen readers in the skeleton's place. */
   label?: string;
 };
 
-export const Loading = ({ children, id, exact, label }: LoadingProps) => {
+export const Loading = ({
+  children,
+  id,
+  exact,
+  refetch,
+  label,
+}: LoadingProps) => {
   const ref = React.useRef<HTMLDivElement>(null);
   const { nonce } = useSkullet();
   const boot = useBoot();
@@ -110,9 +117,9 @@ export const Loading = ({ children, id, exact, label }: LoadingProps) => {
 
   useIsomorphicLayoutEffect(() => {
     if (!ref.current) return;
-    const ghost = new Ghost(ref.current, { id, exact });
+    const ghost = new Ghost(ref.current, { id, exact, refetch });
     return () => ghost.destroy();
-  }, [id, exact]);
+  }, [id, exact, refetch]);
 
   // The snapshot and bones are filled by Ghost, never by React. The script
   // draws the bones as server-rendered HTML is parsed, before the first paint.

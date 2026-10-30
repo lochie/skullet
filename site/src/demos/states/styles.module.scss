@@ -1,0 +1,38 @@
+.frame {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--body-light);
+}
+
+.feedName {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.feedMeta {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.team {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.stateError {
+  font-size: 0.8125rem;
+  color: #ff4d4d;
+
+  button {
+    text-decoration: underline;
+    color: inherit;
+  }
+}

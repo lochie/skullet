@@ -10,25 +10,25 @@ import { CodeBlock } from "@/components/codeblock";
 const frameworks = [
   {
     name: "React",
-    imports: `import { SkeletonReveal } from 'skullet/react'`,
+    imports: `import { SkeletonReveal } from "skullet/react";`,
     logo: <Logos.ReactLogo />,
     example: examples.react,
   },
   {
     name: "TypeScript",
-    imports: `import { Reveal } from 'skullet'`,
+    imports: `import { Reveal } from "skullet";`,
     logo: <Logos.TypeScriptLogo />,
     example: examples.vanilla,
   },
   {
     name: "Vue",
-    imports: `import { SkeletonReveal } from 'skullet/vue'`,
+    imports: `<script setup>\nimport { SkeletonReveal } from "skullet/vue";\n</script>`,
     logo: <Logos.VueLogo />,
     example: examples.vue,
   },
   {
     name: "Svelte",
-    imports: `import { SkeletonReveal } from 'skullet/svelte'`,
+    imports: `<script>\n  import { SkeletonReveal } from "skullet/svelte";\n</script>`,
     logo: <Logos.SvelteLogo />,
     example: examples.svelte,
   },

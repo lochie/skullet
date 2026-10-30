@@ -1,7 +1,7 @@
 import { SkeletonReveal } from "skullet/react";
 
 import styles from "./styles.module.scss";
-import { useLoad } from "./use-load";
+import { useLoad } from "../parts/use-load";
 
 type Stat = { label: string; value: string; delta: string; up: boolean };
 

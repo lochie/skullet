@@ -1,0 +1,39 @@
+.inbox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.message {
+  display: flex;
+  gap: 0.625rem;
+  align-items: center;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.from {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.preview {
+  overflow: hidden;
+  font-size: 0.8125rem;
+  color: var(--color);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
