@@ -1,11 +1,53 @@
+/* eslint-disable @next/next/no-img-element -- plain images, so the skeleton measures them as such */
 import { useEffect, useState } from "react";
 import { SkeletonReveal } from "skullet/react";
 
 import styles from "./styles.module.scss";
 
-type Post = { title: string; excerpt: string; author: string; read: string };
+type Post = {
+  title: string;
+  excerpt: string;
+  author: string;
+  read: string;
+  image?: string;
+};
 
-const api = "https://en.wikipedia.org/api/rest_v1/page/random/summary";
+const api = "https://en.wikipedia.org/api/rest_v1/page/summary/";
+
+// Picked rather than random: a random article can be about anything
+const TITLES = [
+  "Jack-o'-lantern",
+  "Pumpkin",
+  "Pumpkin pie",
+  "Gourd",
+  "Candy corn",
+  "Caramel apple",
+  "Apple bobbing",
+  "Trick-or-treating",
+  "Haunted attraction (simulated)",
+  "Corn maze",
+  "Scarecrow",
+  "Black cat",
+  "Bat",
+  "Vampire bat",
+  "Barn owl",
+  "Great horned owl",
+  "Common raven",
+  "Tarantula",
+  "Cauldron",
+  "Will-o'-the-wisp",
+  "Barmbrack",
+  "Soul cake",
+  "Day of the Dead",
+  "Monster Mash",
+  "Thriller (song)",
+  "Ghostbusters",
+  "The Addams Family",
+  "Casper the Friendly Ghost",
+  "The Nightmare Before Christmas",
+  "Hocus Pocus (1993 film)",
+  "It's the Great Pumpkin, Charlie Brown",
+];
 
 const AUTHORS = ["John Doe", "Jane Smith", "Alice Johnson", "Bob Brown"];
 
@@ -21,12 +63,13 @@ const excerpt = (text: string) =>
     .trim() ?? text;
 
 const getRandomPost = async (): Promise<Post> => {
-  const response = await fetch(api, { cache: "no-store" });
+  const response = await fetch(api + encodeURIComponent(pick(TITLES)));
   const data = await response.json();
 
   return {
     title: data.title,
     excerpt: excerpt(data.extract),
+    image: data.thumbnail?.source,
     author: pick(AUTHORS),
     read: `${Math.floor(Math.random() * 10) + 1} min read`,
   };
@@ -62,10 +105,19 @@ export const ArticleDemo = () => {
 
   return (
     <div className={styles.frame}>
-      <SkeletonReveal data={post} sample={SAMPLE}>
+      <SkeletonReveal
+        id="demo-article"
+        data={post}
+        sample={SAMPLE}
+        label="Loading article"
+      >
         {(post) => (
           <article className={styles.article}>
-            <div className={styles.cover} />
+            {post.image ? (
+              <img className={styles.cover} src={post.image} alt="" />
+            ) : (
+              <div className={styles.cover} />
+            )}
             <h4 className={styles.title}>{post.title}</h4>
             <p className={styles.excerpt}>{post.excerpt}</p>
             <div className={styles.meta}>
