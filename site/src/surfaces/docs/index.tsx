@@ -56,12 +56,15 @@ const REVEALS: [string, React.ReactNode][] = [
     </>,
   ],
   ["together", <>Crossfades the whole skeleton into the content.</>],
-  ["sequence", <>Brings each piece in where its bone was, top to bottom.</>],
+  [
+    "sequence",
+    <>Brings each piece in where its skeleton was, top to bottom.</>,
+  ],
   ["sweep", <>Uncovers the content behind the shimmer’s front.</>],
 ];
 
 const THEME_OPTIONS: [string, React.ReactNode][] = [
-  ["light, dark", <>The bones’ fill and highlight, per colour scheme.</>],
+  ["light, dark", <>The skeleton’s fill and highlight, per colour scheme.</>],
   [
     "animation",
     <>
@@ -194,8 +197,8 @@ export const Docs = ({ downloads }: { downloads?: number }) => (
       <p>
         Skullet draws a skeleton of exactly what is about to load, for React,
         Vue, Svelte and vanilla JavaScript. Your content is laid out unseen and
-        covered in <em>bones</em>, a bar for each line of text and a block for
-        each image or control, so nothing moves when it arrives.
+        traced, a bar for each line of text and a block for each image or
+        control, so nothing moves when it arrives.
       </p>
     </header>
 
@@ -311,7 +314,7 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
       <RevealModes />
       <p>
         Images never hold a reveal back. Each one still loading keeps its own
-        bone until it has decoded, then fades in. It works with any{" "}
+        skeleton until it has decoded, then fades in. It works with any{" "}
         <code>&lt;img&gt;</code>, <code>next/image</code> included, with no
         wrapper to swap in.
       </p>
@@ -365,7 +368,7 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
       <p>
         A loading reveal is <code>aria-busy</code>, and its skeleton is hidden
         from screen readers and <code>inert</code>. A <code>label</code> is read
-        in its place. Under <code>prefers-reduced-motion</code>, bones hold
+        in its place. Under <code>prefers-reduced-motion</code>, skeletons hold
         still and every reveal is instant.
       </p>
       <CodeBlock

@@ -616,7 +616,7 @@ export const Accessibility = () => {
         </dd>
         <dt>Reduced motion</dt>
         <dd data-on={reduced}>
-          {reduced ? "on: still bones, instant reveals" : "off"}
+          {reduced ? "on: still skeletons, instant reveals" : "off"}
         </dd>
       </dl>
     </Demo>
@@ -857,7 +857,7 @@ const HINTS = [
   {
     title: "Measured",
     hint: undefined,
-    detail: "Each tag is a painted label, so each gets a bone.",
+    detail: "Each tag is a painted label, so each gets its own skeleton.",
   },
   {
     title: "skullet-block",

@@ -36,25 +36,24 @@ export const Playground = ({ downloads }: { downloads?: number }) => (
 
       <Callout>
         <p>
-          If data is ready immediately content is shown instantly. Otherwise,
-          the skeleton is displayed until the content is ready.
+          Under <code>smart</code>, data that lands within 150ms shows at once
+          with no skeleton. Slower data keeps the skeleton until it’s ready.
         </p>
       </Callout>
     </Section>
 
     <Section id="images" title="Images">
       <p>
-        {`The text reveals when ready, but each image will load independently with
-        its own skeleton until it's ready to display.`}
+        Text reveals as soon as it’s ready. Each image keeps its own skeleton
+        until it has loaded.
       </p>
       <Images />
     </Section>
 
     <Section id="resizing" title="Changing size">
       <p>
-        When new data of a different length to the skeleton changes the height
-        of the container the reveal will ease to it rather than snapping to
-        size.
+        New data of a different length changes the reveal’s height. The reveal
+        eases to the new size rather than snapping.
       </p>
       <Resizing />
     </Section>
@@ -88,8 +87,8 @@ export const Playground = ({ downloads }: { downloads?: number }) => (
 
     <Section id="wikipedia" title="Unknown data">
       <p>
-        Each skeleton is drawn from the last data, the hardest case for a
-        remembered shape.
+        A random article each load. Each skeleton is drawn from the last
+        article, the hardest case for a remembered shape.
       </p>
       <Wikipedia />
     </Section>
