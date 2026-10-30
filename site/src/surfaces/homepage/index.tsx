@@ -23,17 +23,19 @@ export const Homepage = () => {
     <div className={styles.page}>
       <div className={styles.container}>
         <SkeletonReveal loading={loading}>
-          <header className={styles.header}>
-            <div className={styles.mascot}>
-              <Mascot size={56} />
+          <div className={styles.topbar}>
+            <header className={styles.header}>
+              <div className={styles.mascot}>
+                <Mascot size={56} />
+              </div>
+              <h1>Skullet</h1>
+              <p>Smart skeleton states</p>
+            </header>
+            <div className={styles.nav}>
+              <Nav />
+              <CodeBlock code="npm i skullet" />
             </div>
-            <h1>Skullet</h1>
-            <p>Smart skeleton states</p>
-
-            <Nav />
-
-            <CodeBlock code="npm i skullet" />
-          </header>
+          </div>
         </SkeletonReveal>
 
         <Demo />

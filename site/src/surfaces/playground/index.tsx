@@ -2,12 +2,9 @@
 
 import Link from "next/link";
 
-import styles from "./styles.module.scss";
 import { Callout } from "@/components/callout";
 import { DocsLayout } from "@/components/docs-layout";
 import { Section } from "@/components/section";
-import { DebugToggle } from "./parts";
-import { Live } from "./live";
 import { Lists } from "./lists";
 import { Wikipedia } from "./sources";
 import {
@@ -25,8 +22,7 @@ const SECTIONS = [
   ["lists", "Load more"],
   ["suspense", "Suspense"],
   ["animation", "Animation"],
-  ["aave", "Live: Aave"],
-  ["wikipedia", "Live: Wikipedia"],
+  ["wikipedia", "Unknown data"],
 ] as const;
 
 export const Playground = ({ downloads }: { downloads?: number }) => (
@@ -49,7 +45,7 @@ export const Playground = ({ downloads }: { downloads?: number }) => (
     <Section id="images" title="Images">
       <p>
         {`The text reveals when ready, but each image will load independently with
-        it's own skeleton until it's ready to display.`}
+        its own skeleton until it's ready to display.`}
       </p>
       <Images />
     </Section>

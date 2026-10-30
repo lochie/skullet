@@ -73,10 +73,6 @@
   }
 }
 
-.install {
-  scroll-margin-top: 2rem;
-}
-
 .api {
   display: flex;
   flex-direction: column;
@@ -89,9 +85,3 @@
   }
 }
 
-.bars {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  max-width: 22rem;
-}

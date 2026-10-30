@@ -111,95 +111,11 @@
   gap: 0.375rem;
 }
 
-// Below the table and at its full height from the start, so new entries move nothing
-.log {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  min-height: calc(6 * 1.25rem);
-  margin-top: 1rem;
-  line-height: 1rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--color-muted);
-
-  div {
-    display: grid;
-    grid-template-columns: 6rem 10rem 1fr;
-    gap: 0.75rem;
-
-    > :only-child {
-      grid-column: 1 / -1;
-    }
-
-    &[data-jump="false"] span:last-child {
-      color: #4ade80;
-    }
-
-    &[data-jump="true"] span:last-child {
-      color: #ff4d4d;
-    }
-  }
-}
-
 .liveFrame {
   padding: 0.5rem 1rem;
   border: 1px solid var(--border);
   border-radius: 1rem;
   background: var(--body-light);
-}
-
-.reserves {
-  display: flex;
-  flex-direction: column;
-  font-size: 0.8125rem;
-}
-
-.reserveHead,
-.reserve {
-  display: grid;
-  grid-template-columns: 1.5rem minmax(0, 1fr) 5rem 4.5rem 4.5rem;
-  gap: 0.75rem;
-  align-items: center;
-  padding: 0.625rem 0;
-
-  > span:nth-child(n + 3) {
-    text-align: right;
-  }
-}
-
-.reserveHead {
-  font-size: 0.75rem;
-  color: var(--color-muted);
-}
-
-.reserve {
-  border-top: 1px solid var(--border);
-  color: var(--color);
-
-  img {
-    display: block;
-    border-radius: 50%;
-  }
-}
-
-.asset {
-  display: flex;
-  gap: 0.5rem;
-  align-items: baseline;
-  min-width: 0;
-  white-space: nowrap;
-}
-
-.symbol {
-  font-weight: 500;
-  color: #ffffff;
-}
-
-.assetName {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: var(--color-muted);
 }
 
 .error {

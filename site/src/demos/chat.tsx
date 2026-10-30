@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "motion/react";
 import styles from "./styles.module.scss";
 import { useLoad } from "./use-load";
 import { Avatar } from "@/components/avatar";
-import { Button } from "@/components/button";
 import { SkeletonReveal } from "skullet/react";
 
 type Message = { mine: boolean; text: string };
