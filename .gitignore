@@ -5,8 +5,9 @@ apps/*/dist
 # This is a pnpm workspace — other lockfiles only ever drift.
 package-lock.json
 yarn.lock
-site/src/surfaces/playground/bundle-sizes.json
+site/src/surfaces/lab/bundle-sizes.json
 
 # Playwright run output; golden screenshots live in e2e/tests/*-snapshots
 e2e/test-results
 e2e/playwright-report
+site/public/sounds/src
