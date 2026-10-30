@@ -723,12 +723,24 @@ export const Resizing = () => {
     <Demo
       controls={
         <>
-          <Button onClick={() => load("short")} disabled={loading}>
-            Load a shorter bio
+          <Button
+            onClick={() => {
+              load(bio === "short" ? "long" : "short");
+            }}
+            disabled={loading}
+          >
+            Load another
           </Button>
-          <Button onClick={() => load("long")} disabled={loading}>
-            Load a longer bio
-          </Button>
+          <span
+            className={styles.moved}
+            data-jump={loading || moved === null ? undefined : moved !== 0}
+          >
+            {loading || moved === null
+              ? "loading…"
+              : moved === 0
+                ? "no movement"
+                : `eased ${moved > 0 ? "+" : ""}${moved}px`}
+          </span>
         </>
       }
     >
@@ -740,16 +752,6 @@ export const Resizing = () => {
           {(profile) => <ProfileCard profile={profile} />}
         </SkeletonReveal>
       </div>
-      <span
-        className={styles.moved}
-        data-jump={loading || moved === null ? undefined : moved !== 0}
-      >
-        {loading || moved === null
-          ? "loading…"
-          : moved === 0
-            ? "no movement"
-            : `eased ${moved > 0 ? "+" : ""}${moved}px`}
-      </span>
     </Demo>
   );
 };

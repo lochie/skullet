@@ -22,10 +22,11 @@ export const Demo = ({
     return (
       <div className={styles.stack}>
         <div className={styles.container} data-still>
-          <div className={styles.content}>{children}</div>
           {hint && <span className={styles.hint}>{hint}</span>}
+
+          <div className={styles.controls}>{controls}</div>
+          <div className={styles.content}>{children}</div>
         </div>
-        <div className={styles.controls}>{controls}</div>
       </div>
     );
   }

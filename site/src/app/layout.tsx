@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "@/styles/globals.scss";
 import { Analytics } from "@vercel/analytics/next";
-import { Courier_Prime } from "next/font/google";
 import localFont from "next/font/local";
 import { SkulletProvider } from "skullet/react";
 
@@ -13,13 +12,6 @@ const openRunde = localFont({
     { path: "../fonts/OpenRunde-Bold.woff2", weight: "700" },
   ],
   variable: "--font-open-runde",
-  display: "swap",
-});
-
-const courierPrime = Courier_Prime({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-courier-prime",
   display: "swap",
 });
 
@@ -75,10 +67,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${openRunde.variable} ${courierPrime.variable}`}
-    >
+    <html lang="en" className={`${openRunde.variable}`}>
       <body>
         <SkulletProvider mode="dark">{children}</SkulletProvider>
         <Analytics />

@@ -5,40 +5,29 @@ import styles from "./styles.module.scss";
 
 type Post = { title: string; excerpt: string; author: string; read: string };
 
-const api = "https://api.adviceslip.com/";
-const jokeApi = "https://icanhazdadjoke.com/";
+const api = "https://en.wikipedia.org/api/rest_v1/page/random/summary";
 
-const getRandomAdvice = async () => {
-  // The API caches its slip for a couple of seconds; a fresh one per load
-  const response = await fetch(`${api}advice`, { cache: "no-store" });
-  const data = await response.json();
-  return data.slip.advice;
-};
+const AUTHORS = ["John Doe", "Jane Smith", "Alice Johnson", "Bob Brown"];
 
-const getRandomJoke = async () => {
-  const response = await fetch(jokeApi, {
-    headers: { Accept: "application/json" },
-  });
-  const data = await response.json();
-  return data.joke;
-};
+const pick = <T,>(items: T[]) =>
+  items[Math.floor(Math.random() * items.length)]!;
 
-const getRandomAuthor = async () => {
-  // Simulate an API call for a random author
-  const authors = ["John Doe", "Jane Smith", "Alice Johnson", "Bob Brown"];
-  return authors[Math.floor(Math.random() * authors.length)];
-};
+// Some extracts run to paragraphs: two sentences at most, to read as an excerpt
+const excerpt = (text: string) =>
+  text
+    .match(/[^.!?]+[.!?]+(\s|$)/g)
+    ?.slice(0, 2)
+    .join("")
+    .trim() ?? text;
 
 const getRandomPost = async (): Promise<Post> => {
-  const [advice, joke] = await Promise.all([
-    getRandomAdvice(),
-    getRandomJoke(),
-  ]);
+  const response = await fetch(api, { cache: "no-store" });
+  const data = await response.json();
 
   return {
-    title: advice,
-    excerpt: joke,
-    author: await getRandomAuthor(),
+    title: data.title,
+    excerpt: excerpt(data.extract),
+    author: pick(AUTHORS),
     read: `${Math.floor(Math.random() * 10) + 1} min read`,
   };
 };

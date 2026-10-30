@@ -13,23 +13,19 @@ const holdSvg = (page: Page) =>
     }
   });
 
-// The article demo's APIs answer at random, and its height follows: answered the same every run
+// The article demo's API answers at random, and its height follows: answered the same every run
 const fixedPost = (page: Page) =>
-  Promise.all([
-    page.route("https://api.adviceslip.com/**", (route) =>
-      route.fulfill({
-        json: { slip: { id: 1, advice: "Measure twice, reveal once." } },
-      }),
-    ),
-    page.route("https://icanhazdadjoke.com/**", (route) =>
+  page.route(
+    "https://en.wikipedia.org/api/rest_v1/page/random/summary",
+    (route) =>
       route.fulfill({
         json: {
-          id: "skullet",
-          joke: "Skeletons never fight. They don't have the guts.",
+          title: "Skeleton",
+          extract:
+            "A skeleton is the structural frame that supports the body of most animals. It is measured before the content arrives.",
         },
       }),
-    ),
-  ]);
+  );
 
 // Images from the network, and the wallet's prices, new each load: nothing a golden can hold still
 const remote = (page: Page) => [

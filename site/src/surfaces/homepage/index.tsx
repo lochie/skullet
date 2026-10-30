@@ -25,14 +25,14 @@ export const Homepage = () => {
         <SkeletonReveal loading={loading}>
           <header className={styles.header}>
             <div className={styles.mascot}>
-              <Mascot size={80} />
+              <Mascot size={56} />
             </div>
             <h1>Skullet</h1>
             <p>Smart skeleton states</p>
 
-            <CodeBlock code="npm i skullet" />
-
             <Nav />
+
+            <CodeBlock code="npm i skullet" />
           </header>
         </SkeletonReveal>
 

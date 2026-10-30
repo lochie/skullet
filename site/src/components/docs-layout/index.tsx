@@ -70,7 +70,7 @@ export const DocsLayout = ({
     <div className={styles.page} data-wide={wide} data-aside={aside}>
       <nav className={styles.nav}>
         <Link href="/" className={styles.home}>
-          <Mascot size={48} />
+          <Mascot size={56} />
           <span className={styles.name}>Skullet</span>
           <span className={styles.tagline}>Smart skeleton states</span>
         </Link>

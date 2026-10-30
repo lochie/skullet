@@ -31,41 +31,34 @@ const SECTIONS = [
 
 export const Playground = ({ downloads }: { downloads?: number }) => (
   <DocsLayout aside sections={SECTIONS} downloads={downloads}>
-    <header className={styles.header}>
-      <h1>Playground</h1>
-      <p>
-        Every demo here runs the real library. Turn on the debug overlay to
-        outline each reveal with where its skeleton came from and whether it
-        moved.
-      </p>
-      <DebugToggle />
-    </header>
-
     <Section id="reveals" title="Reveal modes">
-      <p>
-        The same feed under each <code>reveal</code>. Set the response to fast
-        and <code>smart</code> shows no skeleton at all; refetch, and it
-        crossfades over the data on screen.
-      </p>
-      <RevealModes />
       <p>
         See <Link href="/docs#reveals">reveal modes</Link> in the docs.
       </p>
+
+      <RevealModes />
+
+      <Callout>
+        <p>
+          If data is ready immediately content is shown instantly. Otherwise,
+          the skeleton is displayed until the content is ready.
+        </p>
+      </Callout>
     </Section>
 
     <Section id="images" title="Images">
       <p>
-        Images take their own time. The text reveals on schedule, and each image
-        still loading keeps its own bone until it has decoded.
+        {`The text reveals when ready, but each image will load independently with
+        it's own skeleton until it's ready to display.`}
       </p>
       <Images />
     </Section>
 
     <Section id="resizing" title="Changing size">
       <p>
-        A reload draws its skeleton from the data on screen, so new data of a
-        different length changes the height. The reveal eases to it rather than
-        snapping, and still counts as a miss.
+        When new data of a different length to the skeleton changes the height
+        of the container the reveal will ease to it rather than snapping to
+        size.
       </p>
       <Resizing />
     </Section>
@@ -77,12 +70,6 @@ export const Playground = ({ downloads }: { downloads?: number }) => (
         the whole list redraws every row, and the new ones push what’s below.
       </p>
       <Lists />
-      <Callout>
-        <p>
-          Load more under each and compare the logs, or turn on the debug
-          overlay.
-        </p>
-      </Callout>
     </Section>
 
     <Section id="suspense" title="Suspense">
@@ -103,26 +90,10 @@ export const Playground = ({ downloads }: { downloads?: number }) => (
       <Animations />
     </Section>
 
-    <Section id="aave" title="Live: Aave">
+    <Section id="wikipedia" title="Unknown data">
       <p>
-        The largest reserves of each chain’s Aave market, from its public API.
-        Switch chains, refetch over the data on screen, or forget shapes to see
-        a first visit.
-      </p>
-      <Live />
-      <Callout>
-        <p>
-          The log under each live demo records what the skeleton was drawn from
-          and whether the reveal moved anything.
-        </p>
-      </Callout>
-    </Section>
-
-    <Section id="wikipedia" title="Live: Wikipedia">
-      <p>
-        A random article each load: a picture of any shape or none, one line of
-        text or ten. Each skeleton is drawn from the last article, the hardest
-        case for a remembered shape.
+        Each skeleton is drawn from the last data, the hardest case for a
+        remembered shape.
       </p>
       <Wikipedia />
     </Section>
