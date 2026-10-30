@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
 
+# A newer push to the same branch cancels the run it replaces
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -16,16 +21,53 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-
-      - name: Browsers
-        run: |
-          pnpm --filter=skullet exec playwright install --with-deps chromium webkit firefox
-          pnpm --filter=e2e-safari18 exec playwright install --with-deps webkit
-
       - run: pnpm typecheck
       - run: pnpm lint
-      - name: Unit and browser tests — Chromium, WebKit, Firefox
-        run: pnpm test
+      - name: Unit tests
+        run: pnpm --filter=skullet exec vitest run --project unit
+
+  # One job per browser, side by side: the browser suite is most of the run
+  browser:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, webkit, firefox]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ matrix.browser }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Browser
+        run: pnpm --filter=skullet exec playwright install --with-deps ${{ matrix.browser }}
+      - name: Browser tests in ${{ matrix.browser }}
+        run: pnpm --filter=skullet exec vitest run --project browser --browser.name=${{ matrix.browser }}
+
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-e2e-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Browsers
+        run: |
+          pnpm --filter=e2e exec playwright install --with-deps chromium webkit firefox
+          pnpm --filter=e2e-safari18 exec playwright install --with-deps webkit
 
       - run: pnpm site:build
       - name: Examples
