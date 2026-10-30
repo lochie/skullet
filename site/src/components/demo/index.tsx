@@ -3,20 +3,29 @@ import { useState } from "react";
 import styles from "./styles.module.scss";
 
 /**
- * A live demo in the docs. Clicking remounts it, so its loader starts over —
- * unless it has `controls`, which sit under the box and drive it instead.
+ * A live demo in the docs. Clicking remounts it, so its loader starts over,
+ * or runs `onClick` instead; `disabled` ignores clicks while it loads.
+ * `controls` sit in the box and drive it instead.
  */
 export const Demo = ({
   children,
   hint,
   controls,
+  onClick,
+  disabled,
 }: {
   children: React.ReactNode;
   hint?: string;
   controls?: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
 }) => {
   const [loads, setLoads] = useState(0);
-  const reload = () => setLoads((count) => count + 1);
+  const reload = () => {
+    if (disabled) return;
+    if (onClick) onClick();
+    else setLoads((count) => count + 1);
+  };
 
   if (controls) {
     return (
@@ -37,6 +46,7 @@ export const Demo = ({
       role="button"
       tabIndex={0}
       aria-label="Reload this demo"
+      aria-disabled={disabled || undefined}
       onClick={reload}
       onKeyDown={(event) => {
         if (event.target !== event.currentTarget) return;

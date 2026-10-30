@@ -42,6 +42,8 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
+  // Its links to sections on this page mark the one being read; no JS, so older browsers mark none
+  scroll-target-group: auto;
 
   a {
     font-size: 0.75rem;
@@ -50,7 +52,7 @@
     padding: 0.25rem 0;
 
     &:hover,
-    &[data-active="true"] {
+    &:target-current {
       color: #ffffff;
     }
   }
@@ -107,11 +109,6 @@
   }
 }
 
-// A page's own sections, under its link; outranks the nav's link size
-.nav a.sub {
-  padding-left: 0.875rem;
-}
-
 .downloads {
   font-size: 0.75rem;
   color: var(--color-muted);
@@ -126,4 +123,9 @@
   flex-direction: column;
   gap: 3.5rem;
   min-width: 0;
+
+  // Reached from the top of the page, so the nav marks it before any scroll
+  > section[id]:first-of-type {
+    scroll-margin-top: 100vh;
+  }
 }

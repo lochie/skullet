@@ -1,8 +1,9 @@
 import { useState } from "react";
 import styles from "./styles.module.scss";
+import { AVATAR_URL } from "@/utils/consts";
 
 const AVATARS: Record<string, string> = {
-  "Lochie Axon": "https://lochie.me/avatar.jpg",
+  "Lochie Axon": AVATAR_URL,
   "Alex Vanderzon": "/avatars/alex.png",
   Pugson: "/avatars/pugson.jpg",
   USDC: "/avatars/usdc.png",

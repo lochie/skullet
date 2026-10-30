@@ -11,26 +11,18 @@ import {
   RESIZE_DURATION,
 } from "./constants";
 import { imageReady, pendingImages } from "./images";
-import { prefersReducedMotion, prefersReducedTransparency } from "./motion";
+import { prefersReducedMotion } from "./motion";
+import { warnOnce } from "./dev";
 import {
   planReveal,
-  positionPlan,
   pieces,
-  SKELETON_DELAY,
   type Plan,
   type RevealMode,
   type SequencePlan,
   type WipePlan,
 } from "./plan";
-import {
-  bonesOf,
-  shimmer,
-  ease,
-  SLANT_ANGLE,
-  SLANT_COS,
-  SLANT_TAN,
-  STEPS,
-} from "./shimmer";
+import { revealSpec } from "./reveals";
+import { bonesOf, shimmer } from "./shimmer";
 
 export { prefersReducedMotion };
 
@@ -38,19 +30,19 @@ const noop = () => {};
 
 const settle = (animation: Animation) => animation.finished.then(noop, noop);
 
-// How a reveal's incoming pane decided to arrive, for its outgoing pane to match;
-// "skeleton" when a skeleton is arriving, which smart holds back for a moment
-const plans = new WeakMap<Element, Plan | "skeleton">();
+// How a reveal's incoming pane decided to arrive, for its outgoing pane to match
+const plans = new WeakMap<Element, Plan | { kind: "skeleton"; hold: number }>();
 
 function appear(
   element: Element,
   delay = 0,
   duration = FADE_DURATION,
   from = 0,
+  enter?: Keyframe,
 ) {
   if (prefersReducedMotion()) return Promise.resolve();
   return settle(
-    element.animate([{ opacity: from }, { opacity: 1 }], {
+    element.animate([{ ...enter, opacity: from }, { opacity: 1 }], {
       duration,
       delay,
       easing: "ease",
@@ -150,7 +142,7 @@ function sequenceIn(element: HTMLElement, plan: SequencePlan) {
     pieces(element).map((piece) => {
       const delay = plan.pieceDelay(piece);
       if (delay === null) return;
-      return appear(piece, delay);
+      return appear(piece, delay, plan.duration, 0, plan.enter);
     }),
   ).then(noop);
 }
@@ -180,10 +172,10 @@ function takeOver(root: Element) {
 }
 
 /**
- * Brings a pane in. A skeleton fades up — held back a moment under `smart`,
- * so data that beats it never shows one. Content arrives as `reveal` says,
- * after its images unless `smart` gives each image its own moment.
- * `initial` is a reveal's first pane, which has nothing to replace.
+ * Brings a pane in. A skeleton fades up, held back for the reveal's `hold`,
+ * so data that beats it never shows one. Content arrives as `reveal` plans,
+ * each image still loading behind a bone of its own. `initial` is a reveal's
+ * first pane, which has nothing to replace.
  */
 export function fadeIn(
   element: HTMLElement,
@@ -207,49 +199,45 @@ function arrive(
   initial: boolean,
 ): Promise<void> {
   const root = element.parentElement;
+  const spec = revealSpec(reveal);
 
   if (isSkeleton(element)) {
     if (root) clearStandIns(root);
-    if (reveal !== "smart" && reveal !== "sweep") {
+    const hold = Math.max(spec.hold ?? 0, 0);
+    if (!hold) {
       if (root) plans.delete(root);
       return initial ? Promise.resolve() : appear(element);
     }
-    if (root) plans.set(root, "skeleton");
+    if (root) plans.set(root, { kind: "skeleton", hold });
     // A reveal's first skeleton has nothing on screen to hold back for — held, it would only be a blank
     if (initial) return Promise.resolve();
-    return appear(element, SKELETON_DELAY);
+    return appear(element, hold);
   }
   if (initial || !root) return Promise.resolve();
 
   const from = takeOver(root);
   if (from > 0.01) {
     const duration = FADE_DURATION * (1 - from);
-    plans.set(root, { kind: "together", duration });
+    plans.set(root, { kind: "together", delay: 0, duration });
     return appear(element, 0, duration, from);
   }
 
   holdImages(element, root);
 
-  if (reveal === "smart" || reveal === "sweep") {
-    const plan = planReveal(element, root, reveal === "sweep");
-    plans.set(root, plan);
-    if (plan.kind === "instant") {
-      clearExiting(root);
-      return Promise.resolve();
-    }
-    if (plan.kind === "sequence") return sequenceIn(element, plan);
-    if (plan.kind === "wipe") return wipe(element, plan, true);
-    return appear(element, 0, plan.duration);
+  const plan = planReveal(element, root, spec, (key) =>
+    warnOnce(
+      `enter:${key}`,
+      `\`enter\` can't set \`${key}\`: only properties that change nothing's layout animate, so the reveal never moves the page.`,
+    ),
+  );
+  plans.set(root, plan);
+  if (plan.kind === "instant") {
+    clearExiting(root);
+    return Promise.resolve();
   }
-
-  if (reveal === "sequence") {
-    const plan = positionPlan(root.getBoundingClientRect());
-    plans.set(root, plan);
-    return sequenceIn(element, plan);
-  }
-
-  plans.set(root, { kind: "together", duration: FADE_DURATION });
-  return appear(element);
+  if (plan.kind === "sequence") return sequenceIn(element, plan);
+  if (plan.kind === "wipe") return wipe(element, plan, true);
+  return appear(element, plan.delay, plan.duration, 0, plan.enter);
 }
 
 /** Where a pane stands within its reveal — what it's pinned to when it pops out. */
@@ -367,13 +355,11 @@ export function fadeOut(element: HTMLElement, box?: PaneBox): Promise<void> {
   // A microtask on, so the pane replacing it has registered how it arrives
   return Promise.resolve().then(() => {
     const plan = parent && plans.get(parent);
-    const instant =
-      prefersReducedMotion() ||
-      (plan !== "skeleton" && plan?.kind === "instant");
+    const instant = prefersReducedMotion() || plan?.kind === "instant";
     if (parent && !instant) resize(parent, stood);
 
     // Content stays until the skeleton replacing it shows — which may be never
-    if (plan === "skeleton") return fade(SKELETON_DELAY, FADE_DURATION);
+    if (plan?.kind === "skeleton") return fade(plan.hold, FADE_DURATION);
     if (prefersReducedMotion() || plan?.kind === "instant") {
       element.style.opacity = "0";
       return;
@@ -384,7 +370,8 @@ export function fadeOut(element: HTMLElement, box?: PaneBox): Promise<void> {
     if (plan?.kind === "wipe" && isSkeleton(element)) {
       return wipe(element, plan, false);
     }
-    return fade(0, plan?.kind === "together" ? plan.duration : FADE_DURATION);
+    if (plan?.kind === "together") return fade(plan.delay, plan.duration);
+    return fade(0, FADE_DURATION);
   });
 }
 
@@ -405,7 +392,7 @@ function sequenceOut(element: HTMLElement, plan: SequencePlan) {
       const go = (delay: number) =>
         settle(
           bone.animate([{ opacity: 1 }, { opacity: 0 }], {
-            duration: FADE_DURATION,
+            duration: plan.duration,
             delay,
             easing: "ease",
             fill: "forwards",
@@ -421,8 +408,7 @@ function sequenceOut(element: HTMLElement, plan: SequencePlan) {
   ).then(noop);
 }
 
-const FEATHER = 40; // px either side of a wipe's front, across the slant
-const STALL = 100; // ms between frames that counts as frames dropping — the sweep gives way to a crossfade
+const STALL = 100; // ms between frames that counts as frames dropping — the wipe gives way to a crossfade
 
 // Running fronts, by pane — stopped when the pane's mask is cleared
 const fronts = new WeakMap<HTMLElement, () => void>();
@@ -433,72 +419,71 @@ function setMask(element: HTMLElement, image: string) {
   element.style.setProperty("-webkit-mask-image", image);
 }
 
-function clearMask(element: HTMLElement) {
-  fronts.get(element)?.();
-  element.style.removeProperty("mask-image");
-  element.style.removeProperty("-webkit-mask-image");
+// The inverse of `image`: a full layer with `image` cut out of it
+function setInverseMask(element: HTMLElement, image: string) {
+  setMask(element, `linear-gradient(#000 0 0), ${image}`);
+  // Prefixed first: WebKit aliases the two, and the later wins
+  element.style.setProperty("-webkit-mask-composite", "xor");
+  element.style.setProperty("mask-composite", "exclude");
 }
 
-const GLOSS = 320; // px across the slant: the band trailing a wipe's front, as wide as the shimmer's widest
-const GLOSS_LAG = 120; // px its centre trails the front by
-const GLOSS_LIFT = 0.45; // How far, at its peak, it lifts the content it crosses toward white
-
-// When a front crosses `rect`, starting and ending `margin` px across the slant beyond it
-function crossing(rect: DOMRect, plan: WipePlan, margin: number) {
-  const from = rect.left + rect.top * SLANT_TAN;
-  const span = rect.width + rect.height * SLANT_TAN;
-  const pad = margin / SLANT_COS;
-  return {
-    begin: plan.reach(from - pad),
-    end: plan.reach(from + span + pad),
-    length: span * SLANT_COS,
-  };
+function clearMask(element: HTMLElement) {
+  fronts.get(element)?.();
+  for (const property of [
+    "mask-image",
+    "-webkit-mask-image",
+    "mask-composite",
+    "-webkit-mask-composite",
+  ]) {
+    element.style.removeProperty(property);
+  }
 }
 
 /**
- * Moves `element`'s front across it, a frame at a time, on the plan's clock;
- * `stop(i, at)` places the i-th of STEPS + 1 stops against a front `at` px
- * along the slant. Only the plainest mask — a gradient the pane's own size,
- * rewritten each frame: Safari 18 drops a mask's size once its position
- * animates, and doesn't repaint for a custom property animated inside it.
+ * A wipe crossing one pane: incoming content shows behind the front, the
+ * skeleton ahead of it. Both panes share the plan's clock, so the two masks
+ * meet exactly. Only the plainest mask, rewritten each frame: Safari 18 drops
+ * a mask's size once its position animates, and doesn't repaint for a custom
+ * property animated inside one.
  */
-function front(
-  element: HTMLElement,
-  plan: WipePlan,
-  margin: number,
-  stop: (i: number, at: number) => string,
-): Promise<number | null> | null {
-  const { begin, end, length } = crossing(
-    element.getBoundingClientRect(),
-    plan,
-    margin,
-  );
-  if (end <= 0) return null;
-  const start = performance.now();
-  const draw = (progress: number) => {
-    const at = -margin + (length + 2 * margin) * progress;
-    setMask(
-      element,
-      `linear-gradient(${SLANT_ANGLE}, ${Array.from({ length: STEPS + 1 }, (_, i) => stop(i, at)).join(", ")})`,
-    );
+function wipe(element: HTMLElement, plan: WipePlan, incoming: boolean) {
+  const pane = { rect: element.getBoundingClientRect(), reveal: plan.reveal };
+  const { mask, out } = plan.wipe;
+  const draw = (at: number) => {
+    if (incoming) setMask(element, mask(at, pane));
+    else if (out) setMask(element, out(at, pane));
+    else setInverseMask(element, mask(at, pane));
   };
+  const progress = () => (performance.now() - plan.start) / plan.duration;
+  if (progress() >= 1) {
+    if (!incoming) element.style.opacity = "0";
+    return Promise.resolve();
+  }
+  if (incoming) {
+    plan.wipe.effect?.(element, { ...pane, progress });
+    if (plan.enter) {
+      element.animate([plan.enter, {}], {
+        duration: plan.duration,
+        delay: Math.max(plan.start - performance.now(), 0),
+        easing: "ease",
+        fill: "backwards",
+      });
+    }
+  }
 
-  // Resolves null once crossed, or with how far it got when frames dropped and the sweep gave way
-  return new Promise((resolve) => {
+  // Resolves null once crossed, or with how far it got when frames dropped and the wipe gave way
+  const run = new Promise<number | null>((resolve) => {
     let frame = 0;
-    let last = start;
-    let progress = 0;
+    let last = performance.now();
+    let at = 0;
     const tick = () => {
       const now = performance.now();
       if (now - last > STALL) plan.stalled = true;
       last = now;
-      if (plan.stalled) return done(progress);
-      progress = Math.min(
-        Math.max((now - start - begin) / (end - begin), 0),
-        1,
-      );
-      draw(progress);
-      if (progress < 1) frame = requestAnimationFrame(tick);
+      if (plan.stalled) return done(at);
+      at = Math.min(Math.max(progress(), 0), 1);
+      draw(at);
+      if (at < 1) frame = requestAnimationFrame(tick);
       else done(null);
     };
     const done = (stalledAt: number | null = null) => {
@@ -509,149 +494,6 @@ function front(
     fronts.set(element, done);
     tick();
   });
-}
-
-const SVG = "http://www.w3.org/2000/svg";
-let host: SVGSVGElement | null = null;
-let glosses = 0;
-
-// One hidden svg on the page for the filters: `filter: url(#…)` can't reach into a shadow root
-function filterHost() {
-  if (!host?.isConnected) {
-    host = document.createElementNS(SVG, "svg");
-    host.setAttribute("aria-hidden", "true");
-    host.style.cssText = "position:absolute;width:0;height:0;overflow:hidden";
-    document.body.append(host);
-  }
-  return host;
-}
-
-const svg = (tag: string, attributes: Record<string, string | number>) => {
-  const node = document.createElementNS(SVG, tag);
-  for (const [name, value] of Object.entries(attributes)) {
-    node.setAttribute(name, String(value));
-  }
-  return node;
-};
-
-/**
- * The band trailing a wipe's front: an SVG filter on the incoming pane that
- * lifts what the content paints toward white, so the surface around it —
- * transparent in the pane — never lights up.
- */
-function gloss(element: HTMLElement, plan: WipePlan) {
-  const rect = element.getBoundingClientRect();
-  const from = rect.left + rect.top * SLANT_TAN;
-  const span = rect.width + rect.height * SLANT_TAN;
-  const half = GLOSS / 2 / SLANT_COS;
-  // The band's centre, in `u` from the pane's corner
-  const centre = () => -plan.reach(from) * plan.speed - GLOSS_LAG / SLANT_COS;
-  if (centre() - half > span) return;
-
-  // The band drawn once, slanted, in an image as tall as the pane; moving it along x moves it along the slant
-  const width = 2 * half + rect.height * SLANT_TAN;
-  const cx = width / 2;
-  const cy = rect.height / 2;
-  const dx = (GLOSS / 2) * SLANT_COS;
-  const dy = (GLOSS / 2) * SLANT_TAN * SLANT_COS;
-  // Drawn to a PNG: Safari's feImage renders no SVG, and the filter then hides what it's on
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.ceil(width);
-  canvas.height = Math.ceil(rect.height);
-  const context = canvas.getContext("2d");
-  if (!context) return;
-  const gradient = context.createLinearGradient(
-    cx - dx,
-    cy - dy,
-    cx + dx,
-    cy + dy,
-  );
-  for (let i = 0; i <= STEPS; i++) {
-    const t = i / STEPS;
-    gradient.addColorStop(
-      t,
-      `rgb(255 255 255 / ${ease(1 - Math.abs(t * 2 - 1)).toFixed(3)})`,
-    );
-  }
-  context.fillStyle = gradient;
-  context.fillRect(0, 0, canvas.width, canvas.height);
-
-  const id = `skullet-gloss-${++glosses}`;
-  // In the pane's own box: WebKit doesn't measure a primitive's x and y from an HTML element's corner, and blanks it
-  const filter = svg("filter", {
-    id,
-    "color-interpolation-filters": "sRGB",
-    primitiveUnits: "objectBoundingBox",
-  });
-  const lit = svg("feComponentTransfer", {
-    in: "SourceGraphic",
-    result: "lit",
-  });
-  for (const channel of ["R", "G", "B"]) {
-    lit.append(
-      svg(`feFunc${channel}`, {
-        type: "linear",
-        slope: 1 - GLOSS_LIFT,
-        intercept: GLOSS_LIFT,
-      }),
-    );
-  }
-  const image = svg("feImage", {
-    href: canvas.toDataURL(),
-    y: 0,
-    width: width / rect.width,
-    height: 1,
-    preserveAspectRatio: "none",
-    result: "band",
-  });
-  filter.append(
-    lit,
-    image,
-    svg("feComposite", {
-      in: "lit",
-      in2: "band",
-      operator: "in",
-      result: "shine",
-    }),
-    svg("feComposite", { in: "shine", in2: "SourceGraphic", operator: "over" }),
-  );
-  filterHost().append(filter);
-  element.style.filter = `url(#${id})`;
-
-  const tick = () => {
-    const at = centre();
-    if (at - half > span || !element.isConnected) {
-      // Off the pane before the filter goes: Safari doesn't render an element whose filter points at nothing.
-      // By id, not exact text — the style reads back quoted
-      if (element.style.filter.includes(id)) element.style.filter = "";
-      filter.remove();
-      return;
-    }
-    image.setAttribute(
-      "x",
-      ((at - cx - cy * SLANT_TAN) / rect.width).toFixed(4),
-    );
-    requestAnimationFrame(tick);
-  };
-  tick();
-}
-
-/**
- * A sweep's front crossing one pane: incoming content shows behind it, the
- * skeleton ahead of it. Both panes share the plan's clock, so the two masks
- * meet exactly; the incoming one brings the band that trails it.
- */
-function wipe(element: HTMLElement, plan: WipePlan, incoming: boolean) {
-  const run = front(element, plan, FEATHER, (i, at) => {
-    const shown = incoming ? 1 - ease(i / STEPS) : ease(i / STEPS);
-    const offset = -FEATHER + (2 * FEATHER * i) / STEPS;
-    return `rgb(0 0 0 / ${shown.toFixed(3)}) ${(at + offset).toFixed(2)}px`;
-  });
-  if (!run) {
-    if (!incoming) element.style.opacity = "0";
-    return Promise.resolve();
-  }
-  if (incoming && !prefersReducedTransparency()) gloss(element, plan);
 
   return run.then((stalledAt) => {
     clearMask(element);

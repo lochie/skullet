@@ -26,7 +26,7 @@ import { DocsLayout } from "@/components/docs-layout";
 import { Section } from "@/components/section";
 import { SegmentedControl } from "@/components/segmented-control";
 import { DebugToggle } from "./parts";
-import { GitHub, HackerNews, Met } from "./sources";
+import { GitHub, HackerNews, Met, Wikipedia } from "./sources";
 import {
   Accessibility,
   Hints,
@@ -46,6 +46,7 @@ const SECTIONS = [
   ["hacker-news", "Live: Hacker News"],
   ["met", "Live: The Met"],
   ["github", "Live: GitHub"],
+  ["wikipedia", "Live: Wikipedia"],
   ["geometry", "Geometry"],
   ["size", "Bundle sizes"],
 ] as const;
@@ -143,7 +144,7 @@ const Case = ({ testCase }: { testCase: GeometryCase }) => {
 const TOPS: TextTop[] = ["ascender", "cap-height", "x-height"];
 const BOTTOMS: TextBottom[] = ["baseline", "descender"];
 
-/** The test bench: what the playground leaves out, and the geometry corpus vitest runs, against the built package. */
+/** The test bench: what the docs leave out, and the geometry corpus vitest runs, against the built package. */
 export const Lab = ({
   bundleSizes,
   downloads,
@@ -170,8 +171,8 @@ export const Lab = ({
       <header className={styles.header}>
         <h1>Lab</h1>
         <p>
-          The test bench: demos the playground leaves out, and the geometry
-          corpus vitest runs, here against the built package.
+          The test bench: demos the docs leave out, and the geometry corpus
+          vitest runs, here against the built package.
         </p>
         <DebugToggle />
       </header>
@@ -249,6 +250,14 @@ export const Lab = ({
             an hour.
           </p>
         </Callout>
+      </Section>
+
+      <Section id="wikipedia" title="Live: Wikipedia">
+        <p>
+          A random article each load. Each skeleton is drawn from the last
+          article, the hardest case for a remembered shape.
+        </p>
+        <Wikipedia />
       </Section>
 
       <Section id="geometry" title="Geometry">

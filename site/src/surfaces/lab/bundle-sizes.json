@@ -1,0 +1,30 @@
+[
+  {
+    "name": "core",
+    "raw": 48422,
+    "gzip": 16925,
+    "publishedRaw": null,
+    "publishedGzip": null
+  },
+  {
+    "name": "react",
+    "raw": 5814,
+    "gzip": 2534,
+    "publishedRaw": null,
+    "publishedGzip": null
+  },
+  {
+    "name": "vue",
+    "raw": 3327,
+    "gzip": 1415,
+    "publishedRaw": null,
+    "publishedGzip": null
+  },
+  {
+    "name": "svelte",
+    "raw": 197,
+    "gzip": 106,
+    "publishedRaw": null,
+    "publishedGzip": null
+  }
+]

@@ -8,7 +8,7 @@ import { addStyles, removeStyles } from "./styles";
 export type RevealOptions = {
   /** Remembers the shape under this key; without it, one is derived from the markup. */
   id?: string;
-  /** How content replaces its skeleton: `smart` (the default), `together`, `sequence` or `sweep`. */
+  /** How content replaces its skeleton: `smart` (the default), `together`, `sequence`, `sweep`, or a `RevealSpec` of your own. */
   reveal?: RevealMode;
   /** Read to screen readers while loading, in place of the skeleton — "Loading profile". */
   label?: string;

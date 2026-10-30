@@ -10,10 +10,7 @@
     ATTR_SNAPSHOT,
     ATTR_STATUS,
     boxOf,
-    CASCADE_SPREAD,
-    SKELETON_DELAY,
-    SWEEP_SPREAD,
-    FADE_DURATION,
+    exitDuration,
     fadeIn,
     fadeOut,
     Ghost,
@@ -122,13 +119,7 @@
   const pane = { [ATTR_PANE]: '' };
 
   // The fades are the core's; Svelte only needs to know how long to keep the node
-  const duration = () => {
-    if (prefersReducedMotion()) return 0;
-    const mode = config.reveal ?? 'smart';
-    if (mode === 'smart') return SKELETON_DELAY + CASCADE_SPREAD + FADE_DURATION;
-    if (mode === 'sweep') return SKELETON_DELAY + SWEEP_SPREAD + FADE_DURATION;
-    return (mode === 'sequence' ? CASCADE_SPREAD : 0) + FADE_DURATION;
-  };
+  const duration = () => (prefersReducedMotion() ? 0 : exitDuration(config.reveal));
 
   function enter(node: HTMLElement) {
     fadeIn(node, config.reveal);

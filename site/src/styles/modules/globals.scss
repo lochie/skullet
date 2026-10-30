@@ -40,6 +40,11 @@
 html {
   background: var(--body);
   color: var(--color);
+  scroll-padding-top: 5rem;
+
+  @media (prefers-reduced-motion: no-preference) {
+    scroll-behavior: smooth;
+  }
 }
 
 html,

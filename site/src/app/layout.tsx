@@ -3,6 +3,7 @@ import "@/styles/globals.scss";
 import { Analytics } from "@vercel/analytics/next";
 import localFont from "next/font/local";
 import { SkulletProvider } from "skullet/react";
+import { SITE_URL } from "@/utils/consts";
 
 const openRunde = localFont({
   src: [
@@ -23,18 +24,17 @@ export const viewport: Viewport = {
   themeColor: "#000000",
 };
 
-const SITE = "https://skullet.lochie.me";
 // Next resolves image URLs against metadataBase, but leaves video URLs as written
-const VIDEO = `${SITE}/opengraph-video.mp4`;
+const VIDEO = `${SITE_URL}/opengraph-video.mp4`;
 
 export const metadata: Metadata = {
   // Open Graph needs absolute URLs
-  metadataBase: new URL(SITE),
+  metadataBase: new URL(SITE_URL),
   title: "Skullet 🦴 Smart skeleton states",
   description: "Smart skeleton states.",
   openGraph: {
     type: "website",
-    url: SITE,
+    url: SITE_URL,
     siteName: "Skullet",
     title: "Skullet 🦴 Smart skeleton states",
     description: "Smart skeleton states.",
@@ -67,7 +67,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${openRunde.variable}`}>
+    <html
+      lang="en"
+      className={`${openRunde.variable}`}
+      // Next turns smooth scrolling off for route changes, so a new page opens at its top at once
+      data-scroll-behavior="smooth"
+    >
       <body>
         <SkulletProvider mode="dark">{children}</SkulletProvider>
         <Analytics />

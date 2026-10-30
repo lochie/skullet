@@ -33,7 +33,6 @@ const TITLES = [
   "Barn owl",
   "Great horned owl",
   "Common raven",
-  "Tarantula",
   "Cauldron",
   "Will-o'-the-wisp",
   "Barmbrack",

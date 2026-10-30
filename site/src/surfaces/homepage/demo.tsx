@@ -14,8 +14,8 @@ import { WalletDemo } from "@/demos/wallet";
 
 // Columns are fixed rather than CSS `columns`, which would rebalance cards between columns as heights settle
 const COLUMNS = [
-  [ProfileDemo, ArticleDemo, SettingsDemo],
-  [ChatDemo, StatsDemo, GalleryDemo],
+  [ProfileDemo, ArticleDemo, GalleryDemo],
+  [ChatDemo, StatsDemo, SettingsDemo],
   [InboxDemo, PlayerDemo, WalletDemo],
 ];
 

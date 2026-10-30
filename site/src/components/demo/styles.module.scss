@@ -1,19 +1,23 @@
 .container {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   padding: 5rem;
   border-radius: 1rem;
   border: 1px dashed var(--border);
   cursor: pointer;
   user-select: none;
 
-  // Driven by its controls: full width, as a demo's frames and logs need
+  // Driven by its controls
   &[data-still] {
     cursor: auto;
     user-select: auto;
+  }
 
-    .content {
-      align-items: stretch;
-    }
+  // Still loading: clicks wait for it
+  &[aria-disabled="true"] {
+    cursor: progress;
   }
 
   &:focus-visible {
@@ -22,10 +26,10 @@
   }
 }
 
+// Sized by the column, so content whose width hangs on loading media, like images not yet in, can't change it
 .content {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 1rem;
 }
 

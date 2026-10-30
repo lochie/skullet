@@ -1,30 +1,97 @@
-import {
-  ATTR_BONES,
-  ATTR_EXITING,
-  CASCADE_SPREAD,
-  FADE_DURATION,
-} from "./constants";
-import { paceOf, SLANT_TAN } from "./shimmer";
+import { ATTR_EXITING, CASCADE_SPREAD, FADE_DURATION } from "./constants";
+
+/** Where one piece of a reveal sits: a piece of content arriving, or a bone of the skeleton leaving. */
+export type Piece = {
+  rect: DOMRect;
+  /** Its row or card: the nearest ancestor with two or more siblings like it. Null for a bone outside any. */
+  unit: DOMRect | null;
+  /** Smaller text than the largest in its unit. */
+  secondary: boolean;
+  /** The whole reveal. */
+  reveal: DOMRect;
+  /** ms since the first of the reveals landing alongside this one. */
+  late: number;
+};
+
+/** What a reveal knows as its content lands, for `choose`. */
+export type RevealContext = {
+  content: HTMLElement;
+  reveal: HTMLElement;
+  /** ms the skeleton was up; Infinity when it was server-rendered or there was none. */
+  waited: number;
+  /** Someone scrolled, typed or tapped in the last 400ms. */
+  input: boolean;
+  /** The skeleton was drawn from the data on screen. */
+  refetch: boolean;
+  height: number;
+  /** How many pieces the content arrives in. */
+  pieces: number;
+};
+
+/** One pane under a wipe: `rect` is its own box, `reveal` the box the front crosses, both in viewport px. */
+export type WipePane = { rect: DOMRect; reveal: DOMRect };
+
+/** A front crossing the whole reveal, as a mask drawn each frame. */
+export type Wipe = {
+  /** The incoming pane's `mask-image` at `progress`, 0 to 1. */
+  mask: (progress: number, pane: WipePane) => string;
+  /** The outgoing pane's; the inverse of `mask` when left out. */
+  out?: (progress: number, pane: WipePane) => string;
+  /** Runs once on the incoming pane; `progress` keeps counting past 1. */
+  effect?: (
+    element: HTMLElement,
+    front: WipePane & { progress: () => number },
+  ) => void;
+};
 
 /**
- * How content replaces its skeleton. `together` crossfades them whole;
- * `sequence` brings each piece in where its bone was, top to bottom; `smart`
- * picks for each reveal from how it loaded and what it holds; `sweep` is
- * `smart`, wiping content in behind one band of the shimmer.
+ * How content replaces its skeleton. `order` times each piece; `wipe` takes
+ * the reveal whole instead. `choose` decides the rest as content lands —
+ * whatever it returns wins, and the fields beside it fill what it leaves.
  */
-export type RevealMode = "together" | "sequence" | "smart" | "sweep";
+export type RevealSpec = {
+  order?: "together" | ((piece: Piece) => number | null);
+  /** Where each piece starts from, on top of the fade: `{ filter: "blur(6px)" }`. */
+  enter?: Keyframe;
+  wipe?: Wipe;
+  delay?: number;
+  /** 0 is instant. */
+  duration?: number;
+  /** ms a skeleton waits before it shows, so data that beats it never shows one. */
+  hold?: number;
+  choose?: (context: RevealContext) => RevealSpec;
+};
+
+/** A built-in reveal by name, or one of your own. */
+export type RevealMode =
+  | "together"
+  | "sequence"
+  | "smart"
+  | "sweep"
+  | RevealSpec;
 
 export const SKELETON_DELAY = 150; // A skeleton up for less than this is a flash — smart holds it back
-const QUICK_FADE = 120; // A refetch, already familiar
-const SMALL_HEIGHT = 72;
-const SMALL_PIECES = 3;
-const SECONDARY_DELAY = 60; // Smaller text follows the text it sits under
-const BATCH_WINDOW = 150; // Reveals landing this close share one top-to-bottom order
+export const QUICK_FADE = 120; // A refetch, already familiar
+export const SMALL_HEIGHT = 72;
+export const SMALL_PIECES = 3;
+export const SECONDARY_DELAY = 60; // Smaller text follows the text it sits under
+export const BATCH_WINDOW = 150; // Reveals landing this close share one top-to-bottom order
 const ACTIVE_WINDOW = 400; // Input this recent means someone is mid-gesture
-const WAVE_SPREAD = 360; // Most a sweep takes across the reveal that starts it
-const WAVE_PACE = 2; // A sweep's front runs this many times the shimmer's pace
-export const SWEEP_SPREAD = 600; // Most a sweep takes across a reveal that joins one under way
-const MAX_SWEEP_AREA = 1.5; // in screens — a reveal bigger than this crossfades: a front across it is mostly off screen, and costly
+export const MAX_SWEEP_AREA = 1.5; // in screens — a wipe bigger than this crossfades: a front across it is mostly off screen, and costly
+export const MAX_DELAY = 1000; // A custom order's latest piece
+export const MAX_DURATION = 1000;
+
+// What `enter` may set: nothing that changes layout, so no reveal moves the page
+const ENTER = new Set([
+  "filter",
+  "transform",
+  "translate",
+  "scale",
+  "rotate",
+  "clipPath",
+  "easing",
+  "composite",
+]);
 
 export type SequencePlan = {
   kind: "sequence";
@@ -32,22 +99,25 @@ export type SequencePlan = {
   pieceDelay: (piece: Element) => number | null;
   /** When a bone at `rect` goes; null to go at once. */
   boneDelay: (rect: DOMRect) => number | null;
-  /** An image the bone at `rect` stands for, still loading — it waits for that instead. */
+  duration: number;
+  enter?: Keyframe;
 };
 
 export type WipePlan = {
   kind: "wipe";
-  /** ms from now until the front reaches `u` — a point's x, plus its y along the slant, in viewport px. */
-  reach: (u: number) => number;
-  /** px of `u` per ms. */
-  speed: number;
-  /** Set when frames drop mid-sweep: both panes finish as a crossfade instead. */
+  wipe: Wipe;
+  /** performance.now() at progress 0. */
+  start: number;
+  duration: number;
+  reveal: DOMRect;
+  enter?: Keyframe;
+  /** Set when frames drop mid-wipe: both panes finish as a crossfade instead. */
   stalled?: boolean;
 };
 
 export type Plan =
   | { kind: "instant" }
-  | { kind: "together"; duration: number }
+  | { kind: "together"; delay: number; duration: number; enter?: Keyframe }
   | SequencePlan
   | WipePlan;
 
@@ -97,20 +167,6 @@ export function pieces(root: Element): Element[] {
   return found;
 }
 
-/** `sequence`: each piece timed by its place in the reveal, top to bottom, then a little left to right. */
-export function positionPlan(area: DOMRect): SequencePlan {
-  const delay = (rect: DOMRect) => {
-    const down = (rect.top - area.top) / Math.max(area.height, 1);
-    const across = (rect.left - area.left) / Math.max(area.width, 1);
-    return Math.min(Math.max(down * 0.8 + across * 0.2, 0), 1) * CASCADE_SPREAD;
-  };
-  return {
-    kind: "sequence",
-    pieceDelay: (piece) => delay(piece.getBoundingClientRect()),
-    boneDelay: delay,
-  };
-}
-
 // A row of a list or a card of a grid: the piece's nearest ancestor with two or more siblings like it
 function unitOf(piece: Element, root: Element): Element {
   for (
@@ -138,18 +194,39 @@ const contains = (outer: DOMRect, inner: DOMRect) => {
   );
 };
 
+/** The box a wipe crosses: the reveal, and any pane leaving it that stands taller or wider. */
+export function revealBox(root: Element): DOMRect {
+  let { left, top, right, bottom } = root.getBoundingClientRect();
+  for (const pane of root.querySelectorAll(`:scope > [${ATTR_EXITING}]`)) {
+    const rect = pane.getBoundingClientRect();
+    left = Math.min(left, rect.left);
+    top = Math.min(top, rect.top);
+    right = Math.max(right, rect.right);
+    bottom = Math.max(bottom, rect.bottom);
+  }
+  return new DOMRect(left, top, right - left, bottom - top);
+}
+
+const clamp = (value: number, max: number) => Math.min(Math.max(value, 0), max);
+
 let batch = -Infinity;
 
-/** `smart`, past its quick cases: rows arrive whole, in page order, on screen only, main text first. */
-function smartSequence(content: Element): SequencePlan {
+/** Times each piece of `content`, and each bone it replaces, by `order`. */
+function sequencePlan(
+  content: Element,
+  root: Element,
+  order: (piece: Piece) => number | null,
+  spec: RevealSpec,
+  duration: number,
+): SequencePlan {
   const now = performance.now();
   if (now - batch > BATCH_WINDOW) batch = now;
   const late = now - batch;
-  const view = innerHeight;
+  const reveal = root.getBoundingClientRect();
 
-  type Unit = { rect: DOMRect; delay: number | null; size: number };
+  type Unit = { rect: DOMRect; size: number };
   const units = new Map<Element, Unit>();
-  const pieceUnits = new Map<Element, Unit>();
+  const found = new Map<Element, { unit: Unit; size: number }>();
   const sizeOf = (element: Element) =>
     parseFloat(getComputedStyle(element).fontSize) || 16;
 
@@ -157,106 +234,154 @@ function smartSequence(content: Element): SequencePlan {
     const element = unitOf(piece, content);
     let unit = units.get(element);
     if (!unit) {
-      const rect = element.getBoundingClientRect();
-      const onScreen = rect.bottom > 0 && rect.top < view;
-      // Timed against the screen, not the reveal, so reveals landing together read as one page
-      const at = Math.min(Math.max(rect.top / view, 0), 1) * CASCADE_SPREAD;
-      unit = { rect, delay: onScreen ? Math.max(at - late, 0) : null, size: 0 };
+      unit = { rect: element.getBoundingClientRect(), size: 0 };
       units.set(element, unit);
     }
-    unit.size = Math.max(unit.size, sizeOf(piece));
-    pieceUnits.set(piece, unit);
+    const size = sizeOf(piece);
+    unit.size = Math.max(unit.size, size);
+    found.set(piece, { unit, size });
   }
 
-  const unitAt = (rect: DOMRect) =>
-    [...units.values()].find((unit) => contains(unit.rect, rect));
+  const at = (piece: Piece) => {
+    const delay = order(piece);
+    return delay === null ? null : clamp(delay, MAX_DELAY) + (spec.delay ?? 0);
+  };
 
   return {
     kind: "sequence",
-    pieceDelay: (piece) => {
-      const unit = pieceUnits.get(piece);
-      if (!unit || unit.delay === null) return null;
-      return sizeOf(piece) < unit.size
-        ? unit.delay + SECONDARY_DELAY
-        : unit.delay;
+    duration,
+    enter: spec.enter,
+    pieceDelay: (element) => {
+      const piece = found.get(element);
+      if (!piece) return null;
+      return at({
+        rect: element.getBoundingClientRect(),
+        unit: piece.unit.rect,
+        secondary: piece.size < piece.unit.size,
+        reveal,
+        late,
+      });
     },
     boneDelay: (rect) => {
-      const unit = unitAt(rect);
-      if (!unit) return rect.bottom > 0 && rect.top < view ? 0 : null;
-      if (unit.delay === null) return null;
-      // A bar shorter than its row's largest type stands for smaller text
-      return rect.height < unit.size * 0.8
-        ? unit.delay + SECONDARY_DELAY
-        : unit.delay;
+      const unit = [...units.values()].find((unit) =>
+        contains(unit.rect, rect),
+      );
+      return at({
+        rect,
+        unit: unit?.rect ?? null,
+        // A bar shorter than its row's largest type stands for smaller text
+        secondary: !!unit && rect.height < unit.size * 0.8,
+        reveal,
+        late,
+      });
     },
   };
 }
 
-let wave = { start: -Infinity, origin: 0, speed: 1 };
-
-/** `sweep`: one front crosses the reveal at the shimmer's slant and pace, content behind it, skeleton ahead. */
-function sweepPlan(reveal: Element): WipePlan | null {
-  const layer = reveal.querySelector(
-    `:scope > [${ATTR_EXITING}] [${ATTR_BONES}]`,
-  );
-  const pace = layer && paceOf(layer);
-  if (!pace) return null;
-
-  const rect = reveal.getBoundingClientRect();
-  if (rect.width * rect.height > innerWidth * innerHeight * MAX_SWEEP_AREA) {
-    return null;
+/** Keeps `enter` to what paints, warning in development about anything that would move the page. */
+function enterOf(enter: Keyframe | undefined, warn: (key: string) => void) {
+  if (!enter) return undefined;
+  const kept: Keyframe = {};
+  for (const [key, value] of Object.entries(enter)) {
+    if (ENTER.has(key)) kept[key] = value;
+    else if (key !== "opacity") warn(key);
   }
-  const from = rect.left + rect.top * SLANT_TAN;
-  const to = from + rect.width + rect.height * SLANT_TAN;
-  const now = performance.now();
-  // Reveals landing together share one front — if it hasn't reached this one yet, and won't keep it waiting
-  const elapsed = now - wave.start;
-  const joined =
-    elapsed <= BATCH_WINDOW &&
-    (from - wave.origin) / wave.speed >= elapsed &&
-    (to - wave.origin) / wave.speed - elapsed <= SWEEP_SPREAD;
-  if (!joined) {
-    wave = {
-      start: now,
-      origin: from,
-      speed: Math.max(WAVE_PACE / pace, (to - from) / WAVE_SPREAD),
+  return kept;
+}
+
+/** Decides how `content` replaces the skeleton in `root`, now that it has arrived. */
+export function planReveal(
+  content: HTMLElement,
+  root: HTMLElement,
+  reveal: RevealSpec,
+  warn: (key: string) => void = () => {},
+): Plan {
+  const info = loading.get(root);
+  loading.delete(root);
+
+  let spec = reveal;
+  while (spec.choose) {
+    const { choose, ...rest } = spec;
+    spec = {
+      ...rest,
+      ...choose({
+        content,
+        reveal: root,
+        waited: info ? performance.now() - info.since : Infinity,
+        input: performance.now() - lastInput < ACTIVE_WINDOW,
+        refetch: !!info?.exact,
+        height: content.getBoundingClientRect().height,
+        pieces: pieces(content).length,
+      }),
     };
   }
 
-  const { start, origin, speed } = wave;
-  return {
-    kind: "wipe",
-    reach: (u) => (u - origin) / speed - (performance.now() - start),
-    speed,
-  };
+  const duration = clamp(spec.duration ?? FADE_DURATION, MAX_DURATION);
+  if (!duration) return { kind: "instant" };
+  const enter = enterOf(spec.enter, warn);
+
+  if (spec.wipe) {
+    const rect = revealBox(root);
+    if (rect.width * rect.height <= innerWidth * innerHeight * MAX_SWEEP_AREA) {
+      return {
+        kind: "wipe",
+        wipe: spec.wipe,
+        start: performance.now() + (spec.delay ?? 0),
+        duration,
+        reveal: rect,
+        enter,
+      };
+    }
+  } else if (typeof spec.order === "function") {
+    return sequencePlan(
+      content,
+      root,
+      spec.order,
+      { ...spec, enter },
+      duration,
+    );
+  }
+  return { kind: "together", delay: spec.delay ?? 0, duration, enter };
 }
 
-/** Decides how `content` replaces the skeleton in `reveal`, now that it has arrived. */
-export function planReveal(
-  content: HTMLElement,
-  reveal: Element,
-  sweep = false,
-): Plan {
-  const info = loading.get(reveal);
-  loading.delete(reveal);
-  const waited = info ? performance.now() - info.since : Infinity;
+/** `sequence`: each piece timed by its place in the reveal, top to bottom, then a little left to right. */
+export const byPosition = ({ rect, reveal }: Piece) => {
+  const down = (rect.top - reveal.top) / Math.max(reveal.height, 1);
+  const across = (rect.left - reveal.left) / Math.max(reveal.width, 1);
+  return clamp(down * 0.8 + across * 0.2, 1) * CASCADE_SPREAD;
+};
 
-  if (
-    performance.now() - lastInput < ACTIVE_WINDOW ||
-    waited < SKELETON_DELAY
-  ) {
-    return { kind: "instant" };
-  }
-  if (info?.exact) return { kind: "together", duration: QUICK_FADE };
-  const swept = sweep && sweepPlan(reveal);
-  if (swept) return swept;
+const onScreen = (rect: DOMRect) => rect.bottom > 0 && rect.top < innerHeight;
 
-  const found = pieces(content);
-  if (
-    content.getBoundingClientRect().height < SMALL_HEIGHT ||
-    found.length <= SMALL_PIECES
-  ) {
-    return { kind: "together", duration: FADE_DURATION };
-  }
-  return smartSequence(content);
-}
+/** `smart`'s order: rows arrive whole, in page order, on screen only, main text first. */
+export const byRow = ({ rect, unit, secondary, late }: Piece) => {
+  if (!unit) return onScreen(rect) ? 0 : null;
+  if (!onScreen(unit)) return null;
+  // Timed against the screen, not the reveal, so reveals landing together read as one page
+  const at = clamp(unit.top / innerHeight, 1) * CASCADE_SPREAD;
+  return Math.max(at - late, 0) + (secondary ? SECONDARY_DELAY : 0);
+};
+
+export const instant: RevealSpec = { duration: 0 };
+export const together: RevealSpec = { order: "together" };
+export const sequence: RevealSpec = { order: byPosition };
+
+/** The cases `smart` settles before looking at the content: instant, or a quick crossfade. */
+export const quickly = (context: RevealContext): RevealSpec | null =>
+  context.input || context.waited < SKELETON_DELAY
+    ? instant
+    : context.refetch
+      ? { order: "together", duration: QUICK_FADE }
+      : null;
+
+/** `together` for a small reveal, else `byRow`. */
+export const byContent = (context: RevealContext): RevealSpec =>
+  context.height < SMALL_HEIGHT || context.pieces <= SMALL_PIECES
+    ? together
+    : { order: byRow };
+
+/** Picks for each reveal from how it loaded and what it holds, holding its skeleton back a moment. */
+export const smart: RevealSpec = {
+  hold: SKELETON_DELAY,
+  choose: (context) => quickly(context) ?? byContent(context),
+};

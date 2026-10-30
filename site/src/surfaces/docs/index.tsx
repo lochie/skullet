@@ -1,22 +1,22 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
-import { Skeleton, SkulletProvider } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { Callout } from "@/components/callout";
 import { CodeBlock } from "@/components/codeblock";
 import { Demo } from "@/components/demo";
 import { DocsLayout } from "@/components/docs-layout";
-import { ArticleDemo } from "@/demos/article";
+import { GalleryDemo } from "@/demos/gallery";
 import { ProfileDemo } from "@/demos/profile";
 
 import { ThemeCreator } from "./theme-creator";
 import { InstallCommands } from "../homepage/install-cmd";
 import { Frameworks } from "../homepage/frameworks";
 import { Section } from "@/components/section";
-import { SegmentedControl } from "@/components/segmented-control";
+import { DebugToggle } from "../lab/parts";
+import { Resizing, RevealModes, Suspense } from "../lab/features";
+import { Lists } from "../lab/lists";
 
 const HOW: [string, React.ReactNode][] = [
   [
@@ -126,7 +126,7 @@ const API: [title: string, rows: Row[]][] = [
     [
       [
         "reveal",
-        '"smart" | "sequence" | "together" | "sweep"',
+        '"smart" | "sequence" | "together" | "sweep" | RevealSpec',
         "How content replaces its skeleton.",
       ],
       ["theme", "SkeleTheme", "Colours, animation, speed, radius and text."],
@@ -145,33 +145,45 @@ const API: [title: string, rows: Row[]][] = [
   ],
 ];
 
-const MODES = ["smart", "together", "sequence", "sweep"] as const;
-
-const RevealModes = () => {
-  const [reveal, setReveal] = useState<(typeof MODES)[number]>("smart");
-
-  return (
+const SPEC: [string, React.ReactNode][] = [
+  [
+    "order",
     <>
-      <Demo>
-        {/* Keyed by mode, so a new choice loads again under it */}
-        <SkulletProvider key={reveal} reveal={reveal}>
-          <ArticleDemo />
-        </SkulletProvider>
-      </Demo>
-      <SegmentedControl
-        label="Reveal"
-        options={MODES}
-        value={reveal}
-        onChange={setReveal}
-      />
-      <CodeBlock
-        code={`<SkulletProvider reveal="${reveal}">
-  <App />
-</SkulletProvider>`}
-      />
-    </>
-  );
-};
+      <code>&quot;together&quot;</code>, or a function from each piece to its
+      delay in ms. A piece knows its box, its row and whether it’s smaller text.
+    </>,
+  ],
+  [
+    "enter",
+    <>
+      Where each piece starts, on top of the fade. Only what paints:{" "}
+      <code>filter</code>, <code>translate</code>, <code>scale</code>,{" "}
+      <code>rotate</code>, <code>transform</code> and <code>clipPath</code>.
+    </>,
+  ],
+  [
+    "wipe",
+    <>
+      A mask across the whole reveal, drawn each frame from progress 0 to 1. The
+      outgoing skeleton gets its inverse.
+    </>,
+  ],
+  ["duration", <>In ms. 0 is instant.</>],
+  [
+    "hold",
+    <>
+      How long a skeleton waits before it shows, so fast data never shows one.
+    </>,
+  ],
+  [
+    "choose",
+    <>
+      Decides as content lands, from how long the skeleton was up, recent input,
+      refetches and size. What it returns wins, and the fields beside it fill
+      the rest.
+    </>,
+  ],
+];
 
 const Terms = ({
   items,
@@ -304,6 +316,16 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
       </Callout>
     </Section>
 
+    <Section id="lists" title="Lists that grow">
+      <p>
+        A list that loads more can reveal two ways. One reveal per page leaves
+        the rows on screen alone and holds the next page’s space with its
+        skeleton. One reveal for the whole list redraws every row, and the new
+        ones push what’s below. Reach for one per page.
+      </p>
+      <Lists />
+    </Section>
+
     <Section id="reveals" title="Reveal modes">
       <p>
         A <em>reveal</em> is the moment content replaces its skeleton. The
@@ -312,12 +334,66 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
       <Terms items={REVEALS} code />
 
       <RevealModes />
+      <Callout>
+        <p>
+          Under <code>smart</code>, data that lands within 150ms shows at once
+          with no skeleton. Set the response to fast to see it.
+        </p>
+      </Callout>
+    </Section>
+
+    <Section id="images" title="Images">
       <p>
         Images never hold a reveal back. Each one still loading keeps its own
         skeleton until it has decoded, then fades in. It works with any{" "}
         <code>&lt;img&gt;</code>, <code>next/image</code> included, with no
         wrapper to swap in.
       </p>
+      <Demo hint="Click to reload">
+        <GalleryDemo />
+      </Demo>
+    </Section>
+
+    <Section id="resizing" title="Changing size">
+      <p>
+        {`A skeleton drawn from old data might not match the new data's shape. The reveal eases to the new height
+        rather than snapping.`}
+      </p>
+      <Resizing />
+    </Section>
+
+    <Section id="own-reveal" title="Your own reveal">
+      <p>
+        Every built-in is a <code>RevealSpec</code> exported from{" "}
+        <code>skullet</code>. Spread one and change what you need.
+      </p>
+      <CodeBlock
+        code={`import { sequence } from "skullet";
+
+<SkulletProvider reveal={{ ...sequence, enter: { filter: "blur(6px)" } }}>
+  <App />
+</SkulletProvider>`}
+      />
+      <Terms items={SPEC} code />
+      <p>A wipe needs only the incoming mask:</p>
+      <CodeBlock
+        code={`const wipeDown = {
+  wipe: {
+    mask: (progress) => {
+      const at = progress * 120;
+      return \`linear-gradient(#000 \${at - 20}%, transparent \${at}%)\`;
+    },
+  },
+  duration: 400,
+};`}
+      />
+      <Callout>
+        <p>
+          A reveal of your own still can’t move the page. Images wait behind
+          their own skeleton, a wipe that drops frames finishes as a crossfade,
+          and reduced motion is always instant.
+        </p>
+      </Callout>
     </Section>
 
     <Section id="suspense" title="Suspense">
@@ -326,6 +402,7 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
         skeleton as its fallback. Pass the content rendered from sample data, or
         only an <code>id</code> to draw the shape it last showed.
       </p>
+      <Suspense />
       <CodeBlock
         code={`import { SkeletonSuspense } from "skullet/react";
 
@@ -371,11 +448,6 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
         in its place. Under <code>prefers-reduced-motion</code>, skeletons hold
         still and every reveal is instant.
       </p>
-      <CodeBlock
-        code={`<SkeletonReveal data={user} sample={SAMPLE_USER} label="Loading profile">
-  {(user) => <Profile user={user} />}
-</SkeletonReveal>`}
-      />
     </Section>
 
     <Section id="debug" title="Debugging">
@@ -386,9 +458,8 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
         moved or red with how far it did. Turn it on with <code>debug</code> on
         the provider, or add <code>?skullet-debug</code> to the URL.
       </p>
-      <p>
-        Try it in the <Link href="/docs/playground">playground</Link>.
-      </p>
+      <p>Try it on this page:</p>
+      <DebugToggle />
     </Section>
 
     <Section id="api" title="API">

@@ -1,7 +1,17 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import {
   DEFAULT_COLORS,
+  sequence,
+  smart,
+  sweep,
   themeVariables,
+  together,
   type RevealMode,
   type SkulletAnimation,
   type SkulletSpeed,
@@ -26,7 +36,19 @@ const ANIMATIONS: SkulletAnimation[] = [
   "pulse",
   "none",
 ];
-const REVEALS: RevealMode[] = ["smart", "together", "sequence", "sweep"];
+const REVEALS = ["smart", "together", "sequence", "sweep"] as const;
+type RevealName = (typeof REVEALS)[number];
+const PRESETS = { smart, together, sequence, sweep };
+
+// Where each piece starts from as it arrives, on top of the fade
+const ENTERS = {
+  none: null,
+  blur: { filter: "blur(6px)" },
+  rise: { translate: "0 8px" },
+  zoom: { scale: "0.96" },
+} as const;
+type Enter = keyof typeof ENTERS;
+const ENTER_NAMES = Object.keys(ENTERS) as Enter[];
 const TOPS: TextTop[] = ["ascender", "cap-height", "x-height"];
 const BOTTOMS: TextBottom[] = ["descender", "baseline"];
 
@@ -136,7 +158,12 @@ export const ThemeCreator = () => {
   const [pixels, setPixels] = useState(4);
   const [animation, setAnimation] = useState<SkulletAnimation>("shimmer");
   const [speed, setSpeed] = useState<SkulletSpeed>("slow");
-  const [reveal, setReveal] = useState<RevealMode>("smart");
+  const [reveal, setReveal] = useState<RevealName>("smart");
+  const [enter, setEnter] = useState<Enter>("none");
+  const spec = useMemo<RevealMode>(() => {
+    const keyframe = ENTERS[enter];
+    return keyframe ? { ...PRESETS[reveal], enter: keyframe } : reveal;
+  }, [reveal, enter]);
   const [top, setTop] = useState<TextTop>("ascender");
   const [bottom, setBottom] = useState<TextBottom>("descender");
   // Regions whose data has arrived; none at first, so the page opens as its skeleton
@@ -190,8 +217,17 @@ export const ThemeCreator = () => {
     JSON.stringify(theme.light) === JSON.stringify(DEFAULT_COLORS.light) &&
     JSON.stringify(theme.dark) === JSON.stringify(DEFAULT_COLORS.dark);
 
-  const code = `<SkulletProvider
-  mode="system"${reveal === "smart" ? "" : `\n  reveal="${reveal}"`}
+  const keyframe = ENTERS[enter];
+  const revealProp = keyframe
+    ? `\n  reveal={{ ...${reveal}, enter: { ${Object.entries(keyframe)
+        .map(([key, value]) => `${key}: "${value}"`)
+        .join(", ")} } }}`
+    : reveal === "smart"
+      ? ""
+      : `\n  reveal="${reveal}"`;
+
+  const code = `${keyframe ? `import { ${reveal} } from "skullet";\n\n` : ""}<SkulletProvider
+  mode="system"${revealProp}
   theme={${JSON.stringify(
     isDefault ? { ...theme, light: undefined, dark: undefined } : theme,
     null,
@@ -258,6 +294,12 @@ export const ThemeCreator = () => {
             onChange={setReveal}
           />
           <Choice
+            label="Enter"
+            options={ENTER_NAMES}
+            value={enter}
+            onChange={setEnter}
+          />
+          <Choice
             label="Text top"
             options={TOPS}
             value={top}
@@ -290,7 +332,7 @@ export const ThemeCreator = () => {
           key={JSON.stringify(theme) + mode}
           style={themeVariables(theme, mode) as CSSProperties}
         >
-          <SkulletProvider reveal={reveal}>
+          <SkulletProvider reveal={spec}>
             <PreviewPage loading={(region) => !arrived.has(region)} />
           </SkulletProvider>
         </div>

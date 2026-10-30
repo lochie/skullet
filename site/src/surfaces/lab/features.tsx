@@ -9,13 +9,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import {
-  forgetShapes,
-  themeVariables,
-  type RevealMode,
-  type SkulletAnimation,
-  type SkulletSpeed,
-} from "skullet";
+import { forgetShapes, themeVariables } from "skullet";
 import {
   SkulletProvider,
   SkeletonReveal,
@@ -23,6 +17,7 @@ import {
 } from "skullet/react";
 
 import styles from "./styles.module.scss";
+import { CodeBlock } from "@/components/codeblock";
 import { Demo } from "@/components/demo";
 import { SegmentedControl } from "@/components/segmented-control";
 
@@ -135,12 +130,17 @@ const Moved = ({
 
 /* Reveal modes */
 
-const MODES: RevealMode[] = ["together", "sequence", "smart", "sweep"];
+const MODES = ["together", "sequence", "smart", "sweep"] as const;
 const DELAYS = { fast: 80, typical: 1200, slow: 2800 } as const;
 type Delay = keyof typeof DELAYS;
 
-export const RevealModes = () => {
-  const [mode, setMode] = useState<RevealMode>("smart");
+const ModesDemo = ({
+  mode,
+  onMode: setMode,
+}: {
+  mode: (typeof MODES)[number];
+  onMode: (mode: (typeof MODES)[number]) => void;
+}) => {
   const [delay, setDelay] = useState<Delay>("typical");
   const [seed, setSeed] = useState(1);
   const [posts, setPosts] = useState<Post[] | null>(null);
@@ -205,6 +205,21 @@ export const RevealModes = () => {
         </div>
       </SkulletProvider>
     </Demo>
+  );
+};
+
+/** The feed under each mode, with the code for the one chosen. */
+export const RevealModes = () => {
+  const [mode, setMode] = useState<(typeof MODES)[number]>("smart");
+  return (
+    <>
+      <ModesDemo mode={mode} onMode={setMode} />
+      <CodeBlock
+        code={`<SkulletProvider reveal="${mode}">
+  <App />
+</SkulletProvider>`}
+      />
+    </>
   );
 };
 
@@ -302,7 +317,7 @@ const Source = ({
     reveal = (
       <SkeletonReveal
         key={round}
-        id={source === "id" ? "playground-profile" : undefined}
+        id={source === "id" ? "lab-profile" : undefined}
         data={data}
         sample={SAMPLE_PROFILE}
       >
@@ -367,56 +382,6 @@ export const Sources = () => {
     >
       <p className={styles.demoNote}>{detail}</p>
       <Source key={source} source={source} round={round} loading={loading} />
-    </Demo>
-  );
-};
-
-/* Animation */
-
-const ANIMATIONS: SkulletAnimation[] = [
-  "shimmer",
-  "group-shimmer",
-  "pulse",
-  "none",
-];
-const SPEEDS: SkulletSpeed[] = ["slow", "fast"];
-
-export const Animations = () => {
-  const [animation, setAnimation] = useState<SkulletAnimation>("shimmer");
-  const [speed, setSpeed] = useState<SkulletSpeed>("slow");
-
-  return (
-    <Demo
-      controls={
-        <>
-          <Field label="Animation">
-            <SegmentedControl
-              label="Animation"
-              options={ANIMATIONS}
-              value={animation}
-              onChange={setAnimation}
-            />
-          </Field>
-          <Field label="Speed">
-            <SegmentedControl
-              label="Speed"
-              options={SPEEDS}
-              value={speed}
-              onChange={setSpeed}
-            />
-          </Field>
-        </>
-      }
-    >
-      <div
-        className={styles.frame}
-        style={themeVariables({ animation, speed }) as CSSProperties}
-      >
-        {/* Keyed by the theme: the animation is read from it as it starts */}
-        <SkeletonReveal key={animation + speed} loading>
-          <ProfileCard profile={PROFILES[1]!} />
-        </SkeletonReveal>
-      </div>
     </Demo>
   );
 };
@@ -515,11 +480,7 @@ export const Suspense = () => {
             <LoadedQuote quote={quoteFor(`given-${round}`)} />
           </SkeletonSuspense>
         ) : (
-          <SkeletonSuspense
-            key={round}
-            id="playground-quote"
-            label="Loading quote"
-          >
+          <SkeletonSuspense key={round} id="docs-quote" label="Loading quote">
             <LoadedQuote quote={quoteFor(`remembered-${round}`)} />
           </SkeletonSuspense>
         )}
@@ -584,11 +545,9 @@ export const Accessibility = () => {
 
   return (
     <Demo
-      controls={
-        <Button onClick={() => setLoading(true)} disabled={loading}>
-          Load again
-        </Button>
-      }
+      onClick={() => setLoading(true)}
+      disabled={loading}
+      hint="Click to reload"
     >
       <div ref={frame} className={styles.frame}>
         <SkeletonReveal
@@ -623,79 +582,6 @@ export const Accessibility = () => {
   );
 };
 
-// Loading for `ms` from mount and from every `start`
-function useTimed(ms: number) {
-  const [round, setRound] = useState(0);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!loading) return;
-    const timeout = window.setTimeout(() => setLoading(false), ms);
-    return () => window.clearTimeout(timeout);
-  }, [loading, round, ms]);
-
-  const start = () => {
-    setRound((r) => r + 1);
-    setLoading(true);
-  };
-  return { loading, round, start };
-}
-
-/* Images */
-
-type Shot = { title: string; meta: string; image: string };
-
-// A query of its own each load, so the images come over the network every time; the sample's stay put for the server render
-const shots = (round: number, query?: number): Shot[] =>
-  ["Launch week", "Offsite"].map((title, i) => ({
-    title,
-    meta: `${AUTHORS[i]![0]} · ${i + 2} photos`,
-    image: `https://picsum.photos/seed/skullet-${round}-${i}/480/300${query === undefined ? "" : `?q=${query}`}`,
-  }));
-
-const Shots = ({ shots }: { shots: Shot[] }) => (
-  <div className={styles.shots}>
-    {shots.map((shot) => (
-      <figure key={shot.image}>
-        {/* eslint-disable-next-line @next/next/no-img-element -- a plain image is what's measured */}
-        <img src={shot.image} alt="" width={480} height={300} />
-        <figcaption>
-          <p className={styles.feedName}>{shot.title}</p>
-          <p className={styles.feedMeta}>{shot.meta}</p>
-        </figcaption>
-      </figure>
-    ))}
-  </div>
-);
-
-export const Images = () => {
-  const { loading, round, start } = useTimed(900);
-  const [query, setQuery] = useState(() => Math.random());
-  const load = () => {
-    setQuery(Math.random());
-    start();
-  };
-
-  return (
-    <Demo
-      controls={
-        <Button onClick={load} disabled={loading}>
-          Load with new images
-        </Button>
-      }
-    >
-      <div className={styles.frame}>
-        <SkeletonReveal
-          data={loading ? null : shots(round, query)}
-          sample={shots(0)}
-        >
-          {(shots) => <Shots shots={shots} />}
-        </SkeletonReveal>
-      </div>
-    </Demo>
-  );
-};
-
 /* Changing size */
 
 const BIOS = {
@@ -706,7 +592,7 @@ const BIOS = {
 export const Resizing = () => {
   const [bio, setBio] = useState<keyof typeof BIOS>("long");
   const [loading, setLoading] = useState(true);
-  const { frame, moved } = useMovement(loading);
+  const { frame } = useMovement(loading);
 
   useEffect(() => {
     if (!loading) return;
@@ -721,28 +607,11 @@ export const Resizing = () => {
 
   return (
     <Demo
-      controls={
-        <>
-          <Button
-            onClick={() => {
-              load(bio === "short" ? "long" : "short");
-            }}
-            disabled={loading}
-          >
-            Load another
-          </Button>
-          <span
-            className={styles.moved}
-            data-jump={loading || moved === null ? undefined : moved !== 0}
-          >
-            {loading || moved === null
-              ? "loading…"
-              : moved === 0
-                ? "no movement"
-                : `eased ${moved > 0 ? "+" : ""}${moved}px`}
-          </span>
-        </>
-      }
+      onClick={() => {
+        load(bio === "short" ? "long" : "short");
+      }}
+      disabled={loading}
+      hint="Click to reload"
     >
       <div ref={frame} className={styles.frame}>
         <SkeletonReveal

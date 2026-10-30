@@ -65,8 +65,8 @@ export const PreviewPage = ({
     <div className={styles.body}>
       <SkeletonReveal loading={loading("sidebar")}>
         <aside className={styles.sidebar}>
-          {NAV.map((item, i) => (
-            <span key={item} data-active={i === 0}>
+          {NAV.map((item) => (
+            <span key={item}>
               <i />
               {item}
             </span>

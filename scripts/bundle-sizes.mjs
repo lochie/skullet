@@ -62,7 +62,7 @@ const sizes = local
 
 const out = resolve(
   __dirname,
-  "../site/src/surfaces/playground/bundle-sizes.json",
+  "../site/src/surfaces/lab/bundle-sizes.json",
 );
 writeFileSync(out, JSON.stringify(sizes, null, 2) + "\n");
 console.log("Wrote bundle sizes:", sizes);

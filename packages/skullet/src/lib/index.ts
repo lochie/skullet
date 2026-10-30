@@ -55,8 +55,25 @@ export {
 export type { SkeletonOptions } from "./skeleton";
 export { boxOf, fadeIn, fadeOut, prefersReducedMotion } from "./fade";
 export type { PaneBox } from "./fade";
-export { SKELETON_DELAY, SWEEP_SPREAD } from "./plan";
+export {
+  byPosition,
+  byRow,
+  instant,
+  sequence,
+  SKELETON_DELAY,
+  smart,
+  together,
+} from "./plan";
+export type {
+  Piece,
+  RevealContext,
+  RevealMode,
+  RevealSpec,
+  Wipe,
+  WipePane,
+} from "./plan";
+export { sweep } from "./sweep";
+export { exitDuration } from "./reveals";
 export { imageReady, pendingImages } from "./images";
-export type { RevealMode } from "./plan";
 export { Reveal } from "./reveal";
 export type { RevealOptions } from "./reveal";

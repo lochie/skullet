@@ -1,44 +1,41 @@
 import Link from "next/link";
-import { Fragment } from "react";
-import { usePathname } from "next/navigation";
 
 import styles from "./styles.module.scss";
 import { Footer } from "@/components/footer";
 import { Mascot } from "@/components/mascot";
+import { CHANGELOG_URL } from "@/utils/consts";
 
-const PAGES = [
-  ["/docs", "Overview"],
-  ["/docs#install", "Install"],
-  ["/docs/playground", "Playground"],
-] as const;
-
-const GROUPS = [
+const NAV = [
   [
     "Skeletons",
     [
-      ["data", "From data"],
-      ["plain", "Plain children"],
-      ["custom", "Your own skeleton"],
-      ["hints", "Hints"],
-      ["memory", "Memory"],
+      ["/docs#data", "From data"],
+      ["/docs#plain", "Plain children"],
+      ["/docs#custom", "Your own skeleton"],
+      ["/docs#hints", "Hints"],
+      ["/docs#memory", "Memory"],
+      ["/docs#lists", "Lists that grow"],
     ],
   ],
   [
     "Reveals",
     [
-      ["reveals", "Reveal modes"],
-      ["suspense", "Suspense"],
+      ["/docs#reveals", "Reveal modes"],
+      ["/docs#resizing", "Changing size"],
+      ["/docs#own-reveal", "Your own reveal"],
+      ["/docs#suspense", "Suspense"],
     ],
   ],
-  ["Styling", [["theming", "Theming"]]],
+  ["Styling", [["/docs#theming", "Theming"]]],
   [
     "Reference",
     [
-      ["server", "Server rendering"],
-      ["accessibility", "Accessibility"],
-      ["debug", "Debugging"],
-      ["api", "API"],
-      ["how", "How it works"],
+      ["/docs#server", "Server rendering"],
+      ["/docs#accessibility", "Accessibility"],
+      ["/docs#debug", "Debugging"],
+      ["/docs#api", "API"],
+      ["/docs#how", "How it works"],
+      [CHANGELOG_URL, "Changelog"],
     ],
   ],
 ] as const;
@@ -59,13 +56,11 @@ export const DocsLayout = ({
   wide?: boolean;
   /** Keeps a column free on the right, for panels the page floats there. */
   aside?: boolean;
-  /** This page's own sections, listed under its link. */
+  /** A page outside the docs lists its own sections first, like the lab. */
   sections?: readonly (readonly [id: string, title: string])[];
   downloads?: number;
   children: React.ReactNode;
 }) => {
-  const pathname = usePathname();
-
   return (
     <div className={styles.page} data-wide={wide} data-aside={aside}>
       <nav className={styles.nav}>
@@ -75,24 +70,7 @@ export const DocsLayout = ({
           <span className={styles.tagline}>Smart skeleton states</span>
         </Link>
 
-        <div className={styles.group}>
-          {PAGES.map(([href, title]) => (
-            <Fragment key={href}>
-              <Link href={href} data-active={href === pathname}>
-                {title}
-              </Link>
-              {href === pathname &&
-                sections?.map(([id, title]) => (
-                  <a key={id} href={`#${id}`} className={styles.sub}>
-                    {title}
-                  </a>
-                ))}
-            </Fragment>
-          ))}
-        </div>
-
-        {/* A page with no link of its own, like the lab, lists its sections on their own */}
-        {!PAGES.some(([href]) => href === pathname) && sections && (
+        {sections && (
           <div className={styles.group}>
             {sections.map(([id, title]) => (
               <a key={id} href={`#${id}`}>
@@ -102,22 +80,24 @@ export const DocsLayout = ({
           </div>
         )}
 
-        {GROUPS.map(([heading, links]) => (
+        {NAV.map(([heading, links]) => (
           <div key={heading} className={styles.group}>
             <h3>{heading}</h3>
-            {links.map(([id, title]) => (
-              <Link key={id} href={`/docs#${id}`}>
-                {title}
-              </Link>
-            ))}
-            {heading === "Reference" && (
-              <a
-                href="https://github.com/lochie/skullet/releases"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Changelog
-              </a>
+            {links.map(([href, title]) =>
+              href === CHANGELOG_URL ? (
+                <a
+                  key={href}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {title}
+                </a>
+              ) : (
+                <Link key={href} href={href}>
+                  {title}
+                </Link>
+              ),
             )}
           </div>
         ))}

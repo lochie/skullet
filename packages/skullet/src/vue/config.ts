@@ -52,7 +52,7 @@ export const SkulletProvider = defineComponent({
     theme: Object as PropType<SkeleTheme>,
     mode: String as PropType<SkulletMode>,
     text: Object as PropType<SkeleText>,
-    reveal: String as PropType<RevealMode>,
+    reveal: [String, Object] as PropType<RevealMode>,
     debug: { type: Boolean, default: undefined },
   },
   setup(props, { slots }) {
