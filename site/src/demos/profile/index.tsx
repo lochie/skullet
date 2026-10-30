@@ -18,7 +18,7 @@ export const ProfileDemo = () => {
         {(user) => (
           <div className={styles.cardInner}>
             <div className={styles.details}>
-              <Avatar name={user.name} size={40} />
+              <Avatar name={user.name} size={36} />
               <div className={styles.meta}>
                 <span className={styles.name}>{user.name}</span>
                 <span className={styles.handle}>{user.handle}</span>
