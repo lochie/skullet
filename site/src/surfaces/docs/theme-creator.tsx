@@ -24,6 +24,7 @@ import { SkulletProvider } from "skullet/react";
 import styles from "./theme-creator.module.scss";
 import { ARRIVALS, PreviewPage, REGIONS, type Region } from "./preview-page";
 import { CodeBlock } from "@/components/codeblock";
+import { Range } from "@/components/range";
 import { SegmentedControl } from "@/components/segmented-control";
 
 type Mode = "light" | "dark";
@@ -103,18 +104,17 @@ const Slider = ({
   <label className={styles.field}>
     <span>{label}</span>
     <div className={styles.slider}>
-      <input
-        type="range"
+      <Range
         min={min}
         max={max}
         step={step}
         value={value}
-        onChange={(event) => onChange(Number(event.target.value))}
-      />
-      <output>
+        onChange={onChange}
+        aria-label={label || undefined}
+      >
         {value}
         {unit}
-      </output>
+      </Range>
     </div>
   </label>
 );
@@ -131,22 +131,13 @@ const Swatch = ({
   <div className={styles.field}>
     <span>{label}</span>
     <div className={styles.slider}>
-      <input
-        type="color"
-        value={color.hex}
-        onChange={(event) => onChange({ ...color, hex: event.target.value })}
-      />
-      <input
-        type="range"
-        min={0}
-        max={100}
+      <Range
         value={color.alpha}
-        onChange={(event) =>
-          onChange({ ...color, alpha: Number(event.target.value) })
-        }
+        onChange={(alpha) => onChange({ ...color, alpha })}
         aria-label={`${label} opacity`}
-      />
-      <output>{color.alpha}%</output>
+      >
+        {color.alpha}%
+      </Range>
     </div>
   </div>
 );
@@ -307,7 +298,7 @@ export const ThemeCreator = () => {
                   label=""
                   value={pixels}
                   min={0}
-                  max={16}
+                  max={32}
                   unit="px"
                   onChange={setPixels}
                 />

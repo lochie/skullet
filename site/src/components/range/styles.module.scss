@@ -1,0 +1,77 @@
+// Set --range-height to match what's beside it
+$height: var(--range-height, 1.75rem);
+$inset: 0.125rem;
+
+// Built like the segmented control: a ring, and a chip inside it, here as wide as the value
+.pill {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  height: $height;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--border);
+
+  &:has(:focus-visible) {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 1px;
+  }
+}
+
+.fill {
+  position: absolute;
+  top: $inset;
+  bottom: $inset;
+  left: $inset;
+  // Never narrower than it is tall: at the least a round knob at the start, like a segment's chip, never a sliver
+  width: calc(#{$height} - 2 * #{$inset} + (100% - #{$height}) * var(--fill));
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.08);
+  pointer-events: none;
+}
+
+// Unseen, over the pill: dragging anywhere on it, keys and screen readers all go to it
+.range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  box-shadow: none;
+  background: none;
+  opacity: 0;
+  cursor: ew-resize;
+  appearance: none;
+  -webkit-appearance: none;
+
+  // Unstyled, Chromium gives a range no track to press or thumb to drag
+  &::-webkit-slider-runnable-track {
+    height: 100%;
+  }
+
+  &::-webkit-slider-thumb {
+    width: 1rem;
+    height: 100%;
+    -webkit-appearance: none;
+  }
+
+  &::-moz-range-thumb {
+    width: 1rem;
+    height: 100%;
+    border: 0;
+  }
+}
+
+.value {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  translate: 0 -50%;
+  font-family: var(--font-mono);
+  font-size: 0.65625rem;
+  color: var(--fg-1);
+  pointer-events: none;
+}
