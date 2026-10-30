@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
 import styles from "./styles.module.scss";
 import { useLoad } from "../parts/use-load";
 import { Avatar } from "@/components/avatar";
 import { SkeletonReveal } from "skullet/react";
+import { useSfx } from "@/hooks/useSfx";
+import { SOUNDS } from "@/utils/consts";
 
 type Message = { mine: boolean; text: string };
 
@@ -30,7 +32,7 @@ const FOLLOW_UPS: [mine: string, reply: string][] = [
   ["Ok I’m sold", "npm i skullet"],
 ];
 
-const REPLY_DELAY = 900;
+const REPLY_DELAY = 1200;
 const TYPE_SPEED = 35;
 
 // Keyed per message, so each one types in from empty
@@ -50,6 +52,10 @@ export const ChatDemo = () => {
   const thread = useLoad(THREAD, 850);
   const [extra, setExtra] = useState<Message[]>([]);
   const [replying, setReplying] = useState(false);
+  const sendSound = useSfx({ src: SOUNDS.pop });
+  const replySound = useSfx({ src: SOUNDS.send });
+  // Not a dependency: the reply's timer would restart on every render
+  const onReply = useEffectEvent(() => replySound.play());
 
   // Two messages per step, so a step is done once its reply is in
   const step = Math.floor(extra.length / 2);
@@ -60,6 +66,7 @@ export const ChatDemo = () => {
     const timeout = setTimeout(() => {
       setExtra((messages) => [...messages, { mine: false, text: next[1] }]);
       setReplying(false);
+      onReply();
     }, REPLY_DELAY);
     return () => clearTimeout(timeout);
   }, [replying, next]);
@@ -69,16 +76,18 @@ export const ChatDemo = () => {
     [thread, extra],
   );
 
-  const onSend = (event: React.MouseEvent) => {
-    // The card reloads on click
+  // Mid-conversation a click anywhere sends; loading or finished, it reaches the card, which reloads
+  const onClick = (event: React.MouseEvent) => {
+    if (!thread || !next) return;
     event.stopPropagation();
-    if (!next || replying) return;
+    if (replying) return;
     setExtra((messages) => [...messages, { mine: true, text: next[0] }]);
     setReplying(true);
+    sendSound.play();
   };
 
   return (
-    <div>
+    <div onClick={onClick}>
       <SkeletonReveal data={messages} sample={THREAD} label="Loading thread">
         {(thread) => (
           <>
@@ -96,12 +105,26 @@ export const ChatDemo = () => {
                       layout="position"
                       layoutId={`message-${i}`}
                       data-mine={message.mine}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
+                      initial={{
+                        opacity: 0,
+                        scale: 0.8,
+                        originY: 1,
+                        originX: message.mine ? 1 : 0,
+                      }}
+                      // Delayed on its own target, so the bubbles above make room first; layout and exit keep the undelayed transition
+                      animate={{
+                        opacity: 1,
+                        scale: 1,
+                        transition: {
+                          duration: 0.3,
+                          ease: "easeOut",
+                          delay: 0.15,
+                        },
+                      }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{
                         duration: 0.3,
-                        ease: "easeOut",
+                        ease: "easeInOut",
                       }}
                     >
                       {message.text}
@@ -113,7 +136,6 @@ export const ChatDemo = () => {
             <button
               className={styles.chatInput}
               data-replying={replying}
-              onClick={onSend}
               onKeyDown={(event) => event.stopPropagation()}
               disabled={!thread || !next || replying}
             >

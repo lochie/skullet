@@ -16,7 +16,6 @@ import { ThemeCreator } from "./theme-creator";
 import { InstallCommands } from "../homepage/install-cmd";
 import { Frameworks } from "../homepage/frameworks";
 import { Section } from "@/components/section";
-import { Lists } from "@/demos/lists";
 import { Resizing } from "@/demos/resizing";
 import { RevealModes } from "@/demos/reveal-modes";
 import { Suspense } from "@/demos/suspense";

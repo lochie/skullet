@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useWebHaptics } from "web-haptics/react";
 
+import { useSfx } from "@/hooks/useSfx";
+import { SOUNDS } from "@/utils/consts";
+
 import styles from "./styles.module.scss";
 import { TextMorph } from "torph/react";
 
@@ -13,6 +16,7 @@ export const CodeBlock = ({
 }) => {
   const [isCopied, setIsCopied] = useState(false);
   const { trigger } = useWebHaptics();
+  const copySound = useSfx({ src: SOUNDS.click });
 
   return (
     <div className={styles.container}>
@@ -23,6 +27,7 @@ export const CodeBlock = ({
             setIsCopied(true);
             navigator.clipboard.writeText(code.toString());
             trigger("success");
+            copySound.play();
             setTimeout(() => {
               setIsCopied(false);
             }, 2000);

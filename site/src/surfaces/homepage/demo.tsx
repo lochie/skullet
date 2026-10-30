@@ -2,6 +2,8 @@ import { useState } from "react";
 import { SkulletProvider } from "skullet/react";
 
 import styles from "./demo.module.scss";
+import { useSfx } from "@/hooks/useSfx";
+import { SOUNDS } from "@/utils/consts";
 import { ArticleDemo } from "@/demos/article";
 import { ChatDemo } from "@/demos/chat";
 import { GalleryDemo } from "@/demos/gallery";
@@ -22,8 +24,11 @@ const COLUMNS = [
 export const Demo = () => {
   // One count per card: bumping it remounts just that demo, so its loader starts over
   const [loads, setLoads] = useState<Record<string, number>>({});
-  const reload = (card: string) =>
+  const reloadSound = useSfx({ src: SOUNDS.blink });
+  const reload = (card: string) => {
+    reloadSound.play();
     setLoads((counts) => ({ ...counts, [card]: (counts[card] ?? 0) + 1 }));
+  };
 
   return (
     <div className={styles.demo}>

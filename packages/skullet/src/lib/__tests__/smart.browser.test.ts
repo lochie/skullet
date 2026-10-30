@@ -137,6 +137,16 @@ describe("smart reveal", () => {
     expect(timing(content)?.duration).toBe(FADE_DURATION);
   });
 
+  it("still reveals for someone clicking — a click moves nothing being read", async () => {
+    const reveal = stage();
+    reveal.load(html(LIST));
+    await wait(SKELETON_DELAY + 50);
+    dispatchEvent(new PointerEvent("pointerdown"));
+    const content = reveal.show(html(LIST));
+
+    expect(fade(content.querySelector("strong")!)).toBeDefined();
+  });
+
   // Last: the input it fakes would count as recent for the next test
   it("swaps at once for someone mid-gesture", async () => {
     const reveal = stage();

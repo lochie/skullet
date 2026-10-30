@@ -19,7 +19,7 @@ export type RevealContext = {
   reveal: HTMLElement;
   /** ms the skeleton was up; Infinity when it was server-rendered or there was none. */
   waited: number;
-  /** Someone scrolled, typed or tapped in the last 400ms. */
+  /** Someone scrolled or typed in the last 400ms. */
   input: boolean;
   /** The skeleton was drawn from the data on screen. */
   refetch: boolean;
@@ -121,13 +121,13 @@ export type Plan =
   | SequencePlan
   | WipePlan;
 
-// Input, not scroll: a page restoring its scroll position isn't someone using it
+// Input, not scroll: a page restoring its scroll position isn't someone using it. No clicks: a click doesn't move what's being read
 let lastInput = -Infinity;
 let listening = false;
 function listen() {
   if (listening || typeof addEventListener === "undefined") return;
   listening = true;
-  for (const type of ["wheel", "touchmove", "keydown", "pointerdown"]) {
+  for (const type of ["wheel", "touchmove", "keydown"]) {
     addEventListener(type, () => (lastInput = performance.now()), {
       passive: true,
       capture: true,
