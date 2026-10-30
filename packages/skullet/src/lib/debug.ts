@@ -41,7 +41,7 @@ export function setDebug(on: boolean) {
 export function reportLoading(reveal: Element | null, source: string) {
   if (!reveal || !debugging(reveal)) return;
   entries.set(reveal, { state: "loading", source });
-  start();
+  show();
 }
 
 export function reportReveal(
@@ -50,7 +50,14 @@ export function reportReveal(
 ) {
   if (!reveal || !debugging(reveal)) return;
   entries.set(reveal, { ...entries.get(reveal), state: "shown", moved });
+  show();
+}
+
+// Drawn at once, not on the next frame: a throttled page, like a test's iframe, may wait long for one
+function show() {
   start();
+  cancelAnimationFrame(frame);
+  draw();
 }
 
 const PANEL_CSS = `

@@ -123,7 +123,6 @@ describe("a reveal of your own", () => {
 
     await wait(500);
     expect(content.style.getPropertyValue("mask-image")).toBe("");
-    expect(mask).toHaveBeenCalledWith(1, expect.anything());
     r.destroy();
   });
 

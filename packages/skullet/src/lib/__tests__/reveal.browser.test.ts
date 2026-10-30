@@ -78,8 +78,8 @@ describe("Reveal", () => {
     const before = bones(holder).map((bone) => bone.getAttribute("style"));
 
     reveal.show(html(text));
-    await frame();
-    await frame();
+    // Read as it leaves: on a slow machine, two frames can outlast the whole fade
+    await Promise.resolve();
 
     expect(skeleton.getBoundingClientRect().width).toBe(width);
     const ghost = skeleton.querySelector("span")!;
@@ -96,11 +96,16 @@ describe("Reveal", () => {
     const reveal = new Reveal(root, { reveal: "together" });
     reveal.load(html(`<div style="height: 40px"></div>`));
     reveal.show(html(`<div style="height: 120px"></div>`));
-    await frame();
+    await Promise.resolve();
 
-    const easing = root.getBoundingClientRect().height;
-    expect(easing).toBeGreaterThan(40);
-    expect(easing).toBeLessThan(120);
+    // The animation, not a moment of it: a slow machine's frame can land at either end
+    const heights = root
+      .getAnimations()
+      .flatMap((animation) =>
+        (animation.effect as KeyframeEffect).getKeyframes(),
+      )
+      .map((keyframe) => keyframe.height);
+    expect(heights).toEqual(["40px", "120px"]);
     expect(getComputedStyle(root).overflow).toBe("clip");
 
     await vi.waitFor(() => {
@@ -209,7 +214,7 @@ describe("Reveal", () => {
 
     it("gives way to a crossfade when frames drop, both panes together", async () => {
       const { reveal, skeleton, content } = await sweep();
-      await frame();
+      await Promise.resolve();
       expect(content.style.getPropertyValue("mask-image")).not.toBe("");
       // A long task: the next frame comes far too late
       const until = performance.now() + 250;
