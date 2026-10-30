@@ -54,7 +54,7 @@ const THEME_OPTIONS: [string, React.ReactNode][] = [
       <code>slow</code> or <code>fast</code>.
     </>,
   ],
-  ["radius", <>Corners of text bars, as any CSS length.</>],
+  ["radius", <>How round each line of text is drawn, as any CSS length.</>],
   [
     "reveal",
     <>
@@ -65,9 +65,10 @@ const THEME_OPTIONS: [string, React.ReactNode][] = [
   [
     "text",
     <>
-      Where text bars run: a <code>top</code> of <code>ascender</code>,{" "}
-      <code>cap-height</code> or <code>x-height</code>, to a <code>bottom</code>{" "}
-      of <code>descender</code> or <code>baseline</code>.
+      How much of each line of text is drawn: from its <code>ascender</code>,{" "}
+      <code>cap-height</code> or <code>x-height</code> as the <code>top</code>,
+      down to its <code>baseline</code> or <code>descender</code> as the{" "}
+      <code>bottom</code>.
     </>,
   ],
 ];
@@ -115,7 +116,11 @@ const API: [title: string, rows: Row[]][] = [
       ],
       ["theme", "SkeleTheme", "Colours, animation, speed, radius and text."],
       ["mode", '"light" | "dark" | "system"', "Which colours to use."],
-      ["text", "SkeleText", "Where text bars run; overrides the theme’s."],
+      [
+        "text",
+        "SkeleText",
+        "How much of each line of text is drawn; overrides the theme’s.",
+      ],
       ["nonce", "string", "For a Content Security Policy."],
       ["debug", "boolean", "Outlines every reveal and whether it moved."],
     ],

@@ -263,10 +263,10 @@ export const Lab = ({
 
       <Section id="geometry" title="Geometry">
         <p>
-          Every case in the corpus, measured live. Text bars run between the
-          type’s own lines, set with <code>--skullet-text-top</code> and{" "}
-          <code>--skullet-text-bottom</code>; every case re-measures as they
-          change.
+          Every case in the corpus, measured live. Each line of text is drawn
+          between two of the font’s own lines, set with{" "}
+          <code>--skullet-text-top</code> and <code>--skullet-text-bottom</code>
+          ; every case re-measures as they change.
         </p>
         <div
           className={styles.cases}

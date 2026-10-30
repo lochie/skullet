@@ -49,9 +49,9 @@ type Line = {
   radius: string;
 };
 
-/** Where a text bar's top sits, in the type's own terms. */
+/** The font line each line of text is drawn from. */
 export type TextTop = "ascender" | "cap-height" | "x-height";
-/** Where a text bar's bottom sits. */
+/** The font line each line of text is drawn down to. */
 export type TextBottom = "baseline" | "descender";
 
 export const DEFAULT_TEXT = {

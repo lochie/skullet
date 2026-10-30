@@ -15,7 +15,7 @@ export type SkulletAnimation = "shimmer" | "group-shimmer" | "pulse" | "none";
 /** How quickly the animation loops — each animation has its own slow and fast. */
 export type SkulletSpeed = "slow" | "fast";
 
-/** Where text bars run, in the type's terms: from `top` down to `bottom`. */
+/** How much of each line of text is drawn: from the font's `top` line down to its `bottom` line. */
 export type SkeleText = {
   top?: "ascender" | "cap-height" | "x-height";
   bottom?: "baseline" | "descender";
@@ -27,7 +27,7 @@ export type SkulletMode = "light" | "dark" | "system";
 export type SkeleTheme = {
   light?: SkulletColors;
   dark?: SkulletColors;
-  /** Corners of text bars and single bars — any CSS length; `999px` for pills. Images and chips keep their own. */
+  /** How round each line of text, and any other single bar, is drawn — any CSS length; `999px` for pills. Images and chips keep their own. */
   radius?: string;
   animation?: SkulletAnimation;
   speed?: SkulletSpeed;
@@ -67,7 +67,8 @@ export function themeVariables(
   if (theme.animation) variables["--skullet-animation"] = theme.animation;
   if (theme.speed) variables["--skullet-speed"] = theme.speed;
   if (theme.text?.top) variables["--skullet-text-top"] = theme.text.top;
-  if (theme.text?.bottom) variables["--skullet-text-bottom"] = theme.text.bottom;
+  if (theme.text?.bottom)
+    variables["--skullet-text-bottom"] = theme.text.bottom;
   return variables;
 }
 
