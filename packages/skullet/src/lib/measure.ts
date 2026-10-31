@@ -262,11 +262,7 @@ const isEmptyText = (element: Element) =>
   !element.firstElementChild &&
   !element.textContent?.trim();
 
-/**
- * Labels inside: one per piece of text however many lines it wraps to, and
- * pieces side by side on a line joined — one label split across many nodes,
- * as a text morph renders it, is still one.
- */
+/** Labels inside: one per piece of text, however many lines it wraps to or nodes it's split into. */
 const countLabels = (element: Element) => {
   const walker = document.createTreeWalker(
     element,
@@ -381,11 +377,7 @@ function toBars(lines: Line[]): SkeletonRect[] {
   });
 }
 
-/**
- * Measures what `root` holds as bones, positioned relative to `layer`. With
- * `mark`, elements drawn as one block are marked so their own paint is hidden;
- * without it, nothing in `root` changes — as before a framework has hydrated it.
- */
+/** Measures what `root` holds into rects relative to `layer`; without `mark`, `root` is left untouched. */
 export function measureSkeleton(
   root: HTMLElement,
   layer: HTMLElement,

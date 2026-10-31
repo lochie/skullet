@@ -28,11 +28,7 @@ export class Reveal {
     element.setAttribute(ATTR_REVEAL, "");
   }
 
-  /**
-   * Shows a skeleton. `content` is laid out unseen and drawn as bones — pass
-   * the content rendered from sample data. Without it, the shape remembered
-   * from the last `show()` is drawn instead.
-   */
+  /** Shows a skeleton measured from `content`, rendered from sample data, or else the shape last shown. */
   load(content?: Node | string): HTMLElement {
     const loading = document.createElement("div");
     const ghost = document.createElement("div");

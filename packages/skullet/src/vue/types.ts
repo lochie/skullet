@@ -5,10 +5,7 @@ export interface SkeletonBoxProps extends SkeletonBoxOptions {
   style?: Record<string, string | number>;
 }
 
-/**
- * Slots: `default` (scoped with `{ data }` when `data` is bound), `skeleton`,
- * `empty`, and `error` scoped with `{ error }`.
- */
+/** Slots: `default` (with `{ data }` when `data` is bound), `skeleton`, `empty`, `error` (with `{ error }`). */
 export interface SkeletonProps<T = unknown> {
   loading?: boolean;
   data?: T | null;

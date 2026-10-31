@@ -80,11 +80,7 @@ function sanitize(root: ParentNode) {
   }
 }
 
-/**
- * The markup inside `root`, safe to keep and to restore later: no scripts,
- * handlers or media sources, with media pinned to the proportions it was shown at.
- * With `filler`, text is replaced too, so nothing a person read is kept.
- */
+/** The markup in `root`, safe to keep: no scripts, handlers or media sources; `filler` replaces its text too. */
 export function serialize(root: HTMLElement, filler: boolean): string {
   const clone = root.cloneNode(true) as HTMLElement;
   const show = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT;

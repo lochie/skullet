@@ -1,17 +1,13 @@
 import type { TextBottom, TextTop } from "./measure";
 
 export type SkulletColors = {
-  /** The bones' fill. */
+  /** The skeleton's fill. */
   base: string;
   /** The shimmer sweeping across them. */
   highlight: string;
 };
 
-/**
- * `shimmer` sweeps one highlight across the whole page; `group-shimmer` gives
- * each skeleton a sweep of its own; `pulse` fades every bone softly in and out.
- * All of them keep one phase across the page, and hold still under reduced motion.
- */
+/** `shimmer` sweeps the whole page, `group-shimmer` each skeleton, `pulse` fades; all hold still under reduced motion. */
 export type SkulletAnimation = "shimmer" | "group-shimmer" | "pulse" | "none";
 
 /** How quickly the animation loops — each animation has its own slow and fast. */
@@ -48,10 +44,7 @@ export const DEFAULT_THEME = {
   text: { top: "ascender", bottom: "descender" },
 } as const satisfies SkulletTheme;
 
-/**
- * The custom properties a theme sets, for one set of colours — ready for a
- * style attribute, so a theme can apply to one part of a page.
- */
+/** A theme's custom properties for one set of colours, for a style attribute. */
 export function themeVariables(
   theme: SkulletTheme = {},
   mode: "light" | "dark" | null = null,
@@ -76,11 +69,7 @@ const declarations = (variables: Record<string, string>) =>
     .map(([name, value]) => `${name}: ${value};`)
     .join(" ");
 
-/**
- * CSS for a theme on `selector`. Colours follow `mode` — `system` switches
- * with `prefers-color-scheme` — and are left out when neither colours nor a
- * mode are given, so the page's own stay.
- */
+/** CSS for a theme on `selector`; colours follow `mode`, and are left out when neither is given. */
 export function skulletCSS({
   theme = {},
   mode,

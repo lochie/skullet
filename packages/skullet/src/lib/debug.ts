@@ -25,10 +25,7 @@ function fromPage() {
 const everywhere = () =>
   (enabled ??= typeof window !== "undefined" && fromPage());
 
-/**
- * On with `?skullet-debug` in the URL, `skullet:debug` = "1" in localStorage,
- * or `setDebug(true)`; for `element`, also inside a `[skullet-debug]`.
- */
+/** On with `?skullet-debug`, `skullet:debug` = "1" in localStorage or `setDebug(true)`; for `element`, also inside `[skullet-debug]`. */
 export const debugging = (element?: Element | null) =>
   everywhere() || !!element?.closest(`[${ATTR_DEBUG}]`);
 

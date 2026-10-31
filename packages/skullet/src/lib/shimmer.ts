@@ -51,7 +51,7 @@ export const STEPS = 12; // stops per ramp — enough for an eased curve to read
 // Every gradient ramps on this (a scrim), so no stop shows as a hard line
 export const ease = (t: number) => (1 - Math.cos(Math.PI * t)) / 2;
 
-/** Highlights `SPACING` band-widths apart, in px from the box's corner, so every bone draws the same stream. */
+/** Highlights `SPACING` band-widths apart, in px from the box's corner, so every rect draws the same stream. */
 function highlights(band: number) {
   const period = band * SPACING;
   const stop = (at: number, alpha: number) =>
@@ -70,12 +70,7 @@ function highlights(band: number) {
   };
 }
 
-/**
- * Animates a bone or bar. Each element shows its slice of one sweep by
- * offsetting the gradient by its own page position — across the page for
- * `shimmer`, across `group` for `group-shimmer` — and every animation runs on
- * the document clock, so however late it mounts, it joins the one under way.
- */
+/** Animates `element` as its slice of one sweep, on the document clock, so however late it mounts it joins the sweep under way. */
 export function shimmer(
   element: HTMLElement,
   group?: Span,
@@ -150,12 +145,12 @@ export function paceOf(element: Element): number | null {
 const shadow = (layer: HTMLElement) =>
   layer.shadowRoot ?? layer.attachShadow({ mode: "open" });
 
-/** The bone elements drawn into `layer`. */
+/** The rect elements drawn into `layer`. */
 export const rectsOf = (layer: Element): HTMLElement[] =>
   layer.shadowRoot ? ([...layer.shadowRoot.children] as HTMLElement[]) : [];
 
-/** Draws `bones` into `layer`, reusing the elements already there. */
-export function drawSkeleton(layer: HTMLElement, bones: SkeletonRect[]) {
+/** Draws `rects` into `layer`, reusing the elements already there. */
+export function drawSkeleton(layer: HTMLElement, rects: SkeletonRect[]) {
   const root = shadow(layer);
   const rect = layer.getBoundingClientRect();
   const group = {
@@ -164,10 +159,10 @@ export function drawSkeleton(layer: HTMLElement, bones: SkeletonRect[]) {
     width: rect.width,
     height: rect.height,
   };
-  // Read once for the layer: every bone in it inherits the same theme
+  // Read once for the layer: every rect in it inherits the same theme
   const motion = motionOf(layer);
 
-  bones.forEach((bone, index) => {
+  rects.forEach((part, index) => {
     let element = root.children[index] as HTMLElement | undefined;
     if (!element) {
       element = document.createElement("div");
@@ -178,20 +173,20 @@ export function drawSkeleton(layer: HTMLElement, bones: SkeletonRect[]) {
     }
 
     Object.assign(element.style, {
-      left: `${bone.x}px`,
-      top: `${bone.y}px`,
-      width: `${bone.width}px`,
-      height: `${bone.height}px`,
-      borderRadius: bone.radius,
+      left: `${part.x}px`,
+      top: `${part.y}px`,
+      width: `${part.width}px`,
+      height: `${part.height}px`,
+      borderRadius: part.radius,
     });
 
     // Restarted only when its place, group, the page's width or the motion changes
-    const key = `${Math.round(group.left + bone.x)}|${Math.round(bone.y)}|${Math.round(bone.height)}|${Math.round(group.left)}|${Math.round(group.width)}|${Math.round(group.height)}|${document.documentElement.clientWidth}|${motion.animation}|${motion.duration}`;
+    const key = `${Math.round(group.left + part.x)}|${Math.round(part.y)}|${Math.round(part.height)}|${Math.round(group.left)}|${Math.round(group.width)}|${Math.round(group.height)}|${document.documentElement.clientWidth}|${motion.animation}|${motion.duration}`;
     if (element.dataset.motion !== key) {
       element.dataset.motion = key;
       shimmer(element, group, motion);
     }
   });
 
-  while (root.children.length > bones.length) root.lastElementChild!.remove();
+  while (root.children.length > rects.length) root.lastElementChild!.remove();
 }

@@ -1,9 +1,9 @@
 import { ATTR_EXITING, CASCADE_SPREAD, FADE_DURATION } from "./constants";
 
-/** Where one piece of a reveal sits: a piece of content arriving, or a bone of the skeleton leaving. */
+/** Where one piece of a reveal sits: a piece of content arriving, or a rect of the skeleton leaving. */
 export type Piece = {
   rect: DOMRect;
-  /** Its row or card: the nearest ancestor with two or more siblings like it. Null for a bone outside any. */
+  /** Its row or card: the nearest ancestor with two or more siblings like it. Null for a rect outside any. */
   unit: DOMRect | null;
   /** Smaller text than the largest in its unit. */
   secondary: boolean;
@@ -44,11 +44,7 @@ export type Wipe = {
   ) => void;
 };
 
-/**
- * How content replaces its skeleton. `order` times each piece; `wipe` takes
- * the reveal whole instead. `choose` decides the rest as content lands —
- * whatever it returns wins, and the fields beside it fill what it leaves.
- */
+/** How content replaces its skeleton; what `choose` returns as content lands wins over the fields beside it. */
 export type RevealSpec = {
   order?: "together" | ((piece: Piece) => number | null);
   /** Where each piece starts from, on top of the fade: `{ filter: "blur(6px)" }`. */
@@ -97,7 +93,7 @@ export type SequencePlan = {
   kind: "sequence";
   /** When a piece of content appears; null to appear at once. */
   pieceDelay: (piece: Element) => number | null;
-  /** When a bone at `rect` goes; null to go at once. */
+  /** When a skeleton rect at `rect` goes; null to go at once. */
   boneDelay: (rect: DOMRect) => number | null;
   duration: number;
   enter?: Keyframe;
@@ -211,7 +207,7 @@ const clamp = (value: number, max: number) => Math.min(Math.max(value, 0), max);
 
 let batch = -Infinity;
 
-/** Times each piece of `content`, and each bone it replaces, by `order`. */
+/** Times each piece of `content`, and each skeleton rect it replaces, by `order`. */
 function sequencePlan(
   content: Element,
   root: Element,

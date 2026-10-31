@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { getDownloads } from "@/components/docs-layout/downloads";
-import { Lab } from "@/surfaces/lab/lab";
+import { Lab } from "@/surfaces/lab";
 
 // Written by `scripts/bundle-sizes.mjs`, gitignored: it may not exist. cwd is the site or the repo root
 function readBundleSizes() {

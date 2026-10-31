@@ -103,11 +103,7 @@ const Content = ({
 
 export type SkeletonSuspenseProps = {
   children: React.ReactNode;
-  /**
-   * What the content will look like, rendered from sample data — measured
-   * into the fallback. Without it, the shape remembered from the last time
-   * the content showed is drawn.
-   */
+  /** The content rendered from sample data, measured into the fallback; without it, the shape last shown. */
   skeleton?: React.ReactNode;
   /** Remembers the shape under this key across visits. */
   id?: string;

@@ -168,12 +168,7 @@ function takeOver(root: Element) {
   return from;
 }
 
-/**
- * Brings a pane in. A skeleton fades up, held back for the reveal's `hold`,
- * so data that beats it never shows one. Content arrives as `reveal` plans,
- * each image still loading behind a bone of its own. `initial` is a reveal's
- * first pane, which has nothing to replace.
- */
+/** Brings a pane in: a skeleton after the reveal's `hold`, content as `reveal` plans; `initial` has nothing to replace. */
 export function fadeIn(
   element: HTMLElement,
   reveal: RevealMode = "smart",
@@ -245,12 +240,7 @@ export type PaneBox = {
   height: number;
 };
 
-/**
- * Measures `element` for `fadeOut`. Taken before the pane replacing it is in
- * the document, it reads a settled page: measured after, the layout it forces
- * has both panes in flow at once, and the browser's scroll anchoring corrects
- * for content that seemed to move — scrolling the page as reveals land.
- */
+/** Measures `element` for `fadeOut`: before its replacement is inserted, or scroll anchoring moves the page. */
 export function boxOf(element: HTMLElement): PaneBox {
   // Fractional, not offset*: a width rounded down rewraps a shrink-to-fit pane's text as it leaves
   const rect = element.getBoundingClientRect();
@@ -322,10 +312,7 @@ function restore(root: HTMLElement, { overflow, boxSizing }: Resize) {
   Object.assign(root.style, { overflow, boxSizing });
 }
 
-/**
- * Resolves once the element can be removed. Its parent must be positioned.
- * How it leaves matches the pane replacing it, which decides.
- */
+/** Resolves once `element` can be removed, leaving as the pane replacing it decides; its parent must be positioned. */
 export function fadeOut(element: HTMLElement, box?: PaneBox): Promise<void> {
   // Read before cancelling, so an interrupted fade-in leaves from where it got to
   const opacity = parseFloat(getComputedStyle(element).opacity);

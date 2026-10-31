@@ -3,11 +3,11 @@ import { measureSkeleton } from "./measure";
 import { drawSkeleton } from "./shimmer";
 
 /*
- * Inlined after a server-rendered skeleton (see build-inline.mjs), so it runs
- * as the HTML is parsed: the skeleton's first paint already has its bones. It
- * touches nothing a framework will hydrate — the bones live in a shadow root.
- * Sent once a page where a provider can tell; the skeletons after it carry a
- * stub that calls the `boot` this leaves on window, or queues until it lands.
+ * Inlined after a server-rendered skeleton (see build-inline.mjs). It measures in its
+ * ResizeObserver's first callback, after layout and before paint, so the first paint
+ * already shows the skeleton. It touches nothing a framework will hydrate: the skeleton
+ * lives in a shadow root. Sent once a page where a provider can tell; the skeletons after
+ * it carry a stub that calls the `boot` this leaves on window, or queues until it lands.
  */
 
 // A path from the document root, so a painted chip's colour is hidden without an attribute hydration would see as a mismatch

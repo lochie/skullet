@@ -1,5 +1,4 @@
-// Injected rather than imported so one definition can run against both builds:
-// vitest resolves skullet from source, the site's /lab from the bundle.
+// Injected, not imported: vitest runs it against the source, the site's /lab against the bundle
 export type SkulletApi = {
   Ghost: new (
     root: HTMLElement,
@@ -25,12 +24,7 @@ export type GeometryCase = {
   label: string;
   description: string;
   tags: string[];
-  /**
-   * The content once loaded. Expectations are marked inline:
-   * `data-expect="block"` must be drawn as one block at its box,
-   * `data-expect="lines"` must get one bar per line its text wraps to,
-   * `data-expect="clipped"` must have every bone inside its box.
-   */
+  /** The content once loaded, expectations marked inline: `data-expect="block"`, `"lines"` or `"clipped"`. */
   html: string;
   /** The same markup rendered before its data arrives. */
   empty?: string;

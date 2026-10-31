@@ -47,8 +47,7 @@ afterEach(() => {
   document.body.replaceChildren();
 });
 
-// The reveal's content, inserted while its skeleton was still in flow, used to
-// push what's below down for one layout — and scroll anchoring scrolled to follow
+// Content inserted while its skeleton was still in flow let scroll anchoring scroll the page
 describe("a reveal doesn't scroll the page", () => {
   it("in React", async () => {
     const container = page();

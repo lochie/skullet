@@ -77,11 +77,7 @@ function child(root: HTMLElement, attribute: string) {
 const hasContent = (element: Element) =>
   !!element.firstElementChild || !!element.textContent?.trim();
 
-/**
- * Draws a skeleton over the content `root` holds in its ghost: content laid out
- * for real but never seen, so the skeleton takes exactly the space the content
- * will. Falls back to a remembered shape, then to a few generic lines.
- */
+/** Draws a skeleton over content laid out unseen in `root`, so it takes exactly the content's space. */
 export class Ghost {
   private ghost: HTMLElement;
   private snapshot: HTMLElement;
