@@ -3,7 +3,7 @@ import type { TextBottom, TextTop } from "./measure";
 export type SkulletColors = {
   /** The skeleton's fill. */
   base: string;
-  /** The shimmer sweeping across them. */
+  /** The shimmer sweeping across it. */
   highlight: string;
 };
 

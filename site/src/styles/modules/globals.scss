@@ -172,41 +172,42 @@ li {
   font-weight: 400;
   line-height: 1.25rem; /* 142.857% */
   letter-spacing: -0.00563rem;
+}
 
-  a {
-    position: relative;
-    display: inline-block;
-    color: inherit;
-    font-weight: inherit;
-    line-height: inherit;
-    transition: all 200ms ease;
+// Links in running text, a definition's included
+:is(p, li, dd) a {
+  position: relative;
+  display: inline-block;
+  color: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  transition: all 200ms ease;
+  &:before {
+    pointer-events: none;
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    border-radius: 2px;
+    background: currentColor;
+    opacity: 0.4;
+    transition: inherit;
+  }
+  &:hover {
+    color: var(--primary);
     &:before {
-      pointer-events: none;
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      border-radius: 2px;
-      background: currentColor;
-      opacity: 0.4;
-      transition: inherit;
+      opacity: 1;
     }
-    &:hover {
-      color: var(--primary);
-      &:before {
-        opacity: 1;
-      }
-    }
+  }
 
-    &:focus-visible {
-      border-radius: 2px;
-      padding: 0 2px;
-      margin: 0 -2px;
-      transition: none;
-      outline: 2px solid var(--focus-color);
-    }
+  &:focus-visible {
+    border-radius: 2px;
+    padding: 0 2px;
+    margin: 0 -2px;
+    transition: none;
+    outline: 2px solid var(--focus-color);
   }
 }
 

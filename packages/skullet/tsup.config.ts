@@ -16,10 +16,13 @@ export default defineConfig((options) => {
     // Core
     {
       entry: {
-        index: "src/index.ts",
+        index: "src/lib/index.ts",
       },
       format: ["cjs", "esm"],
-      dts: true,
+      // One runtime, two sets of types: the public surface, and everything the wrappers use
+      dts: {
+        entry: { index: "src/index.ts", internal: "src/lib/index.ts" },
+      },
       clean: true,
       target: "es2022",
       treeshake: true,

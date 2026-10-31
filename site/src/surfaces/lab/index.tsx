@@ -9,7 +9,7 @@ import {
   removeStyles,
   type TextBottom,
   type TextTop,
-} from "skullet";
+} from "skullet/internal";
 import {
   bonesIn,
   CHECKS,

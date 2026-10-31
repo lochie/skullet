@@ -104,7 +104,7 @@ Styles are injected at runtime ([styles.ts](packages/skullet/src/lib/styles.ts))
 
 **Wrappers import the core from `"../lib"` only** — `tsup.config.ts`'s `aliasCorePlugin` rewrites exactly that path to `skullet`, and `scripts/build-svelte.mjs` does the same for `.svelte` files. Anything else imported from a wrapper gets inlined into its bundle. So anything a wrapper needs must be exported from [src/lib/index.ts](packages/skullet/src/lib/index.ts).
 
-New public API needs an export in [src/lib/index.ts](packages/skullet/src/lib/index.ts) — that file is the package surface.
+New public API needs an export in [src/index.ts](packages/skullet/src/index.ts) — the root's types, and so the package surface. The runtime ships all of [src/lib/index.ts](packages/skullet/src/lib/index.ts), its types at `skullet/internal` for the lab.
 
 ### Tests
 

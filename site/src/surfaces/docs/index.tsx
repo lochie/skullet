@@ -132,6 +132,120 @@ const API: [title: string, rows: Row[]][] = [
       ["radius", "number | string", "The theme’s radius by default."],
     ],
   ],
+  [
+    "Reveal",
+    [
+      ["element", "HTMLElement", "Where the skeleton and content go."],
+      ["id", "string", "Remembers the shape under this key."],
+      ["reveal", "RevealMode", "How content replaces its skeleton."],
+      ["label", "string", "Read to screen readers while loading."],
+      [
+        "load(content?)",
+        "Node | string",
+        "Shows a skeleton of the content, or of the shape last shown.",
+      ],
+      ["show(content)", "Node | string", "Reveals the content."],
+      ["destroy()", "", "Stops measuring and remembering."],
+    ],
+  ],
+  [
+    "Functions",
+    [
+      ["forgetShapes()", "", "Clears every remembered shape, as on sign-out."],
+      [
+        "createSkeletonBox(options)",
+        "HTMLSpanElement",
+        "A SkeletonBox for vanilla JavaScript.",
+      ],
+      ["setDebug(on)", "", "Turns the debug overlay on for the whole page."],
+      ["applyTheme(theme, mode)", "", "Sets a theme for the whole page."],
+      [
+        "themeVariables(theme, mode)",
+        "Record<string, string>",
+        "A theme as custom properties, for one element’s style.",
+      ],
+      [
+        "skulletCSS({ theme, mode, text, selector })",
+        "string",
+        "A theme as CSS rules.",
+      ],
+      ["useReveal()", "RevealMode", "In React, the reveal the provider sets."],
+    ],
+  ],
+];
+
+const TROUBLES: [string, React.ReactNode][] = [
+  [
+    "The page jumps on reveal",
+    <>
+      Turn on <a href="#debug">debugging</a> to see where the skeleton came from
+      and how far the content moved. Most often the <code>sample</code> is
+      shorter or longer than real data: give it typical lengths.
+    </>,
+  ],
+  [
+    "An image moves when it loads",
+    <>
+      It had no size until it loaded, so its skeleton had no room for it. Give
+      it a <code>width</code> and <code>height</code>, or an{" "}
+      <code>aspect-ratio</code>.
+    </>,
+  ],
+  [
+    "Something is drawn the wrong way",
+    <>
+      Mark it with a <a href="#hints">hint</a>: <code>skullet-block</code> for
+      one block, <code>skullet-ignore</code> for none, or in React, give a
+      component <a href="#custom">its own skeleton</a>.
+    </>,
+  ],
+  [
+    "Three grey lines and a warning",
+    <>
+      There was nothing to measure. Pass <code>sample</code> data, or an{" "}
+      <code>id</code> so the shape is remembered. For one placeholder box, use{" "}
+      <code>&lt;SkeletonBox&gt;</code>.
+    </>,
+  ],
+  [
+    "Lines shift as a web font loads",
+    <>
+      Skeletons measure again once fonts load, so the first frame uses the
+      fallback font. Preload the font to measure it from the start.
+    </>,
+  ],
+  [
+    "A Content Security Policy blocks the script",
+    <>
+      Pass your <code>nonce</code> to <code>SkulletProvider</code>; it goes on
+      the inline script and stylesheets.
+    </>,
+  ],
+];
+
+const COMPONENTS = new Set([
+  "Skeleton",
+  "SkeletonSuspense",
+  "SkulletProvider",
+  "SkeletonBox",
+]);
+
+const SLOTS: [string, React.ReactNode][] = [
+  [
+    "Vue",
+    <>
+      The <code>default</code> slot with <code>{"{ data }"}</code>, then{" "}
+      <code>skeleton</code>, <code>empty</code> and <code>error</code> with{" "}
+      <code>{"{ error }"}</code>.
+    </>,
+  ],
+  [
+    "Svelte",
+    <>
+      <code>children(data)</code>, <code>skeleton</code>,{" "}
+      <code>emptyMessage</code> and <code>errorMessage(error)</code> snippets.
+    </>,
+  ],
 ];
 
 const SPEC: [string, React.ReactNode][] = [
@@ -428,10 +542,32 @@ const wipeDown: RevealSpec = {
     </Section>
 
     <Section id="server" title="Server rendering">
+      <p>
+        Wrap an async server component in <code>SkeletonSuspense</code>, in
+        Next.js or any React Server Components setup. The skeleton is in the
+        streamed HTML, measured before first paint, so it holds the content’s
+        exact space until the content arrives.
+      </p>
+      <CodeBlock
+        code={`import { SkeletonSuspense } from "skullet/react";
+
+async function LoadedProfile() {
+  const user = await getUser();
+  return <Profile user={user} />;
+}
+
+export default function Page() {
+  return (
+    <SkeletonSuspense skeleton={<Profile user={SAMPLE_USER} />}>
+      <LoadedProfile />
+    </SkeletonSuspense>
+  );
+}`}
+      />
       <Callout>
         <p>
-          Skip this step on React 19 or later: the stylesheet is imported for
-          you.
+          Skip the below step on React 19 or later: the stylesheet is imported
+          for you.
         </p>
       </Callout>
       <p>
@@ -470,12 +606,61 @@ const wipeDown: RevealSpec = {
       <DebugExample />
     </Section>
 
+    <Section id="recipes" title="Recipes">
+      <div className={styles.recipe}>
+        <h3>TanStack Query and SWR</h3>
+        <p>
+          Pass <code>data</code> as it comes. It’s empty until the first
+          response, so the skeleton shows only then; a background refetch keeps
+          the content on screen.
+        </p>
+        <CodeBlock
+          code={`const { data } = useQuery({ queryKey: ["user", id], queryFn });
+
+<Skeleton id="profile" data={data} sample={SAMPLE_USER}>
+  {(user) => <Profile user={user} />}
+</Skeleton>`}
+        />
+      </div>
+      <div className={styles.recipe}>
+        <h3>Nuxt</h3>
+        <p>
+          <code>useLazyFetch</code> doesn’t block navigation, so the page shows
+          at once with its skeleton.
+        </p>
+        <CodeBlock
+          code={`<script setup>
+import { Skeleton } from "skullet/vue";
+
+const { data } = useLazyFetch("/api/user");
+</script>
+
+<template>
+  <Skeleton :data="data" :sample="SAMPLE_USER">
+    <template #default="{ data: user }">
+      <Profile :user="user" />
+    </template>
+  </Skeleton>
+</template>`}
+        />
+      </div>
+    </Section>
+
+    <Section id="troubleshooting" title="Troubleshooting">
+      <Terms items={TROUBLES} />
+    </Section>
+
     <Section id="api" title="API">
       {API.map(([title, rows]) => (
         <div key={title} className={styles.api}>
           <h3 id={title}>
-            {/* Components read as their tag, functions by name */}
-            <code>{/^[A-Z]/.test(title) ? `<${title} />` : title}</code>
+            {title === "Functions" ? (
+              title
+            ) : (
+              <code>
+                {COMPONENTS.has(title) ? `<${title} />` : `new ${title}()`}
+              </code>
+            )}
           </h3>
           <table className={styles.table}>
             <tbody>
@@ -492,6 +677,11 @@ const wipeDown: RevealSpec = {
           </table>
         </div>
       ))}
+      <p>
+        In Vue and Svelte, <code>&lt;Skeleton&gt;</code> takes the same props;
+        what React passes as nodes comes as slots and snippets.
+      </p>
+      <Terms items={SLOTS} />
     </Section>
 
     <Section id="how" title="How it works">

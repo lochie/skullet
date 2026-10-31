@@ -32,6 +32,8 @@ const NAV = [
       ["/docs#server", "Server rendering"],
       ["/docs#accessibility", "Accessibility"],
       ["/docs#debug", "Debugging"],
+      ["/docs#recipes", "Recipes"],
+      ["/docs#troubleshooting", "Troubleshooting"],
       ["/docs#api", "API"],
       ["/docs#how", "How it works"],
       [CHANGELOG_URL, "Changelog"],
