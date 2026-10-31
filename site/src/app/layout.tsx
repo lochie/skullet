@@ -31,13 +31,15 @@ export const metadata: Metadata = {
   // Open Graph needs absolute URLs
   metadataBase: new URL(SITE_URL),
   title: "Skullet 🦴 Smart skeleton states",
-  description: "Smart skeleton states.",
+  description:
+    "Loading states without hand-drawn placeholders or layout shift.",
   openGraph: {
     type: "website",
     url: SITE_URL,
     siteName: "Skullet",
     title: "Skullet 🦴 Smart skeleton states",
-    description: "Smart skeleton states.",
+    description:
+      "Loading states without hand-drawn placeholders or layout shift.",
     videos: [
       {
         url: VIDEO,
@@ -53,7 +55,8 @@ export const metadata: Metadata = {
     site: "@lochieaxon",
     creator: "@lochieaxon",
     title: "Skullet",
-    description: "Smart skeleton states.",
+    description:
+      "Loading states without hand-drawn placeholders or layout shift.",
   },
   other: {
     "msapplication-navbutton-color": "#000000",
