@@ -6,7 +6,7 @@ The first release: skeletons measured from your own content, so nothing moves wh
 
 #### New
 
-- `SkeletonReveal` and `SkeletonSuspense` for React, `SkeletonReveal` for Vue and Svelte, and `Reveal` for plain JavaScript.
+- `Skeleton` and `SkeletonSuspense` for React, `Skeleton` for Vue and Svelte, `Reveal` for plain JavaScript, and `SkeletonBox` for a single placeholder.
 - Skeletons from `sample` data, remembered shapes or server-rendered HTML, painted before the first frame.
 - `smart`, `together`, `sequence` and `sweep` reveals, or your own with a `RevealSpec`.
 - Theming: colours, radius, line heights, animation and speed.

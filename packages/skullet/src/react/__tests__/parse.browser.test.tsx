@@ -3,7 +3,7 @@ import { hydrateRoot, type Root } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { bonesIn } from "@skullet/test-cases";
 import { afterEach, expect, it, vi } from "vitest";
-import { SkeletonReveal } from "../Skeleton";
+import { Skeleton } from "../Skeleton";
 import { INLINE_SCRIPT, INLINE_STUB, SKULLET_CSS } from "../../lib";
 import { SkulletProvider } from "../config";
 
@@ -23,7 +23,7 @@ afterEach(() => {
 type User = { name: string };
 
 const ui = (
-  <SkeletonReveal data={null as User | null} sample={{ name: "Ada Lovelace" }}>
+  <Skeleton data={null as User | null} sample={{ name: "Ada Lovelace" }}>
     {(user) => (
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
         <p style={{ margin: 0 }}>{user.name}</p>
@@ -32,7 +32,7 @@ const ui = (
         </span>
       </div>
     )}
-  </SkeletonReveal>
+  </Skeleton>
 );
 
 it("draws a server-rendered skeleton's bones as the HTML is parsed, then hydrates onto them", async () => {

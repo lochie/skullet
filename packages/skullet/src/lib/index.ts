@@ -50,11 +50,11 @@ export { Memory } from "./memory";
 export type { MemoryOptions } from "./memory";
 export { forgetShapes } from "./shapes";
 export {
-  createSkeleton,
-  DEFAULT_SKELETON_OPTIONS,
-  skeletonStyle,
+  createSkeletonBox,
+  DEFAULT_SKELETON_BOX_OPTIONS,
+  skeletonBoxStyle,
 } from "./skeleton";
-export type { SkeletonOptions } from "./skeleton";
+export type { SkeletonBoxOptions } from "./skeleton";
 export { boxOf, fadeIn, fadeOut, prefersReducedMotion } from "./fade";
 export type { PaneBox } from "./fade";
 export {

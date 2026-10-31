@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { SkeletonReveal } from 'skullet/svelte';
+  import { Skeleton } from 'skullet/svelte';
   import 'skullet/styles.css';
 
   type User = { name: string; role: string };
@@ -23,7 +23,7 @@
 </svelte:head>
 
 <div class="container">
-  <SkeletonReveal data={user} sample={LOCHIE}>
+  <Skeleton data={user} sample={LOCHIE}>
     {#snippet children(user)}
       <div class="card">
         <div class="avatar"></div>
@@ -33,7 +33,7 @@
         </div>
       </div>
     {/snippet}
-  </SkeletonReveal>
+  </Skeleton>
   <button onclick={reload}>Reload</button>
 </div>
 

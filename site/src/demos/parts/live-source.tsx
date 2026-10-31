@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 import { forgetShapes } from "skullet";
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { Demo } from "@/components/demo";
@@ -123,7 +123,7 @@ export function LiveSource<T>({
       }
     >
       <div ref={frame} className={styles.liveFrame}>
-        <SkeletonReveal
+        <Skeleton
           id={id}
           data={data}
           sample={sample}
@@ -138,7 +138,7 @@ export function LiveSource<T>({
           }
         >
           {children}
-        </SkeletonReveal>
+        </Skeleton>
       </div>
 
       <div className={styles.sourceLog}>

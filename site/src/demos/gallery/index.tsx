@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- plain images, so the skeleton measures them as such */
 import { useState } from "react";
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { useLoad } from "../parts/use-load";
@@ -24,7 +24,7 @@ export const GalleryDemo = () => {
 
   return (
     <div>
-      <SkeletonReveal data={loaded} sample={SAMPLE} label="Loading gallery">
+      <Skeleton data={loaded} sample={SAMPLE} label="Loading gallery">
         {(board) => (
           <div className={styles.gallery}>
             <div className={styles.shots}>
@@ -34,7 +34,7 @@ export const GalleryDemo = () => {
             </div>
           </div>
         )}
-      </SkeletonReveal>
+      </Skeleton>
     </div>
   );
 };

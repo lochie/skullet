@@ -6,9 +6,9 @@ import {
   ATTR_OWN,
   ATTR_REVEAL,
   shimmer,
-  skeletonStyle,
+  skeletonBoxStyle,
   type MemoryOptions,
-  type SkeletonOptions,
+  type SkeletonBoxOptions,
 } from "../lib";
 import {
   Loading,
@@ -20,18 +20,18 @@ import {
   useStyles,
 } from "./parts";
 
-export type SkeletonProps = SkeletonOptions & {
+export type SkeletonBoxProps = SkeletonBoxOptions & {
   className?: string;
   style?: React.CSSProperties;
 };
 
-export const Skeleton = ({
+export const SkeletonBox = ({
   height,
   width,
   radius,
   className,
   style,
-}: SkeletonProps) => {
+}: SkeletonBoxProps) => {
   const ref = React.useRef<HTMLSpanElement>(null);
   useStyles();
 
@@ -46,7 +46,7 @@ export const Skeleton = ({
         ref={ref}
         {...{ [ATTR_BAR]: "" }}
         className={className}
-        style={{ ...skeletonStyle({ height, width, radius }), ...style }}
+        style={{ ...skeletonBoxStyle({ height, width, radius }), ...style }}
       />
     </>
   );
@@ -86,9 +86,9 @@ type RenderProps<T> = SharedProps & {
   children: (data: T) => React.ReactNode;
 };
 
-export type SkeletonRevealProps<T = unknown> = ChildrenProps | RenderProps<T>;
+export type SkeletonProps<T = unknown> = ChildrenProps | RenderProps<T>;
 
-export function SkeletonReveal<T>(props: SkeletonRevealProps<T>) {
+export function Skeleton<T>(props: SkeletonProps<T>) {
   const { id, label, skeleton, empty, emptyMessage, error, className, style } =
     props;
   useStyles();

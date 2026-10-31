@@ -11,11 +11,11 @@ pnpm i skullet
 ## Usage
 
 ```tsx
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
-<SkeletonReveal data={user} sample={SAMPLE_USER}>
+<Skeleton data={user} sample={SAMPLE_USER}>
   {(user) => <Card user={user} />}
-</SkeletonReveal>;
+</Skeleton>;
 ```
 
 While it loads, the content is measured into a skeleton that takes exactly its

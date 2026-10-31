@@ -1,7 +1,7 @@
 import { createApp, h, nextTick, ref, type App, type Ref } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { bonesIn } from "@skullet/test-cases";
-import { SkeletonReveal } from "../Skeleton";
+import { Skeleton } from "../Skeleton";
 import { FADE_DURATION, forgetShapes } from "../../lib";
 
 type User = { name: string; bio: string };
@@ -38,13 +38,13 @@ afterEach(() => {
   document.body.replaceChildren();
 });
 
-describe("Vue SkeletonReveal", () => {
+describe("Vue Skeleton", () => {
   it("crossfades from a measured skeleton to content without moving", async () => {
     const user: Ref<User | null> = ref(null);
     vi.spyOn(console, "warn").mockImplementation(() => {});
     const container = mount(() =>
       h(
-        SkeletonReveal,
+        Skeleton,
         { data: user.value, sample: ADA },
         { default: ({ data }: { data: User }) => card(data) },
       ),
@@ -67,7 +67,7 @@ describe("Vue SkeletonReveal", () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     const loading = ref(true);
     const container = mount(() =>
-      h(SkeletonReveal, { loading: loading.value }, () => card(null)),
+      h(Skeleton, { loading: loading.value }, () => card(null)),
     );
 
     expect(container.querySelector("[skullet-loading]")).not.toBeNull();

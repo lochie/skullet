@@ -1,5 +1,5 @@
 import { use, useState, useSyncExternalStore } from "react";
-import { SkeletonReveal, SkeletonSuspense } from "skullet/react";
+import { Skeleton, SkeletonSuspense } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { Demo } from "@/components/demo";
@@ -87,9 +87,9 @@ export const SuspenseDemo = () => {
     >
       <div className={styles.frame}>
         {!hydrated ? (
-          <SkeletonReveal data={null} sample={QUOTES[0]!} label="Loading quote">
+          <Skeleton data={null} sample={QUOTES[0]!} label="Loading quote">
             {(quote) => <QuoteCard quote={quote} />}
-          </SkeletonReveal>
+          </Skeleton>
         ) : fallback === "skeleton" ? (
           <SkeletonSuspense
             key={round}

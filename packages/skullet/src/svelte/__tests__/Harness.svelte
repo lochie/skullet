@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SkeletonReveal from '../SkeletonReveal.svelte';
+  import Skeleton from '../Skeleton.svelte';
 
   type User = { name: string; bio: string };
 
@@ -12,12 +12,12 @@
 </script>
 
 <div style="width: 320px">
-  <SkeletonReveal data={user} {sample}>
+  <Skeleton data={user} {sample}>
     {#snippet children(u)}
       <div style="padding: 16px; border: 1px solid #ccc">
         <h3 style="margin: 0">{u.name}</h3>
         <p style="margin: 4px 0 0">{u.bio}</p>
       </div>
     {/snippet}
-  </SkeletonReveal>
+  </Skeleton>
 </div>

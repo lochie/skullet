@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import styles from "./styles.module.scss";
 import { useLoad } from "../parts/use-load";
 import { Avatar } from "@/components/avatar";
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 import { useSfx } from "@/hooks/useSfx";
 import { SOUNDS } from "@/utils/consts";
 
@@ -113,7 +113,7 @@ export const ChatDemo = () => {
 
   return (
     <div onClick={onClick}>
-      <SkeletonReveal data={messages} sample={THREAD} label="Loading thread">
+      <Skeleton data={messages} sample={THREAD} label="Loading thread">
         {(thread) => (
           <>
             <div className={styles.chatHeader}>
@@ -199,7 +199,7 @@ export const ChatDemo = () => {
             </button>
           </>
         )}
-      </SkeletonReveal>
+      </Skeleton>
     </div>
   );
 };

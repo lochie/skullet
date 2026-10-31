@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { Demo } from "@/components/demo";
@@ -73,9 +73,9 @@ function usePerPage() {
   const view = (
     <div className={styles.listFrame}>
       {pages.map((rows, i) => (
-        <SkeletonReveal key={i} data={rows} sample={SAMPLE}>
+        <Skeleton key={i} data={rows} sample={SAMPLE}>
           {(rows) => <Rows rows={rows} />}
-        </SkeletonReveal>
+        </Skeleton>
       ))}
     </div>
   );
@@ -101,9 +101,9 @@ function useWhole() {
 
   const view = (
     <div className={styles.listFrame}>
-      <SkeletonReveal data={rows} loading={loading}>
+      <Skeleton data={rows} loading={loading}>
         {(rows) => <Rows rows={rows} />}
-      </SkeletonReveal>
+      </Skeleton>
     </div>
   );
   return { view, more, loading };

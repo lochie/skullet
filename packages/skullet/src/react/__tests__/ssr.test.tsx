@@ -1,16 +1,16 @@
 // @vitest-environment node
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { Skeleton, SkeletonReveal } from "../Skeleton";
+import { SkeletonBox, Skeleton } from "../Skeleton";
 
 type User = { name: string };
 
 describe("server rendering", () => {
   it("renders a loading skeleton from a sample", () => {
     const html = renderToString(
-      <SkeletonReveal data={null as User | null} sample={{ name: "Ada" }}>
+      <Skeleton data={null as User | null} sample={{ name: "Ada" }}>
         {(user) => <p>{user.name}</p>}
-      </SkeletonReveal>,
+      </Skeleton>,
     );
     expect(html).toContain("skullet-loading");
     expect(html).toContain("<p>Ada</p>");
@@ -19,22 +19,22 @@ describe("server rendering", () => {
   it("renders plain children and content", () => {
     expect(
       renderToString(
-        <SkeletonReveal loading>
+        <Skeleton loading>
           <p>Loading</p>
-        </SkeletonReveal>,
+        </Skeleton>,
       ),
     ).toContain("skullet-ghost");
     expect(
       renderToString(
-        <SkeletonReveal data={{ name: "Ada" }}>
+        <Skeleton data={{ name: "Ada" }}>
           {(user: User) => <p>{user.name}</p>}
-        </SkeletonReveal>,
+        </Skeleton>,
       ),
     ).not.toContain("skullet-loading");
   });
 
   it("renders a bar", () => {
-    expect(renderToString(<Skeleton />)).toContain("skullet-bar");
+    expect(renderToString(<SkeletonBox />)).toContain("skullet-bar");
   });
 });
 
@@ -43,9 +43,9 @@ describe("nonce", () => {
     const { SkulletProvider } = await import("../config");
     const html = renderToString(
       <SkulletProvider nonce="abc123" mode="dark">
-        <SkeletonReveal loading>
+        <Skeleton loading>
           <p>Loading</p>
-        </SkeletonReveal>
+        </Skeleton>
       </SkulletProvider>,
     );
     expect(html).toMatch(/<script nonce="abc123">/);

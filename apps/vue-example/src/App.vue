@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <SkeletonReveal :data="user" :sample="LOCHIE">
+    <Skeleton :data="user" :sample="LOCHIE">
       <template #default="{ data }">
         <div class="card">
           <div class="avatar" />
@@ -10,14 +10,14 @@
           </div>
         </div>
       </template>
-    </SkeletonReveal>
+    </Skeleton>
     <button @click="reload">Reload</button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { SkeletonReveal } from "skullet/vue";
+import { Skeleton } from "skullet/vue";
 
 type User = { name: string; role: string };
 

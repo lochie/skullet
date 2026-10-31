@@ -1,4 +1,4 @@
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { useLoad } from "../parts/use-load";
@@ -15,7 +15,7 @@ export const ProfileDemo = () => {
 
   return (
     <div className={styles.card}>
-      <SkeletonReveal data={user} sample={USER}>
+      <Skeleton data={user} sample={USER}>
         {(user) => (
           <div className={styles.cardInner}>
             <div className={styles.details}>
@@ -37,7 +37,7 @@ export const ProfileDemo = () => {
             </div>
           </div>
         )}
-      </SkeletonReveal>
+      </Skeleton>
     </div>
   );
 };

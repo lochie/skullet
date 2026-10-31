@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 type User = { name: string; role: string };
 
@@ -30,7 +30,7 @@ export default function App() {
         fontFamily: "system-ui",
       }}
     >
-      <SkeletonReveal data={user} sample={LOCHIE}>
+      <Skeleton data={user} sample={LOCHIE}>
         {(user) => (
           <div
             style={{
@@ -56,7 +56,7 @@ export default function App() {
             </div>
           </div>
         )}
-      </SkeletonReveal>
+      </Skeleton>
       <button onClick={reload}>Reload</button>
     </div>
   );

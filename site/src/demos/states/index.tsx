@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { Demo } from "@/components/demo";
@@ -42,7 +42,7 @@ export const StatesDemo = () => {
       }
     >
       <div className={styles.frame}>
-        <SkeletonReveal
+        <Skeleton
           data={
             loading || outcome === "error"
               ? null
@@ -75,7 +75,7 @@ export const StatesDemo = () => {
               ))}
             </ul>
           )}
-        </SkeletonReveal>
+        </Skeleton>
       </div>
     </Demo>
   );

@@ -1,4 +1,4 @@
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { useLoad } from "../parts/use-load";
@@ -16,7 +16,7 @@ export const SettingsDemo = () => {
 
   return (
     <div>
-      <SkeletonReveal
+      <Skeleton
         data={settings}
         sample={SETTINGS}
         label="Loading settings"
@@ -36,7 +36,7 @@ export const SettingsDemo = () => {
             ))}
           </ul>
         )}
-      </SkeletonReveal>
+      </Skeleton>
     </div>
   );
 };

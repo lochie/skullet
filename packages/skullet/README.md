@@ -20,19 +20,19 @@ pnpm i skullet
 Pass your data and render from it. It's loading while `data` is `null`:
 
 ```tsx
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
-<SkeletonReveal data={user} sample={SAMPLE_USER}>
+<Skeleton data={user} sample={SAMPLE_USER}>
   {(user) => <Card user={user} />}
-</SkeletonReveal>;
+</Skeleton>;
 ```
 
 Or toggle it yourself, with plain children:
 
 ```tsx
-<SkeletonReveal loading={!user}>
+<Skeleton loading={!user}>
   <Card user={user} />
-</SkeletonReveal>
+</Skeleton>
 ```
 
 | Prop           | Type                     | Description                                                   |
@@ -51,15 +51,15 @@ Or toggle it yourself, with plain children:
 
 ```vue
 <template>
-  <SkeletonReveal :data="user" :sample="SAMPLE_USER">
+  <Skeleton :data="user" :sample="SAMPLE_USER">
     <template #default="{ data }">
       <Card :user="data" />
     </template>
-  </SkeletonReveal>
+  </Skeleton>
 </template>
 
 <script setup>
-import { SkeletonReveal } from "skullet/vue";
+import { Skeleton } from "skullet/vue";
 </script>
 ```
 
@@ -69,14 +69,14 @@ Slots: `default` (with `{ data }`), `skeleton`, `empty`, `error` (with `{ error 
 
 ```svelte
 <script>
-  import { SkeletonReveal } from "skullet/svelte";
+  import { Skeleton } from "skullet/svelte";
 </script>
 
-<SkeletonReveal data={user} sample={SAMPLE_USER}>
+<Skeleton data={user} sample={SAMPLE_USER}>
   {#snippet children(user)}
     <Card {user} />
   {/snippet}
-</SkeletonReveal>
+</Skeleton>
 ```
 
 Snippets: `children(data)`, `skeleton`, `emptyMessage`, `errorMessage(error)`.
@@ -240,18 +240,18 @@ forgetShapes();
 - In React, a component with a static `Skeleton` is rendered as that instead:
 
 ```tsx
-Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;
+Avatar.Skeleton = () => <SkeletonBox width={40} height={40} radius="50%" />;
 ```
 
 ## Single bars
 
 ```tsx
-import { Skeleton } from "skullet/react";
+import { SkeletonBox } from "skullet/react";
 
-<Skeleton width="60%" height="1em" radius="0.25em" />;
+<SkeletonBox width="60%" height="1em" radius="0.25em" />;
 ```
 
-Numbers are read as pixels. In vanilla JavaScript, `createSkeleton(options)`
+Numbers are read as pixels. In vanilla JavaScript, `createSkeletonBox(options)`
 returns the element.
 
 ## Server rendering

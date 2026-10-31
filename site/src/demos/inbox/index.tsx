@@ -1,4 +1,4 @@
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { useLoad } from "../parts/use-load";
@@ -44,7 +44,7 @@ export const InboxDemo = () => {
   return (
     <div>
       {/* `id` remembers the shape across visits, so a return visit's first load is exact */}
-      <SkeletonReveal id="demo-inbox" data={messages} sample={SAMPLE}>
+      <Skeleton id="demo-inbox" data={messages} sample={SAMPLE}>
         {(messages) => (
           <ul className={styles.inbox}>
             {messages.map((message) => (
@@ -61,7 +61,7 @@ export const InboxDemo = () => {
             ))}
           </ul>
         )}
-      </SkeletonReveal>
+      </Skeleton>
     </div>
   );
 };

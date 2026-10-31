@@ -1,6 +1,6 @@
 "use client";
 
-import { Skeleton } from "skullet/react";
+import { SkeletonBox } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { Callout } from "@/components/callout";
@@ -76,7 +76,7 @@ type Row = [name: string, type: string, description: string];
 
 const API: [title: string, rows: Row[]][] = [
   [
-    "SkeletonReveal",
+    "Skeleton",
     [
       [
         "data",
@@ -125,7 +125,7 @@ const API: [title: string, rows: Row[]][] = [
     ],
   ],
   [
-    "Skeleton",
+    "SkeletonBox",
     [
       ["width", "number | string", "60% by default."],
       ["height", "number | string", "1em by default."],
@@ -239,9 +239,9 @@ export const Docs = ({ downloads }: { downloads?: number }) => (
         <ProfileDemo />
       </Demo>
       <CodeBlock
-        code={`<SkeletonReveal data={user} sample={SAMPLE_USER}>
+        code={`<Skeleton data={user} sample={SAMPLE_USER}>
   {(user) => <Profile user={user} />}
-</SkeletonReveal>`}
+</Skeleton>`}
       />
       <p>
         In development, content without a <code>sample</code> logs one to paste:
@@ -256,10 +256,10 @@ export const Docs = ({ downloads }: { downloads?: number }) => (
         real shape.
       </p>
       <CodeBlock
-        code={`<SkeletonReveal loading={!user}>
+        code={`<Skeleton loading={!user}>
   <h2>{user?.name}</h2>
   <p>{user?.bio}</p>
-</SkeletonReveal>`}
+</Skeleton>`}
       />
     </Section>
 
@@ -270,19 +270,19 @@ export const Docs = ({ downloads }: { downloads?: number }) => (
         that instead.
       </p>
       <CodeBlock
-        code={`import { Skeleton } from "skullet/react";
+        code={`import { SkeletonBox } from "skullet/react";
 
-Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
+Avatar.Skeleton = () => <SkeletonBox width={40} height={40} radius="50%" />;`}
       />
       <Demo>
-        <Skeleton width={40} height={40} radius="50%" />
-        <Skeleton width="70%" />
-        <Skeleton width="45%" />
+        <SkeletonBox width={40} height={40} radius="50%" />
+        <SkeletonBox width="70%" />
+        <SkeletonBox width="45%" />
       </Demo>
       <Callout>
         <p>
           Build your skeleton from Skullet’s exported{" "}
-          <code>&lt;Skeleton&gt;</code> rather than a grey box of your own. Each
+          <code>&lt;SkeletonBox&gt;</code> rather than a grey box of your own. Each
           bar joins the page’s one shimmer, in step with every other skeleton
           however late it mounts, and follows the theme’s colours, animation and
           reduced motion.
@@ -315,9 +315,9 @@ Avatar.Skeleton = () => <Skeleton width={40} height={40} radius="50%" />;`}
         or Skullet keys it by the page and the markup.
       </p>
       <CodeBlock
-        code={`<SkeletonReveal id="inbox" data={messages}>
+        code={`<Skeleton id="inbox" data={messages}>
   {(messages) => <Inbox messages={messages} />}
-</SkeletonReveal>`}
+</Skeleton>`}
       />
       <Callout>
         <p>

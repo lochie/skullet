@@ -2,7 +2,7 @@ import { createSSRApp, h, type App } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { bonesIn } from "@skullet/test-cases";
 import { afterEach, expect, it, vi } from "vitest";
-import { SkeletonReveal } from "../Skeleton";
+import { Skeleton } from "../Skeleton";
 
 let app: App | null = null;
 
@@ -17,7 +17,7 @@ const create = () =>
   createSSRApp({
     render: () =>
       h(
-        SkeletonReveal,
+        Skeleton,
         { data: null, sample: { name: "Ada Lovelace" } },
         {
           default: ({ data }: { data: { name: string } }) =>

@@ -5,19 +5,19 @@ reveal.load(renderCard(SAMPLE_USER));
 
 // Once loaded
 reveal.show(renderCard(user));`,
-  react: `<SkeletonReveal data={user} sample={SAMPLE_USER}>
+  react: `<Skeleton data={user} sample={SAMPLE_USER}>
   {(user) => <Card user={user} />}
-</SkeletonReveal>`,
+</Skeleton>`,
   vue: `<template>
-  <SkeletonReveal :data="user" :sample="SAMPLE_USER">
+  <Skeleton :data="user" :sample="SAMPLE_USER">
     <template #default="{ data }">
       <Card :user="data" />
     </template>
-  </SkeletonReveal>
+  </Skeleton>
 </template>`,
-  svelte: `<SkeletonReveal data={user} sample={SAMPLE_USER}>
+  svelte: `<Skeleton data={user} sample={SAMPLE_USER}>
   {#snippet children(user)}
     <Card {user} />
   {/snippet}
-</SkeletonReveal>`,
+</Skeleton>`,
 };

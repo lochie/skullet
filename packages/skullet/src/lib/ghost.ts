@@ -175,7 +175,7 @@ export class Ghost {
         this.snapshot.innerHTML = FALLBACK;
         warnOnce(
           `fallback:${this.options.id}`,
-          `Nothing to draw a skeleton from${this.options.id ? ` for "${this.options.id}"` : ""}. Pass \`sample\` data, or an \`id\` so its shape is remembered after the first load.`,
+          `Nothing to draw a skeleton from${this.options.id ? ` for "${this.options.id}"` : ""}. Pass \`sample\` data, or an \`id\` so its shape is remembered after the first load. For a lone placeholder box, use \`SkeletonBox\`.`,
         );
       } else {
         this.snapshot.replaceChildren();

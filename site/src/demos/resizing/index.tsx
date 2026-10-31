@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { Demo } from "@/components/demo";
@@ -35,12 +35,12 @@ export const ResizingDemo = () => {
       hint="Click to reload"
     >
       <div ref={frame} className={styles.frame}>
-        <SkeletonReveal
+        <Skeleton
           data={loading ? null : { ...PROFILES[0]!, bio: BIOS[bio] }}
           sample={PROFILES[0]!}
         >
           {(profile) => <ProfileCard profile={profile} />}
-        </SkeletonReveal>
+        </Skeleton>
       </div>
     </Demo>
   );

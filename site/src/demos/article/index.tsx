@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- plain images, so the skeleton measures them as such */
 import { useEffect, useState } from "react";
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 import styles from "./styles.module.scss";
 
@@ -104,7 +104,7 @@ export const ArticleDemo = () => {
 
   return (
     <div>
-      <SkeletonReveal
+      <Skeleton
         id="demo-article"
         data={post}
         sample={SAMPLE}
@@ -125,7 +125,7 @@ export const ArticleDemo = () => {
             </div>
           </article>
         )}
-      </SkeletonReveal>
+      </Skeleton>
     </div>
   );
 };

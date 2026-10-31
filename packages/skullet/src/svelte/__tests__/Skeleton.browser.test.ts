@@ -31,7 +31,7 @@ afterEach(() => {
   document.body.replaceChildren();
 });
 
-describe("Svelte SkeletonReveal", () => {
+describe("Svelte Skeleton", () => {
   it("crossfades from a measured skeleton to content without moving", async () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     const target = document.body.appendChild(document.createElement("div"));

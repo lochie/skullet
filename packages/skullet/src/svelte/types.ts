@@ -3,16 +3,16 @@ import type {
   SkulletMode,
   SkeleText,
   SkeleTheme,
-  SkeletonOptions,
+  SkeletonBoxOptions,
   RevealMode,
 } from "../lib";
 
-export interface SkeletonProps extends SkeletonOptions {
+export interface SkeletonBoxProps extends SkeletonBoxOptions {
   class?: string;
   style?: string;
 }
 
-export interface SkeletonRevealProps<T = unknown> {
+export interface SkeletonProps<T = unknown> {
   /** Shows the skeleton, even over `data`. With `data`, it also shows while there is none. */
   loading?: boolean;
   /** Loading while `null` or `undefined`; handed to `children`. */
@@ -47,7 +47,7 @@ export interface SkulletProviderProps {
   children?: Snippet;
 }
 
-export declare const Skeleton: Component<SkeletonProps>;
+export declare const SkeletonBox: Component<SkeletonBoxProps>;
 export declare const SkulletProvider: Component<SkulletProviderProps>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export declare const SkeletonReveal: Component<SkeletonRevealProps<any>>;
+export declare const Skeleton: Component<SkeletonProps<any>>;

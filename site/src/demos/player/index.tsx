@@ -1,4 +1,4 @@
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { useLoad } from "../parts/use-load";
@@ -41,7 +41,7 @@ export const PlayerDemo = () => {
 
   return (
     <div>
-      <SkeletonReveal data={track} sample={TRACK} label="Loading track">
+      <Skeleton data={track} sample={TRACK} label="Loading track">
         {(track) => (
           <div className={styles.player}>
             <div className={styles.art} />
@@ -66,7 +66,7 @@ export const PlayerDemo = () => {
             </div>
           </div>
         )}
-      </SkeletonReveal>
+      </Skeleton>
     </div>
   );
 };

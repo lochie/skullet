@@ -1,6 +1,6 @@
 import { type CSSProperties, useState } from "react";
 import { themeVariables } from "skullet";
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { Demo } from "@/components/demo";
@@ -62,9 +62,9 @@ export const ScopedThemesDemo = () => {
     >
       <p className={styles.demoNote}>{scope.detail}</p>
       <div className={styles.frame} style={scope.style as CSSProperties}>
-        <SkeletonReveal key={index} loading>
+        <Skeleton key={index} loading>
           <ProfileCard profile={PROFILES[1]!} />
-        </SkeletonReveal>
+        </Skeleton>
       </div>
     </Demo>
   );

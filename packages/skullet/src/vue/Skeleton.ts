@@ -31,7 +31,7 @@ import {
   Memory,
   removeStyles,
   shimmer,
-  skeletonStyle,
+  skeletonBoxStyle,
   type MemoryOptions,
 } from "../lib";
 import { claimStub, useSkullet } from "./config";
@@ -43,8 +43,8 @@ function useStyles() {
   onUnmounted(removeStyles);
 }
 
-export const Skeleton = defineComponent({
-  name: "Skeleton",
+export const SkeletonBox = defineComponent({
+  name: "SkeletonBox",
   props: {
     height: length,
     width: length,
@@ -60,7 +60,7 @@ export const Skeleton = defineComponent({
       h("span", {
         ref: element,
         [ATTR_BAR]: "",
-        style: skeletonStyle(props),
+        style: skeletonBoxStyle(props),
       });
   },
 });
@@ -133,8 +133,8 @@ const Content = defineComponent({
   },
 });
 
-export const SkeletonReveal = defineComponent({
-  name: "SkeletonReveal",
+export const Skeleton = defineComponent({
+  name: "Skeleton",
   props: {
     /** Shows the skeleton, even over `data`. With `data`, it also shows while there is none. */
     loading: { type: Boolean, default: undefined },

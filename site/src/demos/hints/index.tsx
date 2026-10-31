@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { Avatar } from "@/components/avatar";
@@ -60,9 +60,9 @@ export const HintsDemo = () => {
     >
       <p className={styles.demoNote}>{detail}</p>
       <div className={styles.frame}>
-        <SkeletonReveal key={index} loading>
+        <Skeleton key={index} loading>
           <Tagged hint={hint} />
-        </SkeletonReveal>
+        </Skeleton>
       </div>
     </Demo>
   );

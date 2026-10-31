@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { SkeletonReveal, SkulletProvider } from "skullet/react";
+import { Skeleton, SkulletProvider } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { Avatar } from "@/components/avatar";
@@ -119,9 +119,9 @@ const ModesDemo = ({
     >
       <SkulletProvider reveal={mode}>
         <div className={styles.frame}>
-          <SkeletonReveal data={posts} loading={fetching} sample={SAMPLE_FEED}>
+          <Skeleton data={posts} loading={fetching} sample={SAMPLE_FEED}>
             {(posts) => <Feed posts={posts} />}
-          </SkeletonReveal>
+          </Skeleton>
         </div>
       </SkulletProvider>
     </Demo>

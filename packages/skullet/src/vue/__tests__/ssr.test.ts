@@ -2,13 +2,13 @@
 import { createSSRApp, h } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { expect, it } from "vitest";
-import { SkeletonReveal } from "../Skeleton";
+import { Skeleton } from "../Skeleton";
 
 it("renders a loading skeleton on the server", async () => {
   const app = createSSRApp({
     render: () =>
       h(
-        SkeletonReveal,
+        Skeleton,
         { data: null, sample: { name: "Ada" } },
         {
           default: ({ data }: { data: { name: string } }) => h("p", data.name),
@@ -25,9 +25,7 @@ it("sets the provider's nonce and theme on the server", async () => {
   const app = createSSRApp({
     render: () =>
       h(SkulletProvider, { nonce: "abc123", mode: "dark" }, () =>
-        h(SkeletonReveal, { loading: true, label: "Loading" }, () =>
-          h("p", "Ada"),
-        ),
+        h(Skeleton, { loading: true, label: "Loading" }, () => h("p", "Ada")),
       ),
   });
   const html = await renderToString(app);

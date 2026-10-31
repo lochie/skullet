@@ -1,4 +1,4 @@
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { useLoad } from "../parts/use-load";
@@ -17,7 +17,7 @@ const Tile = ({ stat, delay }: { stat: Stat; delay: number }) => {
   const data = useLoad(stat, delay);
 
   return (
-    <SkeletonReveal data={data} sample={stat}>
+    <Skeleton data={data} sample={stat}>
       {(stat) => (
         <div className={styles.tile}>
           <span className={styles.label}>{stat.label}</span>
@@ -27,7 +27,7 @@ const Tile = ({ stat, delay }: { stat: Stat; delay: number }) => {
           </span>
         </div>
       )}
-    </SkeletonReveal>
+    </Skeleton>
   );
 };
 

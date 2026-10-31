@@ -4,8 +4,8 @@ import { createApp, h, nextTick, ref } from "vue";
 import { flushSync, mount, unmount } from "svelte";
 import { afterEach, describe, expect, it } from "vitest";
 import { forgetShapes, Reveal } from "..";
-import { SkeletonReveal as ReactReveal } from "../../react";
-import { SkeletonReveal as VueReveal } from "../../vue/Skeleton";
+import { Skeleton as ReactReveal } from "../../react";
+import { Skeleton as VueReveal } from "../../vue/Skeleton";
 import Harness from "../../svelte/__tests__/Harness.svelte";
 
 (

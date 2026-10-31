@@ -2,7 +2,7 @@ import { act, StrictMode, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { bonesIn } from "@skullet/test-cases";
-import { Skeleton, SkeletonReveal } from "../Skeleton";
+import { Skeleton, SkeletonBox } from "../Skeleton";
 import { FADE_DURATION, forgetShapes } from "../../lib";
 
 (
@@ -56,12 +56,12 @@ const Card = ({ user }: { user?: User | null }) => (
   </div>
 );
 
-describe("SkeletonReveal", () => {
+describe("Skeleton", () => {
   it("shows content on mount without a skeleton or a fade", () => {
     render(
-      <SkeletonReveal>
+      <Skeleton>
         <Card user={ADA} />
-      </SkeletonReveal>,
+      </Skeleton>,
     );
 
     expect(panes()).toHaveLength(1);
@@ -71,12 +71,12 @@ describe("SkeletonReveal", () => {
 
   it("crossfades from a skeleton of its own, rather than swapping it out at once", async () => {
     const custom = (loading: boolean) => (
-      <SkeletonReveal
+      <Skeleton
         loading={loading}
-        skeleton={<Skeleton width={80} height={80} />}
+        skeleton={<SkeletonBox width={80} height={80} />}
       >
         <p>Hello there</p>
-      </SkeletonReveal>
+      </Skeleton>
     );
     render(custom(true));
     await settle();
@@ -97,9 +97,9 @@ describe("SkeletonReveal", () => {
   it("renders no inline script on the client — that's for server HTML", () => {
     const error = vi.spyOn(console, "error");
     render(
-      <SkeletonReveal loading>
+      <Skeleton loading>
         <Card user={ADA} />
-      </SkeletonReveal>,
+      </Skeleton>,
     );
 
     expect(container.querySelector("script")).toBeNull();
@@ -108,9 +108,9 @@ describe("SkeletonReveal", () => {
 
   it("measures its children into bones while loading", () => {
     render(
-      <SkeletonReveal loading>
+      <Skeleton loading>
         <Card user={ADA} />
-      </SkeletonReveal>,
+      </Skeleton>,
     );
 
     expect(container.querySelector("[skullet-loading]")).not.toBeNull();
@@ -119,23 +119,23 @@ describe("SkeletonReveal", () => {
 
   it("doesn't move when content replaces a skeleton of the same shape", () => {
     render(
-      <SkeletonReveal data={null as User | null} sample={SAMPLE}>
+      <Skeleton data={null as User | null} sample={SAMPLE}>
         {(user) => <Card user={user} />}
-      </SkeletonReveal>,
+      </Skeleton>,
     );
     const before = reveal().offsetHeight;
 
     render(
-      <SkeletonReveal data={ADA} sample={SAMPLE}>
+      <Skeleton data={ADA} sample={SAMPLE}>
         {(user) => <Card user={user} />}
-      </SkeletonReveal>,
+      </Skeleton>,
     );
     expect(reveal().offsetHeight).toBe(before);
   });
 
   it("draws a reload from the data it last showed", () => {
     const ui = (user: User | null) => (
-      <SkeletonReveal data={user}>{(u) => <Card user={u} />}</SkeletonReveal>
+      <Skeleton data={user}>{(u) => <Card user={u} />}</Skeleton>
     );
     vi.spyOn(console, "warn").mockImplementation(() => {});
 
@@ -150,9 +150,9 @@ describe("SkeletonReveal", () => {
 
   it("reveals a reload drawn from the last data as a new load, a refetch as a quick crossfade", async () => {
     const ui = (user: User | null, loading = false) => (
-      <SkeletonReveal data={user} loading={loading}>
+      <Skeleton data={user} loading={loading}>
         {(u) => <Card user={u} />}
-      </SkeletonReveal>
+      </Skeleton>
     );
     vi.spyOn(console, "warn").mockImplementation(() => {});
     const wait = () =>
@@ -179,11 +179,11 @@ describe("SkeletonReveal", () => {
 
   it("draws from the last data only for the same id", () => {
     const ui = (id: string, user: User | null) => (
-      <SkeletonReveal id={id} data={user} sample={SAMPLE}>
+      <Skeleton id={id} data={user} sample={SAMPLE}>
         {(u) => (
           <Card user={{ ...u, name: u === SAMPLE ? "Sample" : u.name }} />
         )}
-      </SkeletonReveal>
+      </Skeleton>
     );
     vi.spyOn(console, "warn").mockImplementation(() => {});
 
@@ -196,9 +196,9 @@ describe("SkeletonReveal", () => {
 
   it("remembers a shape across visits under an id", () => {
     const ui = (user: User | null) => (
-      <SkeletonReveal id="profile" data={user}>
+      <Skeleton id="profile" data={user}>
         {(u) => <Card user={u} />}
-      </SkeletonReveal>
+      </Skeleton>
     );
     vi.spyOn(console, "warn").mockImplementation(() => {});
 
@@ -217,18 +217,18 @@ describe("SkeletonReveal", () => {
   it("suggests a sample, shaped from the first data it sees", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     render(
-      <SkeletonReveal id="suggest" data={null as User | null}>
+      <Skeleton id="suggest" data={null as User | null}>
         {(user) => <Card user={user} />}
-      </SkeletonReveal>,
+      </Skeleton>,
     );
     expect(warn).toHaveBeenCalledWith(
       expect.stringContaining("Nothing to draw a skeleton from"),
     );
 
     render(
-      <SkeletonReveal id="suggest" data={ADA}>
+      <Skeleton id="suggest" data={ADA}>
         {(user) => <Card user={user} />}
-      </SkeletonReveal>,
+      </Skeleton>,
     );
     expect(warn).toHaveBeenCalledWith(
       expect.stringContaining(`sample={{"name":"Xxx Xxxxxxxx"`),
@@ -237,9 +237,9 @@ describe("SkeletonReveal", () => {
 
   it("finds the shape plain children left, with no id", () => {
     const ui = (user: User | null) => (
-      <SkeletonReveal loading={!user}>
+      <Skeleton loading={!user}>
         <Card user={user} />
-      </SkeletonReveal>
+      </Skeleton>
     );
 
     render(ui(ADA));
@@ -250,14 +250,14 @@ describe("SkeletonReveal", () => {
 
   it("crossfades, then drops the skeleton", async () => {
     render(
-      <SkeletonReveal loading>
+      <Skeleton loading>
         <Card user={ADA} />
-      </SkeletonReveal>,
+      </Skeleton>,
     );
     render(
-      <SkeletonReveal loading={false}>
+      <Skeleton loading={false}>
         <Card user={ADA} />
-      </SkeletonReveal>,
+      </Skeleton>,
     );
 
     expect(panes()).toHaveLength(2);
@@ -269,9 +269,9 @@ describe("SkeletonReveal", () => {
   it("exits one pane per change under StrictMode", async () => {
     const ui = (loading: boolean) => (
       <StrictMode>
-        <SkeletonReveal loading={loading}>
+        <Skeleton loading={loading}>
           <Card user={ADA} />
-        </SkeletonReveal>
+        </Skeleton>
       </StrictMode>
     );
 
@@ -285,15 +285,15 @@ describe("SkeletonReveal", () => {
   it("swaps in a child's own skeleton", () => {
     const Avatar = () => <img alt="" width={40} height={40} />;
     Avatar.Skeleton = function AvatarSkeleton() {
-      return <Skeleton width={40} height={40} radius="50%" />;
+      return <SkeletonBox width={40} height={40} radius="50%" />;
     };
 
     render(
-      <SkeletonReveal loading>
+      <Skeleton loading>
         <div>
           <Avatar />
         </div>
-      </SkeletonReveal>,
+      </Skeleton>,
     );
 
     expect(
@@ -305,17 +305,17 @@ describe("SkeletonReveal", () => {
   it("keeps a child's own skeleton over a remembered shape", async () => {
     const Avatar = () => <img alt="" width={40} height={40} />;
     Avatar.Skeleton = function AvatarSkeleton() {
-      return <Skeleton width={40} height={40} radius="50%" />;
+      return <SkeletonBox width={40} height={40} radius="50%" />;
     };
     const ui = (loading: boolean) => (
-      <SkeletonReveal loading={loading}>
+      <Skeleton loading={loading}>
         <header>
           <div>
             <Avatar />
           </div>
           <h1>Ada Lovelace</h1>
         </header>
-      </SkeletonReveal>
+      </Skeleton>
     );
 
     render(ui(true));
@@ -335,9 +335,9 @@ describe("SkeletonReveal", () => {
 
   it("shows error over empty over content", () => {
     render(
-      <SkeletonReveal empty emptyMessage="Nothing yet" error="Failed">
+      <Skeleton empty emptyMessage="Nothing yet" error="Failed">
         <Card user={ADA} />
-      </SkeletonReveal>,
+      </Skeleton>,
     );
     expect(container.textContent).toBe("Failed");
   });

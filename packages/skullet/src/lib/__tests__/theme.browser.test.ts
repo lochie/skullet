@@ -1,6 +1,12 @@
 import { bonesIn } from "@skullet/test-cases";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import { addStyles, createSkeleton, DURATIONS, Ghost, removeStyles } from "..";
+import {
+  addStyles,
+  createSkeletonBox,
+  DURATIONS,
+  Ghost,
+  removeStyles,
+} from "..";
 import { PEAK, SLANT_TAN } from "../shimmer";
 
 // Held for the file, as a mounted component would: each Ghost here is destroyed straight away
@@ -26,7 +32,9 @@ const animation = (element: Element) => element.getAnimations()[0];
 
 describe("animation", () => {
   it("pulses softly, every bone in one phase", () => {
-    const { bones } = skeleton("--skullet-animation: pulse; --skullet-speed: fast");
+    const { bones } = skeleton(
+      "--skullet-animation: pulse; --skullet-speed: fast",
+    );
     const pulse = animation(bones[0]!)!;
     const keyframes = (pulse.effect as KeyframeEffect).getKeyframes();
 
@@ -76,7 +84,9 @@ describe("animation", () => {
 
   it("runs each group's stream from its own corner with group-shimmer", () => {
     const { root, bones } = skeleton("--skullet-animation: group-shimmer");
-    const layer = root.querySelector("[skullet-bones]")!.getBoundingClientRect();
+    const layer = root
+      .querySelector("[skullet-bones]")!
+      .getBoundingClientRect();
     const bone = bones[0]!.getBoundingClientRect();
     const { tile } = sweep(bones[0]!);
     const along = bone.left - layer.left + (bone.top - layer.top) * SLANT_TAN;
@@ -169,7 +179,7 @@ describe("radius", () => {
     expect(image!.style.borderRadius).toBe("4px");
 
     document.body.style.setProperty("--skullet-radius", "6px");
-    const bar = document.body.appendChild(createSkeleton());
+    const bar = document.body.appendChild(createSkeletonBox());
     expect(getComputedStyle(bar).borderTopLeftRadius).toBe("6px");
     document.body.style.removeProperty("--skullet-radius");
   });

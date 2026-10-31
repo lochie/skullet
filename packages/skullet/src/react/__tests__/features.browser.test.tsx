@@ -3,7 +3,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { bonesIn } from "@skullet/test-cases";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SkulletProvider } from "../config";
-import { SkeletonReveal } from "../Skeleton";
+import { Skeleton } from "../Skeleton";
 import { SkeletonSuspense } from "../Suspense";
 import { forgetShapes, setDebug } from "../../lib";
 
@@ -67,9 +67,9 @@ const reveal = () => container.querySelector<HTMLElement>("[skullet-reveal]")!;
 describe("accessibility", () => {
   it("is busy while loading, with its label read in the skeleton's place", async () => {
     const ui = (user: User | null) => (
-      <SkeletonReveal data={user} sample={ADA} label="Loading profile">
+      <Skeleton data={user} sample={ADA} label="Loading profile">
         {(u) => <Card user={u} />}
-      </SkeletonReveal>
+      </Skeleton>
     );
     render(ui(null));
 
@@ -90,9 +90,9 @@ describe("sequence", () => {
   it("brings content in top to bottom as the bones go", async () => {
     const ui = (user: User | null) => (
       <SkulletProvider reveal="sequence">
-        <SkeletonReveal data={user} sample={ADA}>
+        <Skeleton data={user} sample={ADA}>
           {(u) => <Card user={u} />}
-        </SkeletonReveal>
+        </Skeleton>
       </SkulletProvider>
     );
     render(ui(null));
@@ -138,9 +138,9 @@ describe("theme", () => {
           dark: { base: "rgb(10, 20, 30)", highlight: "white" },
         }}
       >
-        <SkeletonReveal loading>
+        <Skeleton loading>
           <Card user={ADA} />
-        </SkeletonReveal>
+        </Skeleton>
       </SkulletProvider>,
     );
 
@@ -153,9 +153,9 @@ describe("debug", () => {
   it("outlines a reveal with its source, then whether it moved", async () => {
     setDebug(true);
     const ui = (user: User | null) => (
-      <SkeletonReveal data={user} sample={ADA}>
+      <Skeleton data={user} sample={ADA}>
         {(u) => <Card user={u} />}
-      </SkeletonReveal>
+      </Skeleton>
     );
     render(ui(null));
 

@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useState } from "react";
 import { forgetShapes } from "skullet";
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 import styles from "./styles.module.scss";
 import { Demo } from "@/components/demo";
@@ -77,27 +77,27 @@ const Source = ({
   let reveal: ReactNode;
   if (source === "markup") {
     reveal = (
-      <SkeletonReveal loading={loading}>
+      <Skeleton loading={loading}>
         <ProfileCard profile={profile} />
-      </SkeletonReveal>
+      </Skeleton>
     );
   } else if (source === "last") {
     reveal = (
-      <SkeletonReveal data={data} sample={SAMPLE_PROFILE}>
+      <Skeleton data={data} sample={SAMPLE_PROFILE}>
         {(profile) => <ProfileCard profile={profile} />}
-      </SkeletonReveal>
+      </Skeleton>
     );
   } else {
     // Keyed by the round, so each load is a reveal that has never shown anything
     reveal = (
-      <SkeletonReveal
+      <Skeleton
         key={round}
         id={source === "id" ? "lab-profile" : undefined}
         data={data}
         sample={SAMPLE_PROFILE}
       >
         {(profile) => <ProfileCard profile={profile} />}
-      </SkeletonReveal>
+      </Skeleton>
     );
   }
 

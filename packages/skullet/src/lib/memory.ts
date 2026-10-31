@@ -62,7 +62,7 @@ export class Memory {
 
   private check() {
     const { data, id, rendered, sample } = this.options;
-    const name = id ? `<SkeletonReveal id="${id}">` : "<SkeletonReveal>";
+    const name = id ? `<Skeleton id="${id}">` : "<Skeleton>";
 
     const reveal = this.element.closest(`[${ATTR_REVEAL}]`);
     const before = takeLoadingSize(reveal);

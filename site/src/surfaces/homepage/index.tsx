@@ -8,7 +8,7 @@ import { Footer } from "@/components/footer";
 import { CodeBlock } from "@/components/codeblock";
 import { Demo } from "./demo";
 import { Mascot } from "@/components/mascot";
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 import { Nav } from "@/components/nav";
 
 export const Homepage = () => {
@@ -23,7 +23,7 @@ export const Homepage = () => {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        <SkeletonReveal loading={loading}>
+        <Skeleton loading={loading}>
           <div className={styles.topbar}>
             <header className={styles.header}>
               <div className={styles.mascot}>
@@ -37,7 +37,7 @@ export const Homepage = () => {
               <CodeBlock code="npm i skullet" />
             </div>
           </div>
-        </SkeletonReveal>
+        </Skeleton>
 
         <Demo />
 

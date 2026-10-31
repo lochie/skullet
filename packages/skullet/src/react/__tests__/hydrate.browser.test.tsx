@@ -3,7 +3,7 @@ import { hydrateRoot, type Root } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { afterEach, expect, it, vi } from "vitest";
 import { bonesIn } from "@skullet/test-cases";
-import { SkeletonReveal } from "../Skeleton";
+import { Skeleton } from "../Skeleton";
 
 (
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -20,12 +20,12 @@ afterEach(() => {
 
 it("hydrates a server-rendered skeleton without a mismatch, then measures it", () => {
   const ui = (
-    <SkeletonReveal
+    <Skeleton
       data={null as { name: string } | null}
       sample={{ name: "Ada Lovelace" }}
     >
       {(user) => <p style={{ margin: 0 }}>{user.name}</p>}
-    </SkeletonReveal>
+    </Skeleton>
   );
   const container = document.body.appendChild(document.createElement("div"));
   container.innerHTML = renderToString(ui);

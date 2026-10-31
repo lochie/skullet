@@ -1,4 +1,4 @@
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 
 import styles from "./preview-page.module.scss";
 import { Avatar } from "@/components/avatar";
@@ -46,7 +46,7 @@ export const PreviewPage = ({
   loading: (region: Region) => boolean;
 }) => (
   <div className={styles.page}>
-    <SkeletonReveal loading={loading("topbar")}>
+    <Skeleton loading={loading("topbar")}>
       <header className={styles.topbar}>
         <span className={styles.logo}>
           <Mascot size={24} />
@@ -54,10 +54,10 @@ export const PreviewPage = ({
         <span className={styles.search}>Search…</span>
         <Avatar name="Lochie Axon" size={18} />
       </header>
-    </SkeletonReveal>
+    </Skeleton>
 
     <div className={styles.body}>
-      <SkeletonReveal loading={loading("sidebar")}>
+      <Skeleton loading={loading("sidebar")}>
         <aside className={styles.sidebar}>
           {NAV.map((item) => (
             <span key={item}>
@@ -66,10 +66,10 @@ export const PreviewPage = ({
             </span>
           ))}
         </aside>
-      </SkeletonReveal>
+      </Skeleton>
 
       <main className={styles.main}>
-        <SkeletonReveal loading={loading("header")}>
+        <Skeleton loading={loading("header")}>
           <div className={styles.heading}>
             <div>
               <h2>Good morning</h2>
@@ -77,10 +77,10 @@ export const PreviewPage = ({
             </div>
             <span className={styles.button}>New invoice</span>
           </div>
-        </SkeletonReveal>
+        </Skeleton>
 
         <div className={styles.columns}>
-          <SkeletonReveal loading={loading("stats")}>
+          <Skeleton loading={loading("stats")}>
             <div className={styles.stats}>
               {STATS.map((stat) => (
                 <div key={stat.label} className={styles.stat}>
@@ -90,10 +90,10 @@ export const PreviewPage = ({
                 </div>
               ))}
             </div>
-          </SkeletonReveal>
+          </Skeleton>
 
           <section className={styles.card}>
-            <SkeletonReveal loading={loading("chart")}>
+            <Skeleton loading={loading("chart")}>
               <h3>Revenue</h3>
               <p>Last 12 weeks</p>
               <div className={styles.chart}>
@@ -102,11 +102,11 @@ export const PreviewPage = ({
                   <div key={i} style={{ height: `${height}%` }} />
                 ))}
               </div>
-            </SkeletonReveal>
+            </Skeleton>
           </section>
         </div>
 
-        <SkeletonReveal loading={loading("activity")}>
+        <Skeleton loading={loading("activity")}>
           <section className={styles.card}>
             <h3>Activity</h3>
             <ul className={styles.activity}>
@@ -121,7 +121,7 @@ export const PreviewPage = ({
               ))}
             </ul>
           </section>
-        </SkeletonReveal>
+        </Skeleton>
       </main>
     </div>
   </div>

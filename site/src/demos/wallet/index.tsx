@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SkeletonReveal } from "skullet/react";
+import { Skeleton } from "skullet/react";
 import { TextMorph } from "torph/react";
 
 import styles from "./styles.module.scss";
@@ -48,7 +48,7 @@ export const WalletDemo = () => {
 
   return (
     <div className={styles.wide}>
-      <SkeletonReveal
+      <Skeleton
         data={portfolio}
         sample={SAMPLE}
         label="Loading portfolio"
@@ -83,7 +83,7 @@ export const WalletDemo = () => {
             </ul>
           </div>
         )}
-      </SkeletonReveal>
+      </Skeleton>
     </div>
   );
 };

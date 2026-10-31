@@ -10,7 +10,7 @@ import { CodeBlock } from "@/components/codeblock";
 const FRAMEWORKS = [
   {
     name: "React",
-    imports: `import { SkeletonReveal } from "skullet/react";`,
+    imports: `import { Skeleton } from "skullet/react";`,
     logo: <Logos.ReactLogo />,
     example: examples.react,
   },
@@ -22,13 +22,13 @@ const FRAMEWORKS = [
   },
   {
     name: "Vue",
-    imports: `<script setup>\nimport { SkeletonReveal } from "skullet/vue";\n</script>`,
+    imports: `<script setup>\nimport { Skeleton } from "skullet/vue";\n</script>`,
     logo: <Logos.VueLogo />,
     example: examples.vue,
   },
   {
     name: "Svelte",
-    imports: `<script>\n  import { SkeletonReveal } from "skullet/svelte";\n</script>`,
+    imports: `<script>\n  import { Skeleton } from "skullet/svelte";\n</script>`,
     logo: <Logos.SvelteLogo />,
     example: examples.svelte,
   },

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Skeleton } from "skullet/react";
+import { SkeletonBox } from "skullet/react";
 import styles from "./styles.module.scss";
 
 const LOOK = 16; // How far the face turns toward the pointer, in viewBox units — about 4px at the homepage's 80px
@@ -35,7 +35,7 @@ const SILHOUETTE = `url("data:image/svg+xml,${encodeURIComponent(
 /** The mascot as a skeleton: its silhouette shimmering with the page, its eyes and nose still cut out. */
 const MascotSkeleton = ({ size }: { size: number }) => (
   <div className={styles.skeleton} style={{ width: size, height: size }}>
-    <Skeleton
+    <SkeletonBox
       width={size}
       height={size}
       radius={0}
