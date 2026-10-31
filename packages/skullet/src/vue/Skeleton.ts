@@ -38,7 +38,7 @@ import { claimStub, useSkullet } from "./config";
 
 const length = [String, Number] as PropType<string | number>;
 
-function useStyles() {
+export function useStyles() {
   onBeforeMount(addStyles);
   onUnmounted(removeStyles);
 }
@@ -65,7 +65,7 @@ export const SkeletonBox = defineComponent({
   },
 });
 
-const Loading = defineComponent({
+export const Loading = defineComponent({
   name: "SkeletonLoading",
   props: {
     id: String,
@@ -149,11 +149,16 @@ export const Skeleton = defineComponent({
     empty: Boolean,
     error: { type: null as unknown as PropType<unknown>, required: false },
   },
-  setup(props, { slots }) {
+  /** `reveal`: content has come in over a skeleton. */
+  emits: ["reveal"],
+  setup(props, { slots, emit }) {
     const instance = getCurrentInstance();
     const config = useSkullet();
     // The last data shown, so a reload's skeleton has its exact shape — of the same `id` only
     let last: { id?: string; data: unknown } | null = null;
+    // The pane on screen and the one before it, so content knows whether it replaced a skeleton
+    let shown: string | null = null;
+    let from: string | null = null;
     useStyles();
 
     return () => {
@@ -220,6 +225,12 @@ export const Skeleton = defineComponent({
         );
       }
 
+      if (key !== shown) {
+        from = shown;
+        shown = key;
+      }
+      const revealing = key === "content" && from === "skeleton";
+
       const { reveal } = config;
       return h(
         "div",
@@ -233,7 +244,10 @@ export const Skeleton = defineComponent({
               onAppear: (el, done) =>
                 fadeIn(el as HTMLElement, reveal, { initial: true }).then(done),
               onEnter: (el, done) =>
-                fadeIn(el as HTMLElement, reveal).then(done),
+                fadeIn(el as HTMLElement, reveal).then(() => {
+                  done();
+                  if (revealing) emit("reveal");
+                }),
               onLeave: (el, done) => fadeOut(el as HTMLElement).then(done),
             },
             () => h("div", { key, [ATTR_PANE]: "" }, [content]),

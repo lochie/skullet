@@ -1,6 +1,6 @@
 import { ATTR_RECT, BASE, DURATIONS, HIGHLIGHT } from "./constants";
 import type { SkulletAnimation, SkulletSpeed } from "./theme";
-import { prefersReducedMotion } from "./motion";
+import { animationsOf, prefersReducedMotion } from "./motion";
 import type { SkeletonRect } from "./measure";
 
 const SWEEP = 0.7; // of a duration a sweep takes at the reference width — sweeps run back to back, so this sets the pace
@@ -76,7 +76,7 @@ export function shimmer(
   group?: Span,
   motion: Motion = motionOf(element),
 ) {
-  for (const animation of element.getAnimations()) animation.cancel();
+  for (const animation of animationsOf(element)) animation.cancel();
   element.style.backgroundImage = "";
   element.style.backgroundRepeat = "";
   if (prefersReducedMotion() || typeof element.animate !== "function") return;

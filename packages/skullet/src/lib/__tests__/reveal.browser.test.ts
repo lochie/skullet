@@ -358,3 +358,21 @@ describe("Reveal", () => {
     reveal.destroy();
   });
 });
+
+describe("Reveal onReveal", () => {
+  it("is called once content has come in over a skeleton, and not for content shown at once", async () => {
+    const onReveal = vi.fn();
+    const root = stage();
+    const reveal = new Reveal(root, { onReveal });
+
+    reveal.show(html(`<p>Hello there</p>`));
+    await settle();
+    expect(onReveal).not.toHaveBeenCalled();
+
+    reveal.load();
+    reveal.show(html(`<p>General Kenobi</p>`));
+    await settle();
+    expect(onReveal).toHaveBeenCalledTimes(1);
+    reveal.destroy();
+  });
+});

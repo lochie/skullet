@@ -55,6 +55,18 @@ export default defineConfig((options) => {
       esbuildPlugins: [aliasCorePlugin],
       minify: !options.watch,
     },
+    // Custom element
+    {
+      entry: {
+        "element/index": "src/element/index.ts",
+      },
+      format: ["cjs", "esm"],
+      dts: true,
+      target: "es2022",
+      treeshake: true,
+      esbuildPlugins: [aliasCorePlugin],
+      minify: !options.watch,
+    },
     // Svelte - DTS build (from types.ts only)
     {
       entry: {

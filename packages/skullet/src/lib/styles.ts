@@ -25,6 +25,14 @@ export const SKULLET_CSS = `
   position: relative;
 }
 
+skullet-reveal {
+  display: block;
+}
+
+skullet-reveal[loading]:not(:defined) {
+  visibility: hidden;
+}
+
 [${ATTR_PANE}] {
   display: block;
 }

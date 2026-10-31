@@ -12,6 +12,8 @@ export type RevealOptions = {
   reveal?: RevealMode;
   /** Read to screen readers while loading, in place of the skeleton — "Loading profile". */
   label?: string;
+  /** Called once content has come in over a skeleton. */
+  onReveal?: () => void;
 };
 
 /** Shows a skeleton of content while it loads, then crossfades to the content itself. */
@@ -19,6 +21,7 @@ export class Reveal {
   private current: HTMLElement | null = null;
   private ghost: Ghost | null = null;
   private memory: Memory | null = null;
+  private arrival: Promise<void> = Promise.resolve();
 
   constructor(
     private element: HTMLElement,
@@ -50,7 +53,10 @@ export class Reveal {
   }
 
   show(content: Node | string): HTMLElement {
+    const loading = this.element.getAttribute("aria-busy") === "true";
     const pane = this.swap(content);
+    if (loading && this.options.onReveal)
+      this.arrival.then(this.options.onReveal);
     this.element.removeAttribute("aria-busy");
     this.memory = new Memory(pane, { id: this.options.id });
     return pane;
@@ -71,7 +77,7 @@ export class Reveal {
     // Popped out before the new pane lands, while it still measures where it stood
     if (previous) fadeOut(previous).then(() => previous.remove());
     this.element.append(pane);
-    fadeIn(pane, this.options.reveal, { initial: !previous });
+    this.arrival = fadeIn(pane, this.options.reveal, { initial: !previous });
 
     return pane;
   }

@@ -15,8 +15,8 @@ export interface SkeletonBoxProps extends SkeletonBoxOptions {
 export interface SkeletonProps<T = unknown> {
   /** Shows the skeleton, even over `data`. With `data`, it also shows while there is none. */
   loading?: boolean;
-  /** Loading while `null` or `undefined`; handed to `children`. */
-  data?: T | null;
+  /** Loading while `null`, `undefined` or a promise yet to settle; handed to `children`. */
+  data?: T | null | PromiseLike<T>;
   /** Stands in for `data` to draw the skeleton before any has loaded. */
   sample?: T;
   /** Remembers the shape under this key across visits. */
@@ -25,6 +25,8 @@ export interface SkeletonProps<T = unknown> {
   label?: string;
   empty?: boolean;
   error?: unknown;
+  /** Called once content has come in over a skeleton. */
+  onreveal?: () => void;
   children?: Snippet<[T]>;
   skeleton?: Snippet;
   emptyMessage?: Snippet;
@@ -38,7 +40,7 @@ export interface SkulletProviderProps {
   nonce?: string;
   theme?: SkulletTheme;
   mode?: SkulletMode;
-  /** Where text bars run: from `top` (ascender, cap-height, x-height) down to `bottom` (baseline, descender). */
+  /** How much of each line of text is drawn: from `top` (ascender, cap-height, x-height) down to `bottom` (baseline, descender). */
   text?: SkulletText;
   /** How content replaces its skeleton: `smart` (the default), `together`, `sequence`, `sweep`, or a `RevealSpec` of your own. */
   reveal?: RevealMode;

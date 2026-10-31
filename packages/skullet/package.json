@@ -55,6 +55,14 @@
       "import": "./dist/svelte/index.mjs",
       "require": "./dist/svelte/index.js"
     },
+    "./element": {
+      "types": {
+        "import": "./dist/element/index.d.mts",
+        "require": "./dist/element/index.d.ts"
+      },
+      "import": "./dist/element/index.mjs",
+      "require": "./dist/element/index.js"
+    },
     "./styles.css": "./dist/styles.css"
   },
   "publishConfig": {
@@ -75,13 +83,15 @@
     "svelte",
     "skeleton",
     "loading",
-    "placeholder"
+    "placeholder",
+    "web-components"
   ],
   "bugs": {
     "url": "https://github.com/lochie/skullet/issues"
   },
   "sideEffects": [
-    "*.css"
+    "*.css",
+    "./dist/element/*"
   ],
   "files": [
     "dist/*"
@@ -107,8 +117,8 @@
     }
   },
   "devDependencies": {
-    "@skullet/test-cases": "workspace:*",
     "@eslint/js": "^9.36.0",
+    "@skullet/test-cases": "workspace:*",
     "@sveltejs/vite-plugin-svelte": "^7.3.0",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
@@ -120,6 +130,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^17.9.0",
     "happy-dom": "^20.12.0",
+    "jsdom": "28.1.0",
     "playwright": "1.64.1",
     "prettier": "^3.0.3",
     "react": "^18.2.0",

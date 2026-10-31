@@ -46,6 +46,7 @@ Or toggle it yourself, with plain children:
 | `error`        | `ReactNode`              | Shown instead of the content when set.                        |
 | `empty`        | `boolean`                | Shows `emptyMessage`, or the content if there's none.         |
 | `emptyMessage` | `ReactNode`              |                                                               |
+| `onReveal`     | `() => void`             | Called once content has come in over a skeleton.              |
 
 ### Vue
 
@@ -64,6 +65,7 @@ import { Skeleton } from "skullet/vue";
 ```
 
 Slots: `default` (with `{ data }`), `skeleton`, `empty`, `error` (with `{ error }`).
+`onReveal` is a `reveal` event.
 
 ### Svelte
 
@@ -80,6 +82,18 @@ Slots: `default` (with `{ data }`), `skeleton`, `empty`, `error` (with `{ error 
 ```
 
 Snippets: `children(data)`, `skeleton`, `emptyMessage`, `errorMessage(error)`.
+`onReveal` is `onreveal`.
+
+`data` can be a promise: it loads until the promise settles, then shows its
+value, or its error. A SvelteKit `load` can return one unawaited, so it streams:
+
+```svelte
+<Skeleton data={data.user} sample={SAMPLE_USER}>
+  {#snippet children(user)}
+    <Card {user} />
+  {/snippet}
+</Skeleton>
+```
 
 ### Vanilla
 
@@ -95,7 +109,7 @@ reveal.show(renderCard(user));
 reveal.load();
 ```
 
-### Suspense (React)
+### Suspense (React and Vue)
 
 A Suspense boundary whose fallback is a measured skeleton:
 
@@ -106,6 +120,36 @@ import { SkeletonSuspense } from "skullet/react";
   <LoadedQuote /> {/* calls use(promise) */}
 </SkeletonSuspense>;
 ```
+
+Vue's wraps `<Suspense>`, with the sample in the `skeleton` slot:
+
+```vue
+<SkeletonSuspense>
+  <LoadedQuote />
+  <template #skeleton>
+    <Quote :quote="SAMPLE_QUOTE" />
+  </template>
+</SkeletonSuspense>
+```
+
+### Web component
+
+For plain HTML, or a framework without a wrapper:
+
+```html
+<skullet-reveal id="profile" loading label="Loading profile">
+  <div class="card">…sample markup…</div>
+</skullet-reveal>
+
+<script type="module">
+  import "skullet/element";
+
+  document.getElementById("profile").show(await renderProfile());
+</script>
+```
+
+With `loading`, its children are measured into a skeleton; `show()` reveals the
+content, and a `reveal` event follows. Its `id` keys its remembered shape.
 
 ## Provider
 
@@ -270,6 +314,13 @@ else, import it once:
 ```ts
 import "skullet/styles.css";
 ```
+
+## Testing
+
+Skullet runs in jsdom and happy-dom. With no layout there's nothing to
+measure, so every reveal is instant and content is in the document as soon as
+its data is. While loading, the sample's text sits in an `aria-hidden`
+skeleton: query by role, which skips it, rather than by text.
 
 ## Notes
 

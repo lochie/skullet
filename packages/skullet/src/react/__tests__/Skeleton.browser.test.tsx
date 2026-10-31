@@ -342,3 +342,29 @@ describe("Skeleton", () => {
     expect(container.textContent).toBe("Failed");
   });
 });
+
+describe("onReveal", () => {
+  it("is called once content has come in over a skeleton", async () => {
+    const onReveal = vi.fn();
+    const ui = (user: User | null) => (
+      <Skeleton data={user} sample={SAMPLE} onReveal={onReveal}>
+        {(user) => <Card user={user} />}
+      </Skeleton>
+    );
+    render(ui(null));
+    render(ui(ADA));
+    await settle();
+    expect(onReveal).toHaveBeenCalledTimes(1);
+  });
+
+  it("isn't called for content there from the start", async () => {
+    const onReveal = vi.fn();
+    render(
+      <Skeleton data={ADA} onReveal={onReveal}>
+        {(user) => <Card user={user} />}
+      </Skeleton>,
+    );
+    await settle();
+    expect(onReveal).not.toHaveBeenCalled();
+  });
+});

@@ -1,3 +1,4 @@
+import { textContext } from "./canvas";
 import {
   ATTR_BLOCK,
   ATTR_COVERED,
@@ -137,13 +138,15 @@ type Metrics = {
 };
 
 const metricsByFont = new Map<string, Metrics | null>();
-let context: CanvasRenderingContext2D | null | undefined;
+
+// A range has no layout in jsdom
+const lineRects = (range: Range) => [...(range.getClientRects?.() ?? [])];
 
 function metricsOf(style: CSSStyleDeclaration): Metrics | null {
   const font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
   if (metricsByFont.has(font)) return metricsByFont.get(font)!;
 
-  context ??= document.createElement("canvas").getContext("2d");
+  const context = textContext();
   let metrics: Metrics | null = null;
   if (context) {
     context.font = font;
@@ -281,9 +284,7 @@ const countLabels = (element: Element) => {
       const box = parent.getBoundingClientRect();
       if (box.width <= 1 || box.height <= 1) continue;
       range.selectNodeContents(node);
-      pieces.push(
-        [...range.getClientRects()].filter((r) => r.width || r.height),
-      );
+      pieces.push(lineRects(range).filter((r) => r.width || r.height));
     } else if (isEmptyText(node as Element)) {
       nodes++;
       pieces.push([...(node as Element).getClientRects()]);
@@ -426,7 +427,7 @@ export function measureSkeleton(
     range.setStart(node, start);
     range.setEnd(node, node.data.trimEnd().length);
     const style = getComputedStyle(node.parentElement);
-    for (const rect of range.getClientRects()) addLine(rect, style, clip);
+    for (const rect of lineRects(range)) addLine(rect, style, clip);
   };
 
   const visit = (parent: Element, clip: Clip) => {

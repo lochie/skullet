@@ -40,7 +40,7 @@ const api = { Ghost, Reveal, forgetShapes };
 
 const SECTIONS = [
   ["states", "Empty and error"],
-  ["sources", "Sources"],
+  ["sources", "Skeleton sources"],
   ["hints", "Hints"],
   ["scoped", "Scoped themes"],
   ["accessibility", "Accessibility"],
@@ -186,7 +186,7 @@ export const Lab = ({
         <StatesDemo />
       </Section>
 
-      <Section id="sources" title="Where a skeleton comes from">
+      <Section id="sources" title="Skeleton sources">
         <p>
           The closer the measured content is to the real thing, the less moves
           on reveal. A fresh reveal on a first visit can only guess from{" "}

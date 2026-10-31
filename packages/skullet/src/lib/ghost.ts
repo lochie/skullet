@@ -86,7 +86,7 @@ export class Ghost {
   private hadContent = false;
   private frame = 0;
   private mutations: MutationObserver;
-  private resize: ResizeObserver;
+  private resize: ResizeObserver | null;
 
   constructor(
     private root: HTMLElement,
@@ -123,8 +123,12 @@ export class Ghost {
       characterData: true,
       attributes: true,
     });
-    this.resize = new ResizeObserver(this.schedule);
-    this.resize.observe(root);
+    // None in jsdom, which has no layout to follow
+    this.resize =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(this.schedule);
+    this.resize?.observe(root);
     root.addEventListener("load", this.schedule, true);
     addEventListener("resize", this.schedule);
     document.fonts?.ready.then(this.schedule);
@@ -218,7 +222,7 @@ export class Ghost {
   destroy() {
     cancelAnimationFrame(this.frame);
     this.mutations.disconnect();
-    this.resize.disconnect();
+    this.resize?.disconnect();
     this.root.removeEventListener("load", this.schedule, true);
     removeEventListener("resize", this.schedule);
     removeStyles();

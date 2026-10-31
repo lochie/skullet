@@ -11,7 +11,7 @@ import {
   RESIZE_DURATION,
 } from "./constants";
 import { imageReady, pendingImages } from "./images";
-import { prefersReducedMotion } from "./motion";
+import { animationsOf, canAnimate, prefersReducedMotion } from "./motion";
 import { warnOnce } from "./dev";
 import {
   planReveal,
@@ -149,7 +149,7 @@ function clearExiting(root: Element) {
   for (const pane of root.querySelectorAll<HTMLElement>(
     `:scope > [${ATTR_EXITING}]`,
   )) {
-    for (const animation of pane.getAnimations()) animation.finish();
+    for (const animation of animationsOf(pane)) animation.finish();
     pane.style.opacity = "0";
   }
 }
@@ -162,7 +162,7 @@ function takeOver(root: Element) {
   )) {
     if (isSkeleton(pane)) continue;
     from = Math.max(from, parseFloat(getComputedStyle(pane).opacity) || 0);
-    for (const animation of pane.getAnimations()) animation.finish();
+    for (const animation of animationsOf(pane)) animation.finish();
     pane.style.opacity = "0";
   }
   return from;
@@ -317,7 +317,7 @@ export function fadeOut(element: HTMLElement, box?: PaneBox): Promise<void> {
   // Read before cancelling, so an interrupted fade-in leaves from where it got to
   const opacity = parseFloat(getComputedStyle(element).opacity);
   const from = Number.isNaN(opacity) ? 1 : opacity;
-  for (const animation of element.getAnimations()) animation.cancel();
+  for (const animation of animationsOf(element)) animation.cancel();
   clearMask(element);
   element.style.filter = "";
 
@@ -326,8 +326,12 @@ export function fadeOut(element: HTMLElement, box?: PaneBox): Promise<void> {
   if (parent && !isSkeleton(element)) clearStandIns(parent);
   const stood = popOut(element, box);
 
-  const fade = (delay: number, duration: number) =>
-    settle(
+  const fade = (delay: number, duration: number) => {
+    if (!canAnimate()) {
+      element.style.opacity = "0";
+      return Promise.resolve();
+    }
+    return settle(
       element.animate([{ opacity: from }, { opacity: 0 }], {
         duration: duration * from,
         delay,
@@ -335,6 +339,7 @@ export function fadeOut(element: HTMLElement, box?: PaneBox): Promise<void> {
         fill: "forwards",
       }),
     );
+  };
 
   // A microtask on, so the pane replacing it has registered how it arrives
   return Promise.resolve().then(() => {

@@ -4,14 +4,14 @@ skullet is a smart skeleton loading component. pnpm workspace, published from `p
 
 ## Layout
 
-| Path                                                 | What                                                                                        |
-| ---------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [packages/skullet/](packages/skullet/)               | The library. Core + React / Vue / Svelte wrappers. The only published package.              |
-| [packages/test-cases/](packages/test-cases/)         | Shared geometry corpus. Consumed by vitest _and_ the site's `/lab`.                         |
-| [site/](site/)                                       | Next.js docs site — skullet.lochie.me.                                                      |
-| [apps/](apps/)                                       | One integration example per framework. Not published, ignored by changesets.                |
-| [e2e/](e2e/)                                         | Playwright against the built site: goldens and pixel checks, three browsers plus Safari 18. |
-| [scripts/bundle-sizes.mjs](scripts/bundle-sizes.mjs) | Measures dist gzip sizes into `/lab`. Runs in `site:build`.                                 |
+| Path                                                 | What                                                                                              |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| [packages/skullet/](packages/skullet/)               | The library. Core + React / Vue / Svelte wrappers + a custom element. The only published package. |
+| [packages/test-cases/](packages/test-cases/)         | Shared geometry corpus. Consumed by vitest _and_ the site's `/lab`.                               |
+| [site/](site/)                                       | Next.js docs site — skullet.lochie.me.                                                            |
+| [apps/](apps/)                                       | One integration example per framework. Not published, ignored by changesets.                      |
+| [e2e/](e2e/)                                         | Playwright against the built site: goldens and pixel checks, three browsers plus Safari 18.       |
+| [scripts/bundle-sizes.mjs](scripts/bundle-sizes.mjs) | Measures dist gzip sizes into `/lab`. Runs in `site:build`.                                       |
 
 ## Commands
 
@@ -84,7 +84,9 @@ All behaviour lives in the core, [src/lib/](packages/skullet/src/lib/); the wrap
 - **Animations** — `shimmer` (one sweep across the page), `group-shimmer` (each bones layer sweeps its own width), `pulse` (opacity), `none`. All on the document clock (`startTime = 0`). A shimmer moves at one pace on any width — bands stream across in one `repeating-linear-gradient`, `SPACING` band-widths apart, each easing up to `PEAK` and down again, at a pace set so the band crosses 1280px in 70% of the duration; the band stops growing at 320px. Every bone draws its slice of the same stream, offset by where it sits. A bone's animation restarts only when its position, group, the page's width or the motion changes.
 - **Provider** — `SkulletProvider` (React context, Vue provide/inject, Svelte context keyed `"skullet"`) carries `nonce`, `theme`/`mode`, `text`, `reveal` and `debug`. Per render, never module state: a nonce differs per request on the server. Theme is the `--skullet-base`/`--skullet-highlight` custom properties, written as a `<style>` by the provider; they reach the bones through the shadow root by inheritance.
 - **Reveals** — a reveal is a `RevealSpec` (`order`, `enter`, `wipe`, `delay`, `duration`, `hold`, `choose`). Every built-in is one, written with the public API: `together`, `sequence`, `smart` and `instant` in [plan.ts](packages/skullet/src/lib/plan.ts), `sweep` in [sweep.ts](packages/skullet/src/lib/sweep.ts); [reveals.ts](packages/skullet/src/lib/reveals.ts) maps a name to its spec (`revealSpec`) and bounds a leaving pane's time (`exitDuration`); [plan.ts](packages/skullet/src/lib/plan.ts) resolves a spec to a plan, [fade.ts](packages/skullet/src/lib/fade.ts) carries it out and keeps every guarantee whatever the spec — `enter` keeps to properties that paint, delays and durations are capped at 1s, a custom wipe's outgoing pane gets its inverse by `mask-composite`. Svelte keeps a leaving pane for `exitDuration`. The incoming pane decides a plan per reveal root; the outgoing pane reads it a microtask later and matches. Smart, first match wins: reduced motion or scrolling or typing in the last 400ms → instant (not clicks: a click moves nothing being read); data within `SKELETON_DELAY` (150ms) of the skeleton going up → instant, and since a smart skeleton is held back that long, none showed; a refetch drawn from on-screen data → quick crossfade; under 72px or three pieces or fewer → together; else a sequence by units (a row or card is an element with two or more alike siblings), timed by screen position against a batch shared by reveals landing within 150ms, smaller text +60ms, off-screen at once, each loading image behind its own bone until it's ready. A skeleton replacing content under smart holds back 150ms, and the content holds with it; a reveal's first skeleton shows at once, as there's nothing on screen to hold.
-- **`SkeletonSuspense`** — React drops a Suspense fallback the instant content resolves, so the fallback's cleanup leaves a copy behind to fade out over it. Clones lose shadow roots; the copy's bones are drawn again.
+- **`SkeletonSuspense`** (React, Vue) — Suspense drops its fallback the instant content resolves, so the fallback's cleanup leaves a copy behind to fade out over it. Clones lose shadow roots; the copy's bones are drawn again. Vue unmounts the fallback before mounting the content, so the copy waits for the content's `fadeIn` to have decided the plan. Svelte has no stable Suspense: its `Skeleton` takes a promise as `data` instead.
+- **`onReveal`** — fires once content has come in over a skeleton, on the content pane's `fadeIn` resolving: React and `Reveal` a prop or option, Vue a `reveal` event, Svelte `onreveal`, the custom element a `reveal` event.
+- **Custom element** ([src/element/](packages/skullet/src/element/)) — `<skullet-reveal>`, a thin layer over `Reveal`, defined on import of `skullet/element` (in `sideEffects`). Its children are the first content: a skeleton with `loading`.
 - **Debug** — [debug.ts](packages/skullet/src/lib/debug.ts): one fixed overlay in a shadow root. Ghost reports where a skeleton came from, Memory whether the reveal moved; the jump check runs whenever debug is on, in production too. On for the page (`setDebug`, `?skullet-debug`, the provider's `debug`, which brings the panel) or for a subtree (`[skullet-debug]`). X-ray (`[skullet-xray]` on any ancestor) shows the ghost through the bones while loading.
 - **Accessibility** — the reveal is `aria-busy` while loading; the loading root is `aria-hidden` and `inert` in the markup itself, so a server-rendered skeleton can't take focus before hydration; `label` renders a visually hidden `[skullet-status]` outside it.
 - **`[skullet-own]`** — a subtree that draws its own skeleton; measuring stops at it. The React wrapper sets it around a child's static `.Skeleton`. `[skullet-block]` and `[skullet-ignore]` are author hints.
@@ -112,6 +114,8 @@ vitest, configured in [vitest.config.mts](packages/skullet/vitest.config.mts) as
 
 - **browser** — `*.browser.test.*`, run in Chromium and WebKit (for Safari) through Playwright. Anything that measures belongs here: geometry, the wrappers (React, Vue and Svelte), storage. Run `pnpm --filter=skullet exec playwright install chromium webkit` once.
 - **unit** — everything else, on happy-dom, which has **no layout** (every rect is zero). Keep it to logic: sanitizing, keys, sample generation.
+
+`jsdom.test.tsx` runs a reveal in real jsdom, which most users' component tests run in: the core can't assume `ResizeObserver`, Web Animations, canvas or a range's rects, and without Web Animations every reveal is instant (`canAnimate`).
 
 Under Node 25, happy-dom's `localStorage` is shadowed by Node's own, which doesn't work without `--localstorage-file` — test storage in the browser project.
 

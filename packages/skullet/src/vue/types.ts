@@ -15,6 +15,17 @@ export interface SkeletonProps<T = unknown> {
   label?: string;
   empty?: boolean;
   error?: unknown;
+  /** Called once content has come in over a skeleton; `@reveal` in a template. */
+  onReveal?: () => void;
   class?: string;
   style?: Record<string, string | number>;
+}
+
+/** Slots: `default`, the content that suspends; `skeleton`, the content rendered from sample data. */
+export interface SkeletonSuspenseProps {
+  id?: string;
+  /** Read to screen readers while suspended, in place of the skeleton. */
+  label?: string;
+  /** Called once content has come in over the skeleton; `@reveal` in a template. */
+  onReveal?: () => void;
 }

@@ -78,17 +78,20 @@ const Content = ({
   children,
   id,
   waited,
+  onReveal,
 }: {
   children: React.ReactNode;
   id?: string;
   waited: Waited;
+  onReveal?: () => void;
 }) => {
   const ref = React.useRef<HTMLDivElement>(null);
   const mode = useReveal();
 
   useIsomorphicLayoutEffect(() => {
     if (!ref.current) return;
-    fadeIn(ref.current, mode, { initial: !waited.current });
+    const arrival = fadeIn(ref.current, mode, { initial: !waited.current });
+    if (waited.current && onReveal) arrival.then(onReveal);
     const memory = new Memory(ref.current, { id });
     return () => memory.destroy();
     // Mount only — React keeps resolved content mounted, hiding it if it suspends again
@@ -109,6 +112,8 @@ export type SkeletonSuspenseProps = {
   id?: string;
   /** Read to screen readers while suspended, in place of the skeleton. */
   label?: string;
+  /** Called once content has come in over the skeleton. */
+  onReveal?: () => void;
   className?: string;
   style?: React.CSSProperties;
 };
@@ -119,6 +124,7 @@ export function SkeletonSuspense({
   skeleton,
   id,
   label,
+  onReveal,
   className,
   style,
 }: SkeletonSuspenseProps) {
@@ -135,7 +141,7 @@ export function SkeletonSuspense({
           </Fallback>
         }
       >
-        <Content id={id} waited={waited}>
+        <Content id={id} waited={waited} onReveal={onReveal}>
           {children}
         </Content>
       </React.Suspense>

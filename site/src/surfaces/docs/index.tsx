@@ -95,6 +95,11 @@ const API: [title: string, rows: Row[]][] = [
         "Shown while empty; the content if left out.",
       ],
       ["error", "ReactNode", "Shown in place of the content."],
+      [
+        "onReveal",
+        "() => void",
+        "Called once content has come in over a skeleton.",
+      ],
     ],
   ],
   [
@@ -103,6 +108,11 @@ const API: [title: string, rows: Row[]][] = [
       ["skeleton", "ReactNode", "The content, rendered from sample data."],
       ["id", "string", "Remembers the shape under this key."],
       ["label", "string", "Read to screen readers while suspended."],
+      [
+        "onReveal",
+        "() => void",
+        "Called once content has come in over the skeleton.",
+      ],
     ],
   ],
   [
@@ -140,12 +150,29 @@ const API: [title: string, rows: Row[]][] = [
       ["reveal", "RevealMode", "How content replaces its skeleton."],
       ["label", "string", "Read to screen readers while loading."],
       [
+        "onReveal",
+        "() => void",
+        "Called once content has come in over a skeleton.",
+      ],
+      [
         "load(content?)",
         "Node | string",
         "Shows a skeleton of the content, or of the shape last shown.",
       ],
       ["show(content)", "Node | string", "Reveals the content."],
       ["destroy()", "", "Stops measuring and remembering."],
+    ],
+  ],
+  [
+    "skullet-reveal",
+    [
+      ["id", "attribute", "Remembers the shape under this key."],
+      ["loading", "attribute", "Starts with its children as a skeleton."],
+      ["reveal", "attribute", "How content replaces its skeleton."],
+      ["label", "attribute", "Read to screen readers while loading."],
+      ["load(content?)", "Node | string", "Shows a skeleton."],
+      ["show(content)", "Node | string", "Reveals the content."],
+      ["reveal", "event", "Content has come in over a skeleton."],
     ],
   ],
   [
@@ -236,14 +263,17 @@ const SLOTS: [string, React.ReactNode][] = [
     <>
       The <code>default</code> slot with <code>{"{ data }"}</code>, then{" "}
       <code>skeleton</code>, <code>empty</code> and <code>error</code> with{" "}
-      <code>{"{ error }"}</code>.
+      <code>{"{ error }"}</code>. <code>onReveal</code> is a <code>reveal</code>{" "}
+      event.
     </>,
   ],
   [
     "Svelte",
     <>
       <code>children(data)</code>, <code>skeleton</code>,{" "}
-      <code>emptyMessage</code> and <code>errorMessage(error)</code> snippets.
+      <code>emptyMessage</code> and <code>errorMessage(error)</code> snippets.{" "}
+      <code>onReveal</code> is <code>onreveal</code>, and <code>data</code> can
+      be a promise.
     </>,
   ],
 ];
@@ -518,9 +548,17 @@ const wipeDown: RevealSpec = {
 
     <Section id="suspense" title="Suspense">
       <p>
-        <code>SkeletonSuspense</code> is a Suspense boundary with a measured
-        skeleton as its fallback. Pass the content rendered from sample data, or
-        only an <code>id</code> to draw the shape it last showed.
+        <code>SkeletonSuspense</code> is a{" "}
+        <a
+          href="https://react.dev/reference/react/Suspense"
+          target="_blank"
+          rel="nofollow"
+        >
+          Suspense
+        </a>{" "}
+        boundary with a measured skeleton as its fallback. Pass the content
+        rendered from sample data, or only an <code>id</code> to draw the shape
+        it last showed.
       </p>
       <SuspenseDemo />
       <CodeBlock
@@ -530,6 +568,30 @@ const wipeDown: RevealSpec = {
   <LoadedQuote />
 </SkeletonSuspense>`}
       />
+      <p>
+        Vue’s wraps its own{" "}
+        <a
+          href="https://vuejs.org/guide/built-ins/suspense.html"
+          target="_blank"
+          rel="nofollow"
+        >
+          <code>&lt;Suspense&gt;</code>
+        </a>
+        : the content that suspends in the default slot, the sample in{" "}
+        <code>#skeleton</code>.
+      </p>
+      <CodeBlock
+        code={`<SkeletonSuspense>
+  <LoadedQuote />
+  <template #skeleton>
+    <Quote :quote="SAMPLE_QUOTE" />
+  </template>
+</SkeletonSuspense>`}
+      />
+      <p>
+        In Svelte, pass the promise itself as <code>data</code>. It loads until
+        the promise settles, then shows its value, or its error.
+      </p>
     </Section>
 
     <Section id="theming" title="Theming">
@@ -544,9 +606,16 @@ const wipeDown: RevealSpec = {
     <Section id="server" title="Server rendering">
       <p>
         Wrap an async server component in <code>SkeletonSuspense</code>, in
-        Next.js or any React Server Components setup. The skeleton is in the
-        streamed HTML, measured before first paint, so it holds the content’s
-        exact space until the content arrives.
+        Next.js or any{" "}
+        <a
+          href="https://react.dev/reference/rsc/server-components"
+          target="_blank"
+          rel="nofollow"
+        >
+          React Server Components
+        </a>{" "}
+        setup. The skeleton is in the streamed HTML, measured before first
+        paint, so it holds the content’s exact space until the content arrives.
       </p>
       <CodeBlock
         code={`import { SkeletonSuspense } from "skullet/react";
@@ -585,8 +654,18 @@ export default function Page() {
       <p>
         A loading reveal is <code>aria-busy</code>, and its skeleton is hidden
         from screen readers and <code>inert</code>. A <code>label</code> is read
-        in its place. Under <code>prefers-reduced-motion</code>, skeletons hold
-        still and every reveal is instant.
+        in its place. Under{" "}
+        <a
+          href="https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion"
+          target="_blank"
+          rel="nofollow"
+        >
+          <code>prefers-reduced-motion</code>
+        </a>
+        , skeletons hold still and every reveal is instant.
+      </p>
+      <p>
+        To move focus once content has arrived, use <code>onReveal</code>.
       </p>
     </Section>
 
@@ -606,11 +685,19 @@ export default function Page() {
       <DebugExample />
     </Section>
 
-    <Section id="recipes" title="Recipes">
+    <Section id="fetching" title="Data fetching">
       <div className={styles.recipe}>
         <h3>TanStack Query and SWR</h3>
         <p>
-          Pass <code>data</code> as it comes. It’s empty until the first
+          With{" "}
+          <a href="https://tanstack.com/query" target="_blank" rel="nofollow">
+            TanStack Query
+          </a>{" "}
+          or{" "}
+          <a href="https://swr.vercel.app" target="_blank" rel="nofollow">
+            SWR
+          </a>
+          , pass <code>data</code> as it comes. It’s empty until the first
           response, so the skeleton shows only then; a background refetch keeps
           the content on screen.
         </p>
@@ -625,8 +712,14 @@ export default function Page() {
       <div className={styles.recipe}>
         <h3>Nuxt</h3>
         <p>
-          <code>useLazyFetch</code> doesn’t block navigation, so the page shows
-          at once with its skeleton.
+          <a
+            href="https://nuxt.com/docs/api/composables/use-lazy-fetch"
+            target="_blank"
+            rel="nofollow"
+          >
+            <code>useLazyFetch</code>
+          </a>{" "}
+          doesn’t block navigation, so the page shows at once with its skeleton.
         </p>
         <CodeBlock
           code={`<script setup>
@@ -644,6 +737,98 @@ const { data } = useLazyFetch("/api/user");
 </template>`}
         />
       </div>
+      <div className={styles.recipe}>
+        <h3>SvelteKit</h3>
+        <p>
+          Return the promise from <code>load</code> without awaiting it, so it{" "}
+          <a
+            href="https://svelte.dev/docs/kit/load#Streaming-with-promises"
+            target="_blank"
+            rel="nofollow"
+          >
+            streams
+          </a>
+          , and pass it straight to <code>data</code>.
+        </p>
+        <CodeBlock
+          code={`<script>
+  import { Skeleton } from "skullet/svelte";
+
+  // +page.server.ts returns { user: getUser() }
+  let { data } = $props();
+</script>
+
+<Skeleton data={data.user} sample={SAMPLE_USER}>
+  {#snippet children(user)}
+    <Profile {user} />
+  {/snippet}
+</Skeleton>`}
+        />
+      </div>
+    </Section>
+
+    <Section id="element" title="Web component">
+      <p>
+        For plain HTML, or a framework without a wrapper, import{" "}
+        <code>skullet/element</code> once. With <code>loading</code>, the
+        children are measured into a skeleton; call <code>show()</code> with the
+        content.
+      </p>
+      <CodeBlock
+        code={`<skullet-reveal id="profile" loading label="Loading profile">
+  <div class="card">…sample markup…</div>
+</skullet-reveal>
+
+<script type="module">
+  import "skullet/element";
+
+  const reveal = document.getElementById("profile");
+  reveal.show(await renderProfile());
+</script>`}
+      />
+      <p>
+        Its <code>id</code> doubles as the key for its remembered shape. Import{" "}
+        <code>skullet/styles.css</code> in the page’s head too, so a skeleton
+        waiting for the script stays blank rather than showing sample content.
+      </p>
+    </Section>
+
+    <Section id="testing" title="Testing">
+      <p>
+        Skullet runs in{" "}
+        <a href="https://github.com/jsdom/jsdom" target="_blank" rel="nofollow">
+          jsdom
+        </a>{" "}
+        and{" "}
+        <a
+          href="https://github.com/capricorn86/happy-dom"
+          target="_blank"
+          rel="nofollow"
+        >
+          happy-dom
+        </a>
+        . Neither has layout, so there’s nothing to measure and every reveal is
+        instant, as under reduced motion. Content is in the document as soon as
+        its data is.
+      </p>
+      <p>
+        While loading, the sample’s text is in the document too, inside a
+        skeleton that’s <code>aria-hidden</code>.{" "}
+        <a
+          href="https://testing-library.com/docs/queries/byrole"
+          target="_blank"
+          rel="nofollow"
+        >
+          Queries by role
+        </a>{" "}
+        skip it; queries by text don’t.
+      </p>
+      <CodeBlock
+        code={`render(<Profile />);
+
+// Not findByText: the sample's name is in the skeleton until then
+await screen.findByRole("heading", { name: "Ada Lovelace" });`}
+      />
     </Section>
 
     <Section id="troubleshooting" title="Troubleshooting">
@@ -658,7 +843,11 @@ const { data } = useLazyFetch("/api/user");
               title
             ) : (
               <code>
-                {COMPONENTS.has(title) ? `<${title} />` : `new ${title}()`}
+                {COMPONENTS.has(title)
+                  ? `<${title} />`
+                  : title.includes("-")
+                    ? `<${title}>`
+                    : `new ${title}()`}
               </code>
             )}
           </h3>
@@ -697,9 +886,15 @@ const { data } = useLazyFetch("/api/user");
         </li>
         <li>
           <strong>Lines from the DOM.</strong> Each text node is measured with{" "}
-          <code>Range.getClientRects()</code>, which returns one box per line it
-          wraps to. Images, controls and painted boxes such as buttons and chips
-          are measured whole.
+          <a
+            href="https://developer.mozilla.org/en-US/docs/Web/API/Range/getClientRects"
+            target="_blank"
+            rel="nofollow"
+          >
+            <code>Range.getClientRects()</code>
+          </a>
+          , which returns one box per line it wraps to. Images, controls and
+          painted boxes such as buttons and chips are measured whole.
         </li>
         <li>
           <strong>Heights from the font.</strong> A line box is taller than its
@@ -731,7 +926,7 @@ const { data } = useLazyFetch("/api/user");
     </Section>
 
     <Section id="thanks" title="More by Lochie">
-      <p>If you like this you might also like my other projects</p>
+      <p>If you like this, you might also like these.</p>
       <Projects />
     </Section>
   </DocsLayout>

@@ -1,3 +1,4 @@
+import { textContext } from "./canvas";
 import { ATTR_COVERED, MEDIA_TAGS } from "./constants";
 
 const MEDIA = new Set(MEDIA_TAGS);
@@ -20,15 +21,13 @@ const STRIPPED = new Set([
 export const fill = (value: string) =>
   value.replace(/[A-Z]/g, "X").replace(/[a-z]/g, "x").replace(/\d/g, "0");
 
-let context: CanvasRenderingContext2D | null | undefined;
-
 // Filler has different glyphs to the text it replaces; letter-spacing makes up the difference, so it wraps the same
 function fillText(original: Text, copy: Text) {
   const filled = fill(copy.data);
   copy.data = filled;
 
   const parent = original.parentElement;
-  context ??= document.createElement("canvas").getContext("2d");
+  const context = textContext();
   if (!parent || !context || !filled.trim()) return;
 
   const style = getComputedStyle(parent);

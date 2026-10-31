@@ -22,7 +22,7 @@ export class Memory {
   private key: string | null;
   private timer: ReturnType<typeof setTimeout> | undefined;
   private mutations: MutationObserver;
-  private resize: ResizeObserver;
+  private resize: ResizeObserver | null;
   private untrack: () => void;
 
   constructor(
@@ -43,8 +43,12 @@ export class Memory {
       subtree: true,
       characterData: true,
     });
-    this.resize = new ResizeObserver(this.schedule);
-    this.resize.observe(element);
+    // None in jsdom, which has no layout to follow
+    this.resize =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(this.schedule);
+    this.resize?.observe(element);
     element.addEventListener("load", this.schedule, true);
   }
 
@@ -131,7 +135,7 @@ export class Memory {
     this.save();
     clearTimeout(this.timer);
     this.mutations.disconnect();
-    this.resize.disconnect();
+    this.resize?.disconnect();
     this.element.removeEventListener("load", this.schedule, true);
     this.untrack();
   }

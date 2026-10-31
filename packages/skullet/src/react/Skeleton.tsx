@@ -68,6 +68,8 @@ type SharedProps = {
   empty?: boolean;
   emptyMessage?: React.ReactNode;
   error?: React.ReactNode;
+  /** Called once content has come in over a skeleton. */
+  onReveal?: () => void;
   className?: string;
   style?: React.CSSProperties;
 };
@@ -150,7 +152,11 @@ export function Skeleton<T>(props: SkeletonProps<T>) {
     memory = { id, data, rendered: !!render, sample: sample !== undefined };
   }
 
-  const [current, setCurrent] = React.useState({ id: 0, key });
+  const [current, setCurrent] = React.useState<{
+    id: number;
+    key: PaneKey;
+    from?: PaneKey;
+  }>({ id: 0, key });
   const [exiting, setExiting] = React.useState<ExitingPane[]>([]);
   const registry = React.useRef<PaneRegistry>(new Map()).current;
 
@@ -168,8 +174,18 @@ export function Skeleton<T>(props: SkeletonProps<T>) {
         ? panes
         : [...panes, leaving],
     );
-    setCurrent({ id: current.id + 1, key });
+    setCurrent({ id: current.id + 1, key, from: current.key });
   }
+
+  // The latest, as a pane reads it once its fade ends
+  const onReveal = React.useRef(props.onReveal);
+  useIsomorphicLayoutEffect(() => {
+    onReveal.current = props.onReveal;
+  });
+  const revealed =
+    current.key === "content" && current.from === "skeleton"
+      ? () => onReveal.current?.()
+      : undefined;
 
   const remove = (id: number) =>
     setExiting((panes) => panes.filter((pane) => pane.id !== id));
@@ -196,6 +212,7 @@ export function Skeleton<T>(props: SkeletonProps<T>) {
       exiting={false}
       onExited={() => {}}
       memory={memory}
+      onEntered={revealed}
     >
       {node}
     </Pane>,

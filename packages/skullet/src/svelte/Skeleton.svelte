@@ -28,8 +28,8 @@
   type Props = {
     /** Shows the skeleton, even over `data`. With `data`, it also shows while there is none. */
     loading?: boolean;
-    /** Loading while `null` or `undefined`; handed to `children`. */
-    data?: T | null;
+    /** Loading while `null`, `undefined` or a promise yet to settle; handed to `children`. */
+    data?: T | null | PromiseLike<T>;
     /** Stands in for `data` to draw the skeleton before any has loaded. */
     sample?: T;
     /** Remembers the shape under this key across visits. */
@@ -38,6 +38,8 @@
     label?: string;
     empty?: boolean;
     error?: unknown;
+    /** Called once content has come in over a skeleton. */
+    onreveal?: () => void;
     children?: Snippet<[T]>;
     skeleton?: Snippet;
     emptyMessage?: Snippet;
@@ -68,24 +70,46 @@
   // Data-driven when `data` is bound at all, even to null
   const driven = $derived('data' in props);
 
+  // A promise is loading until it settles, then its value, or its error
+  const pending = (value: unknown): value is PromiseLike<T> =>
+    typeof (value as PromiseLike<T> | null)?.then === 'function';
+  let settled = $state.raw<{ from: unknown; value?: T; error?: unknown } | null>(null);
+  $effect(() => {
+    const source = props.data;
+    if (!pending(source)) return;
+    source.then(
+      (value) => {
+        if (props.data === source) settled = { from: source, value };
+      },
+      (error) => {
+        if (props.data === source) settled = { from: source, error: error ?? true };
+      },
+    );
+  });
+  const ours = $derived(settled?.from === props.data ? settled : null);
+  const data = $derived(
+    (pending(props.data) ? (ours?.value ?? null) : props.data) as T | null | undefined,
+  );
+  const error = $derived(props.error ?? ours?.error);
+
   // The last data shown, so a reload's skeleton has its exact shape — of the same `id` only
   let last: { id?: string; data: T } | null = null;
   $effect(() => {
-    if (props.data != null) last = { id: props.id, data: props.data };
+    if (data != null) last = { id: props.id, data };
   });
 
   // A snippet fed data has nothing to render without it, so that's a skeleton too
   const loading = $derived(
     !!props.loading ||
-      (driven && props.data == null && !props.error && !props.empty),
+      (driven && data == null && !error && !props.empty),
   );
   const real = $derived(
-    props.data ?? (last && last.id === props.id ? last.data : null),
+    data ?? (last && last.id === props.id ? last.data : null),
   );
   const shown = $derived(real ?? props.sample);
 
   const key = $derived(
-    loading ? 'skeleton' : props.error ? 'error' : props.empty ? 'empty' : 'content',
+    loading ? 'skeleton' : error ? 'error' : props.empty ? 'empty' : 'content',
   );
 
   // The pane on screen, and the memory of its shape when it's content
@@ -93,10 +117,16 @@
   let remembered: Memory | null = null;
   const boxes = new WeakMap<Element, PaneBox>();
 
+  // The pane on screen and the one before it, so content knows whether it replaced a skeleton
+  let shownKey: string | null = null;
+  let fromKey: string | null = null;
+
   // Before Svelte swaps the branch, while measuring can't trip scroll anchoring
   $effect.pre(() => {
     key;
     untrack(() => {
+      fromKey = shownKey;
+      shownKey = key;
       if (!current?.isConnected) return;
       remembered?.save();
       boxes.set(current, boxOf(current));
@@ -122,7 +152,10 @@
   const duration = () => (prefersReducedMotion() ? 0 : exitDuration(config.reveal));
 
   function enter(node: HTMLElement) {
-    fadeIn(node, config.reveal);
+    const revealing = key === 'content' && fromKey === 'skeleton';
+    fadeIn(node, config.reveal).then(() => {
+      if (revealing) props.onreveal?.();
+    });
     return { duration: duration() };
   }
 
@@ -181,7 +214,7 @@
           {...{ [ATTR_LOADING]: '' }}
           aria-hidden="true"
           inert
-          use:ghost={{ id: props.id, exact: real != null, refetch: props.data != null }}
+          use:ghost={{ id: props.id, exact: real != null, refetch: data != null }}
         >
           <div {...{ [ATTR_GHOST]: '' }}>{@render render(shown)}</div>
           <div {...{ [ATTR_SNAPSHOT]: '' }}></div>
@@ -190,16 +223,16 @@
         {@html scriptTag()}
       {/if}
     </div>
-  {:else if props.error}
+  {:else if error}
     <div {...pane} use:track in:enter out:exit>
-      {@render props.errorMessage?.(props.error)}
+      {@render props.errorMessage?.(error)}
     </div>
   {:else if props.empty}
     <div {...pane} use:track in:enter out:exit>
       {#if props.emptyMessage}
         {@render props.emptyMessage()}
       {:else}
-        {@render render(props.data)}
+        {@render render(data)}
       {/if}
     </div>
   {:else}
@@ -207,12 +240,12 @@
       <div
         use:memory={{
           id: props.id,
-          data: props.data,
+          data,
           rendered: driven,
           sample: props.sample !== undefined,
         }}
       >
-        {@render render(props.data)}
+        {@render render(data)}
       </div>
     </div>
   {/if}

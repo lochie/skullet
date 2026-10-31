@@ -154,6 +154,7 @@ type PaneProps = {
   exiting: boolean;
   onExited: () => void;
   memory?: MemoryOptions;
+  onEntered?: () => void;
 };
 
 export const Pane = ({
@@ -164,6 +165,7 @@ export const Pane = ({
   exiting,
   onExited,
   memory,
+  onEntered,
 }: PaneProps) => {
   const ref = React.useRef<HTMLDivElement>(null);
   const reveal = useReveal();
@@ -172,7 +174,7 @@ export const Pane = ({
     if (!ref.current) return;
     const entry: PaneEntry = { element: ref.current, memory: null };
     registry.set(id, entry);
-    fadeIn(ref.current, reveal, { initial: !enter });
+    fadeIn(ref.current, reveal, { initial: !enter }).then(onEntered);
     if (memory) entry.memory = new Memory(ref.current, memory);
     return () => {
       entry.memory?.destroy();

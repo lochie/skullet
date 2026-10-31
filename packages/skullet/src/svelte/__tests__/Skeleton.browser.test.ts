@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { bonesIn } from "@skullet/test-cases";
 import Harness from "./Harness.svelte";
 import Provided from "./Provided.svelte";
+import Promised from "./Promised.svelte";
 import {
   CASCADE_SPREAD,
   FADE_DURATION,
@@ -92,5 +93,36 @@ describe("Svelte Skeleton", () => {
       "[skullet-pane]:not([skullet-exiting]) p",
     )!;
     expect(incoming.getAnimations().length).toBeGreaterThan(0); // cascading in
+  });
+});
+
+describe("Svelte Skeleton with a promise", () => {
+  it("loads while it's pending, then shows its value and calls onreveal", async () => {
+    let resolve!: (user: typeof ADA) => void;
+    const data = new Promise<typeof ADA>((done) => (resolve = done));
+    const onreveal = vi.fn();
+    const target = document.body.appendChild(document.createElement("div"));
+    app = mount(Promised, { target, props: { data, sample: ADA, onreveal } });
+    flushSync();
+    expect(bonesIn(target).length).toBeGreaterThan(1);
+
+    resolve(ADA);
+    await data;
+    flushSync();
+    expect(target.textContent).toContain("Ada Lovelace");
+
+    await settle();
+    expect(onreveal).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows the error a promise rejects with", async () => {
+    const data = Promise.reject(new Error("offline"));
+    data.catch(() => {});
+    const target = document.body.appendChild(document.createElement("div"));
+    app = mount(Promised, { target, props: { data, sample: ADA } });
+    flushSync();
+    await data.catch(() => {});
+    flushSync();
+    expect(target.textContent).toContain("Couldn’t load: Error: offline");
   });
 });
