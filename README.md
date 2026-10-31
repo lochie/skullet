@@ -46,3 +46,17 @@ pnpm build
 ## Found this useful?
 
 Follow me on [Twitter](https://twitter.com/lochieaxon).
+
+## Other projects
+
+You might also like:
+
+- [torph](https://torph.lochie.me) - An opinionated text morphing library.
+- [easing.dev](https://easing.dev) - Explore easing curves for your projects.
+- [web haptics](https://haptics.lochie.me) - Haptic feedback for interactions on the web.
+
+# Acknowledgements
+
+- Thanks to [Alex](https://x.com/alexvanderzon) for assistance with the site design.
+- Thanks to [Pugson](https://x.com/pugson) for putting up with my bullshit.
+- All early reviewers and testers for their valuable feedback.
