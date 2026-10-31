@@ -1,6 +1,6 @@
 // Safari 18 runs an older WebKit than any current Playwright ships, and it broke
 // where the newer one didn't. Playwright 1.50 ships WebKit 18.2: this drives the
-// built site in it, reloading the homepage and checking every demo stays drawn.
+// built site in it, reloading every homepage demo and checking each stays drawn.
 // Usage: pnpm e2e:safari18 [url] — the site served from `next start -p 3123` by default.
 import { webkit } from "playwright";
 import { PNG } from "pngjs";
@@ -42,29 +42,26 @@ console.log(`WebKit ${browser.version()} → ${url}`);
 await page.goto(url);
 await page.waitForTimeout(3000);
 
-// Sweep is the homepage's default, so Reload replays it; then smart
-for (const [mode, button] of [
-  ["sweep", "Reload"],
-  ["smart", "smart"],
-]) {
-  await page.getByRole("button", { name: button, exact: true }).click();
-  const start = Date.now();
-  while (Date.now() - start < 2500) await blanks(page, `mid-${mode}`);
-  await page.waitForTimeout(1500);
-  await blanks(page, `after ${mode}`);
-  // Safari doesn't render an element whose filter points at nothing
-  const dangling = await page.evaluate(
-    () =>
-      [...document.querySelectorAll("[skullet-pane]")].filter((pane) => {
-        const id = pane.style.filter.match(/#([\w-]+)/)?.[1];
-        return id && !document.getElementById(id);
-      }).length,
-  );
-  if (dangling)
-    failures.push(
-      `${dangling} panes filtered by a removed filter after ${mode}`,
-    );
+// Every card reloaded: each one sweeps its content in over its skeleton, the homepage's reveal
+const cards = page.getByRole("button", { name: "Reload this demo" });
+for (let i = 0; i < (await cards.count()); i++) {
+  // In the top padding: clear of the rounded corner, and of anything inside that takes its own click
+  await cards.nth(i).click({ position: { x: 40, y: 8 } });
 }
+const start = Date.now();
+while (Date.now() - start < 2500) await blanks(page, "mid-sweep");
+await page.waitForTimeout(1500);
+await blanks(page, "after the sweep");
+
+// Safari doesn't render an element whose filter points at nothing
+const dangling = await page.evaluate(
+  () =>
+    [...document.querySelectorAll("[skullet-pane]")].filter((pane) => {
+      const id = pane.style.filter.match(/#([\w-]+)/)?.[1];
+      return id && !document.getElementById(id);
+    }).length,
+);
+if (dangling) failures.push(`${dangling} panes filtered by a removed filter`);
 
 await browser.close();
 if (failures.length) {
