@@ -372,9 +372,16 @@ function sequenceOut(element: HTMLElement, plan: SequencePlan) {
     ghost.style.visibility = "hidden";
   }
 
-  const bones = [...element.querySelectorAll(`[${ATTR_LAYER}]`)].flatMap(
-    rectsOf,
-  );
+  // A skeleton the content draws itself sits in the ghost, but leaves like a bone
+  const own = [
+    ...element.querySelectorAll<HTMLElement>(`[${ATTR_GHOST}] [${ATTR_OWN}]`),
+  ].filter((part) => !part.parentElement?.closest(`[${ATTR_OWN}]`));
+  for (const part of own) part.style.visibility = "visible";
+
+  const bones = [
+    ...[...element.querySelectorAll(`[${ATTR_LAYER}]`)].flatMap(rectsOf),
+    ...own,
+  ];
   return Promise.all(
     bones.map((bone) => {
       const rect = bone.getBoundingClientRect();

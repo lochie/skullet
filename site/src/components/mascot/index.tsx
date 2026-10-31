@@ -5,7 +5,7 @@ import styles from "./styles.module.scss";
 const LOOK = 16; // How far the face turns toward the pointer, in viewBox units — about 4px at the homepage's 80px
 const LEFT = 7; // Less room that way: the left eye sits near the skull's edge, and would run into its outline
 
-const REACH = 400; // px from the mascot at which they've travelled all of it
+const REACH = 100; // px from the mascot at which they've travelled all of it
 
 const TAIL =
   "M274.621 204.819C304.266 200.327 318.672 177.609 299.11 178.859C299.11 178.859 255.28 178.344 235.024 110.034C219.192 56.6437 102.463 255.238 161.222 244.09C179.828 240.56 208.105 273.52 221.746 254.827C227.133 247.444 219.658 236.769 228.659 238.354C283.814 248.061 297.713 230.485 276.019 220.777C264.267 215.519 262.487 206.658 274.621 204.819Z";

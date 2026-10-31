@@ -376,3 +376,28 @@ describe("Reveal onReveal", () => {
     reveal.destroy();
   });
 });
+
+describe("a sequenced reveal", () => {
+  it("fades out a skeleton the content drew itself, rather than dropping it", async () => {
+    const root = stage();
+    const reveal = new Reveal(root, { reveal: "sequence" });
+    reveal.load(
+      html(
+        `<div skullet-own><span style="display:block;width:40px;height:40px;background:#ccc"></span></div><p>One line of text</p><p>Another line of text</p><p>A third line of text</p><p>And a fourth</p>`,
+      ),
+    );
+    await frame();
+    const own = root.querySelector<HTMLElement>("[skullet-own]")!;
+
+    reveal.show(
+      html(
+        `<div style="width:40px;height:40px"></div><p>One line of text</p><p>Another line of text</p><p>A third line of text</p><p>And a fourth</p>`,
+      ),
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(getComputedStyle(own).visibility).toBe("visible");
+    expect(own.getAnimations()).toHaveLength(1);
+    reveal.destroy();
+  });
+});
