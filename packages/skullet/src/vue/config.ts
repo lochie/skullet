@@ -11,18 +11,18 @@ import {
   setDebug,
   skulletCSS,
   type SkulletMode,
-  type SkeleText,
-  type SkeleTheme,
+  type SkulletText,
+  type SkulletTheme,
   type RevealMode,
 } from "../lib";
 
 export type SkulletConfig = {
   /** Set on the inline script and stylesheets skullet renders, for a Content Security Policy. */
   nonce?: string;
-  theme?: SkeleTheme;
+  theme?: SkulletTheme;
   mode?: SkulletMode;
   /** Where text bars run: from `top` (ascender, cap-height, x-height) down to `bottom` (baseline, descender). */
-  text?: SkeleText;
+  text?: SkulletText;
   /** How content replaces its skeleton: `smart` (the default), `together`, `sequence`, `sweep`, or a `RevealSpec` of your own. */
   reveal?: RevealMode;
   /** Outlines every reveal with where its skeleton came from and whether anything moved. */
@@ -49,9 +49,9 @@ export const SkulletProvider = defineComponent({
   name: "SkulletProvider",
   props: {
     nonce: String,
-    theme: Object as PropType<SkeleTheme>,
+    theme: Object as PropType<SkulletTheme>,
     mode: String as PropType<SkulletMode>,
-    text: Object as PropType<SkeleText>,
+    text: Object as PropType<SkulletText>,
     reveal: [String, Object] as PropType<RevealMode>,
     debug: { type: Boolean, default: undefined },
   },

@@ -1,6 +1,6 @@
 import {
-  ATTR_BONE,
-  ATTR_BONES,
+  ATTR_RECT,
+  ATTR_LAYER,
   ATTR_EXITING,
   ATTR_GHOST,
   ATTR_OWN,
@@ -22,7 +22,7 @@ import {
   type WipePlan,
 } from "./plan";
 import { revealSpec } from "./reveals";
-import { bonesOf, shimmer } from "./shimmer";
+import { rectsOf, shimmer } from "./shimmer";
 
 export { prefersReducedMotion };
 
@@ -54,7 +54,7 @@ function appear(
 // The bones layer, or the ghost a skeleton is drawn from — vanilla adds its layer a moment later
 const isSkeleton = (element: Element) =>
   !!element.querySelector(
-    `[${ATTR_BONES}], [${ATTR_GHOST}], :scope > [${ATTR_OWN}]`,
+    `[${ATTR_LAYER}], [${ATTR_GHOST}], :scope > [${ATTR_OWN}]`,
   );
 
 const sameBox = (a: DOMRect, b: DOMRect) =>
@@ -86,8 +86,8 @@ function holdImages(element: HTMLElement, root: HTMLElement) {
     if (!element.isConnected) return;
     const origin = root.getBoundingClientRect();
     const bones = [
-      ...root.querySelectorAll(`:scope > [${ATTR_EXITING}] [${ATTR_BONES}]`),
-    ].flatMap(bonesOf);
+      ...root.querySelectorAll(`:scope > [${ATTR_EXITING}] [${ATTR_LAYER}]`),
+    ].flatMap(rectsOf);
     const stands = standIns.get(root) ?? new Set<HTMLElement>();
     standIns.set(root, stands);
 
@@ -97,7 +97,7 @@ function holdImages(element: HTMLElement, root: HTMLElement) {
       const bone = bones.find((b) => sameBox(b.getBoundingClientRect(), rect));
       const box = bone?.getBoundingClientRect() ?? rect;
       const stand = document.createElement("div");
-      stand.setAttribute(ATTR_BONE, "");
+      stand.setAttribute(ATTR_RECT, "");
       Object.assign(stand.style, {
         position: "absolute",
         left: `${box.left - origin.left - root.clientLeft}px`,
@@ -380,8 +380,8 @@ function sequenceOut(element: HTMLElement, plan: SequencePlan) {
     ghost.style.visibility = "hidden";
   }
 
-  const bones = [...element.querySelectorAll(`[${ATTR_BONES}]`)].flatMap(
-    bonesOf,
+  const bones = [...element.querySelectorAll(`[${ATTR_LAYER}]`)].flatMap(
+    rectsOf,
   );
   return Promise.all(
     bones.map((bone) => {

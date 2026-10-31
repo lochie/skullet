@@ -8,7 +8,7 @@ import {
 } from "./constants";
 
 /** A box to draw, relative to the layer it was measured against. */
-export type Bone = {
+export type SkeletonRect = {
   x: number;
   y: number;
   width: number;
@@ -339,7 +339,7 @@ function radiusOf(element: Element, style: CSSStyleDeclaration) {
     : style.borderRadius || "0px";
 }
 
-function toBars(lines: Line[]): Bone[] {
+function toBars(lines: Line[]): SkeletonRect[] {
   // Left to right, so each fragment only ever extends a bar to its left
   lines.sort((a, b) => a.left - b.left);
 
@@ -386,7 +386,7 @@ function toBars(lines: Line[]): Bone[] {
  * `mark`, elements drawn as one block are marked so their own paint is hidden;
  * without it, nothing in `root` changes — as before a framework has hydrated it.
  */
-export function measureBones(
+export function measureSkeleton(
   root: HTMLElement,
   layer: HTMLElement,
   {
@@ -397,7 +397,7 @@ export function measureBones(
     /** What's drawn as one block, its own paint to hide — for a caller that can't mark it. */
     onCovered?: (covered: Set<Element>) => void;
   } = {},
-): Bone[] {
+): SkeletonRect[] {
   const origin = layer.getBoundingClientRect();
   // Rects are post-transform; bones are drawn inside the same transform
   const scaleX = layer.offsetWidth ? origin.width / layer.offsetWidth : 1;
@@ -410,7 +410,7 @@ export function measureBones(
     bottom: (rect.bottom - origin.top) / scaleY,
   });
 
-  const blocks: Bone[] = [];
+  const blocks: SkeletonRect[] = [];
   const lines: Line[] = [];
   const covered = new Set<Element>();
   const range = document.createRange();

@@ -1,6 +1,6 @@
-import { ATTR_BONES, ATTR_GHOST, BOOT, GHOSTED, UNCOVER } from "./constants";
-import { measureBones } from "./measure";
-import { drawBones } from "./shimmer";
+import { ATTR_LAYER, ATTR_GHOST, BOOT, GHOSTED, UNCOVER } from "./constants";
+import { measureSkeleton } from "./measure";
+import { drawSkeleton } from "./shimmer";
 
 /*
  * Inlined after a server-rendered skeleton (see build-inline.mjs), so it runs
@@ -21,7 +21,7 @@ type Root = HTMLElement & { [GHOSTED]?: boolean; [UNCOVER]?: () => void };
 function boot(script: Element | null) {
   const root = script?.previousElementSibling as Root | null | undefined;
   const ghost = root?.querySelector<HTMLElement>(`:scope > [${ATTR_GHOST}]`);
-  const layer = root?.querySelector<HTMLElement>(`:scope > [${ATTR_BONES}]`);
+  const layer = root?.querySelector<HTMLElement>(`:scope > [${ATTR_LAYER}]`);
   if (!root || !ghost || !layer) return;
 
   const sheet =
@@ -48,9 +48,9 @@ function boot(script: Element | null) {
     if (!layer.isConnected || root[GHOSTED]) return observer.disconnect();
     // Streamed HTML is parsed into a hidden container first: nothing to measure until it's moved into place
     if (!ghost.getClientRects().length) return;
-    drawBones(
+    drawSkeleton(
       layer,
-      measureBones(ghost, layer, { mark: false, onCovered: cover }),
+      measureSkeleton(ghost, layer, { mark: false, onCovered: cover }),
     );
   };
   // Measures in the first callback, after layout and before paint, then until Ghost takes over

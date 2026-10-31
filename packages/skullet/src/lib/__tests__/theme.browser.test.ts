@@ -85,7 +85,7 @@ describe("animation", () => {
   it("runs each group's stream from its own corner with group-shimmer", () => {
     const { root, bones } = skeleton("--skullet-animation: group-shimmer");
     const layer = root
-      .querySelector("[skullet-bones]")!
+      .querySelector("[skullet-layer]")!
       .getBoundingClientRect();
     const bone = bones[0]!.getBoundingClientRect();
     const { tile } = sweep(bones[0]!);

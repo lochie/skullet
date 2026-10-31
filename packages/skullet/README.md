@@ -1,6 +1,6 @@
 # Skullet
 
-Smart Skeleton States for React, Vue, Svelte, and vanilla JavaScript.
+Smart skeleton states for React, Vue, Svelte, and vanilla JavaScript.
 
 Wrap what you'd render once your data arrives. While it loads, skullet lays that
 content out unseen and draws a skeleton over it: a bar for every line of text,
@@ -119,8 +119,8 @@ import { SkulletProvider } from "skullet/react";
   nonce={nonce} // on the inline script and stylesheets, for a Content Security Policy
   mode="system" // or "light" / "dark"
   theme={theme} // below
-  text={{ top: "ascender", bottom: "descender" }} // where text bars run
-  reveal="smart" // or "together" / "sequence"
+  text={{ top: "ascender", bottom: "descender" }} // where each line of text is drawn
+  reveal="smart" // or "together" / "sequence" / "sweep"
   debug // the overlay, below
 >
   <App />
@@ -129,7 +129,7 @@ import { SkulletProvider } from "skullet/react";
 
 ### Theming
 
-A theme is colours for light and dark, plus how bones look and move:
+A theme is colours for light and dark, plus how skeletons look and move:
 
 ```ts
 const theme = {
@@ -140,7 +140,7 @@ const theme = {
   },
   animation: "shimmer", // "group-shimmer", "pulse" or "none"
   speed: "slow", // or "fast" — shimmer 4s / 2s, pulse 2.4s / 1.2s
-  radius: "6px", // text bars and single bars; images and chips keep their own
+  radius: "6px", // lines of text and boxes; images and chips keep their own
   text: { top: "ascender", bottom: "descender" },
 };
 ```
@@ -149,7 +149,7 @@ const theme = {
   or 1.2s. A shimmer keeps the pace it has across a 1280px screen on any
   width, so a wide monitor doesn't make it race.
 - `shimmer` sweeps one highlight across the whole page; `group-shimmer` gives
-  each skeleton a sweep of its own; `pulse` fades every bone softly in and out.
+  each skeleton a sweep of its own; `pulse` fades every skeleton softly in and out.
   Each keeps one phase across the page.
 - Every option is a custom property underneath — `--skullet-base`,
   `--skullet-highlight`, `--skullet-radius`, `--skullet-animation`, `--skullet-speed`,
@@ -160,7 +160,7 @@ const theme = {
 
 The docs have a theme creator to try them in.
 
-### Text bars
+### Lines of text
 
 Each line of text gets a bar between two of the type's own lines, measured
 from the font: a top of `ascender`, `cap-height` or `x-height`, and a bottom of
@@ -185,7 +185,7 @@ Or in CSS, anywhere — they're inherited, so a section can differ:
 How content replaces its skeleton, set with `reveal` on the provider:
 
 - `together` crossfades skeleton and content whole.
-- `sequence` brings each piece in where its bone was, top to bottom.
+- `sequence` brings each piece in where its skeleton was, top to bottom.
 - `sweep` carries the content in behind one diagonal front at the shimmer's
   slant and pace — giving way to a crossfade for a reveal over about a screen
   and a half, or if frames drop mid-way.
@@ -194,6 +194,9 @@ How content replaces its skeleton, set with `reveal` on the provider:
   so a fast load never flashes one); a quick crossfade for a refetch; whole for
   something small; otherwise in sequence — rows and cards as units, in screen
   order, smaller text a beat behind, off-screen content at once.
+
+Or pass a `RevealSpec` of your own: an order, an entrance, a wipe, timing. The
+built-ins are written with it, and exported to build on.
 
 ### Accessibility
 
@@ -243,7 +246,7 @@ forgetShapes();
 Avatar.Skeleton = () => <SkeletonBox width={40} height={40} radius="50%" />;
 ```
 
-## Single bars
+## Placeholder boxes
 
 ```tsx
 import { SkeletonBox } from "skullet/react";
@@ -256,8 +259,8 @@ returns the element.
 
 ## Server rendering
 
-A server-rendered skeleton is measured as the HTML is parsed: a small inline
-script follows each one, so the page's first paint already shows its bones —
+A server-rendered skeleton is measured before the page first paints: a small
+inline script follows each one, so the first paint already shows the skeleton —
 no flash of content, and no change when the page hydrates. With JavaScript
 off, each line of text is struck through with a bar instead.
 
@@ -271,7 +274,7 @@ import "skullet/styles.css";
 ## Notes
 
 - Every skeleton on the page shimmers in one stream, however late it mounts.
-- An image never holds anything else back: each one still loading keeps a bone
+- An image never holds anything else back: each one still loading keeps a skeleton
   of its own until it has loaded and decoded, then the two crossfade.
 - Fades and the shimmer respect `prefers-reduced-motion`.
 - Give images a size (`width` and `height`, or an `aspect-ratio`); one that only

@@ -3,7 +3,7 @@
 import React from "react";
 import {
   addStyles,
-  ATTR_BONES,
+  ATTR_LAYER,
   ATTR_GHOST,
   ATTR_LOADING,
   ATTR_OWN,
@@ -128,7 +128,7 @@ export const Loading = ({
       <div ref={ref} {...{ [ATTR_LOADING]: "" }} aria-hidden {...inert}>
         <div {...{ [ATTR_GHOST]: "" }}>{swapOwnSkeletons(children)}</div>
         <div {...{ [ATTR_SNAPSHOT]: "" }} />
-        <div {...{ [ATTR_BONES]: "" }} />
+        <div {...{ [ATTR_LAYER]: "" }} />
       </div>
       {serverRendered && (
         <script

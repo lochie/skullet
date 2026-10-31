@@ -1,8 +1,8 @@
 export {
   ATTR_BAR,
   ATTR_BLOCK,
-  ATTR_BONE,
-  ATTR_BONES,
+  ATTR_RECT,
+  ATTR_LAYER,
   ATTR_DEBUG,
   ATTR_GHOST,
   ATTR_IGNORE,
@@ -37,13 +37,13 @@ export type {
   SkulletColors,
   SkulletMode,
   SkulletSpeed,
-  SkeleText,
-  SkeleTheme,
+  SkulletText,
+  SkulletTheme,
 } from "./theme";
 export { debugging, setDebug } from "./debug";
-export { DEFAULT_TEXT, measureBones } from "./measure";
-export type { Bone, TextBottom, TextTop } from "./measure";
-export { bonesOf, drawBones, motionOf, shimmer } from "./shimmer";
+export { DEFAULT_TEXT, measureSkeleton } from "./measure";
+export type { SkeletonRect, TextBottom, TextTop } from "./measure";
+export { rectsOf, drawSkeleton, motionOf, shimmer } from "./shimmer";
 export { Ghost } from "./ghost";
 export type { GhostOptions } from "./ghost";
 export { Memory } from "./memory";

@@ -1,6 +1,6 @@
 import {
   ATTR_BLOCK,
-  ATTR_BONES,
+  ATTR_LAYER,
   ATTR_EXITING,
   ATTR_GHOST,
   ATTR_INACTIVE,
@@ -14,9 +14,9 @@ import {
 import { reportLoading } from "./debug";
 import { noteSkeleton } from "./plan";
 import { warnOnce } from "./dev";
-import { measureBones } from "./measure";
+import { measureSkeleton } from "./measure";
 import { flushShapes, recallShape } from "./shapes";
-import { drawBones } from "./shimmer";
+import { drawSkeleton } from "./shimmer";
 import { autoKey, restore } from "./snapshot";
 import { addStyles, removeStyles } from "./styles";
 
@@ -104,7 +104,7 @@ export class Ghost {
 
     this.ghost = child(root, ATTR_GHOST);
     this.snapshot = child(root, ATTR_SNAPSHOT);
-    this.layer = child(root, ATTR_BONES);
+    this.layer = child(root, ATTR_LAYER);
 
     this.hadContent = hasContent(this.ghost);
 
@@ -202,7 +202,7 @@ export class Ghost {
 
   private measure() {
     const active = this.source === "ghost" ? this.ghost : this.snapshot;
-    drawBones(this.layer, measureBones(active, this.layer));
+    drawSkeleton(this.layer, measureSkeleton(active, this.layer));
 
     const reveal = this.root.closest(`[${ATTR_REVEAL}]`);
     if (reveal) {

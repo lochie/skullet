@@ -113,11 +113,11 @@ const API: [title: string, rows: Row[]][] = [
         '"smart" | "sequence" | "together" | "sweep" | RevealSpec',
         "How content replaces its skeleton.",
       ],
-      ["theme", "SkeleTheme", "Colours, animation, speed, radius and text."],
+      ["theme", "SkulletTheme", "Colours, animation, speed, radius and text."],
       ["mode", '"light" | "dark" | "system"', "Which colours to use."],
       [
         "text",
-        "SkeleText",
+        "SkulletText",
         "How much of each line of text is drawn; overrides the theme’s.",
       ],
       ["nonce", "string", "For a Content Security Policy."],

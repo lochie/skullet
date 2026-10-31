@@ -15,7 +15,7 @@ import {
   type RevealMode,
   type SkulletAnimation,
   type SkulletSpeed,
-  type SkeleTheme,
+  type SkulletTheme,
   type TextBottom,
   type TextTop,
 } from "skullet";
@@ -183,7 +183,7 @@ export const ThemeCreator = () => {
   // Showing the skeleton, a click loads the page; loading or loaded, it goes back to the skeleton
   const toggle = () => (arrived.size === 0 ? load() : reset());
 
-  const theme: SkeleTheme = {
+  const theme: SkulletTheme = {
     light: {
       base: rgb(colors.light.base),
       highlight: rgb(colors.light.highlight),

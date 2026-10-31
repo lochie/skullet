@@ -1,7 +1,7 @@
 {
   "name": "skullet",
   "version": "0.0.0",
-  "description": "Smart Skeleton States.",
+  "description": "Smart skeleton states.",
   "homepage": "https://skullet.lochie.me",
   "author": "Lochie Axon",
   "license": "MIT",
@@ -15,12 +15,18 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": {
+        "import": "./dist/index.d.mts",
+        "require": "./dist/index.d.ts"
+      },
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
     "./react": {
-      "types": "./dist/react/index.d.ts",
+      "types": {
+        "import": "./dist/react/index.d.mts",
+        "require": "./dist/react/index.d.ts"
+      },
       "import": "./dist/react/index.mjs",
       "require": "./dist/react/index.js"
     },

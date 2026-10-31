@@ -1,7 +1,7 @@
-import { ATTR_BONE, BASE, DURATIONS, HIGHLIGHT } from "./constants";
+import { ATTR_RECT, BASE, DURATIONS, HIGHLIGHT } from "./constants";
 import type { SkulletAnimation, SkulletSpeed } from "./theme";
 import { prefersReducedMotion } from "./motion";
-import type { Bone } from "./measure";
+import type { SkeletonRect } from "./measure";
 
 const SWEEP = 0.7; // of a duration a sweep takes at the reference width — sweeps run back to back, so this sets the pace
 const REFERENCE_WIDTH = 1280; // A shimmer's duration is one loop across this; any other width keeps its pace
@@ -151,11 +151,11 @@ const shadow = (layer: HTMLElement) =>
   layer.shadowRoot ?? layer.attachShadow({ mode: "open" });
 
 /** The bone elements drawn into `layer`. */
-export const bonesOf = (layer: Element): HTMLElement[] =>
+export const rectsOf = (layer: Element): HTMLElement[] =>
   layer.shadowRoot ? ([...layer.shadowRoot.children] as HTMLElement[]) : [];
 
 /** Draws `bones` into `layer`, reusing the elements already there. */
-export function drawBones(layer: HTMLElement, bones: Bone[]) {
+export function drawSkeleton(layer: HTMLElement, bones: SkeletonRect[]) {
   const root = shadow(layer);
   const rect = layer.getBoundingClientRect();
   const group = {
@@ -171,7 +171,7 @@ export function drawBones(layer: HTMLElement, bones: Bone[]) {
     let element = root.children[index] as HTMLElement | undefined;
     if (!element) {
       element = document.createElement("div");
-      element.setAttribute(ATTR_BONE, "");
+      element.setAttribute(ATTR_RECT, "");
       // Inline: no page stylesheet reaches into the shadow root
       element.style.cssText = `position:absolute;display:block;pointer-events:none;background-color:${BASE};background-repeat:no-repeat`;
       root.append(element);

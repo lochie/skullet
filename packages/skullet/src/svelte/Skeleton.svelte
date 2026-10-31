@@ -2,7 +2,7 @@
   import { getContext, onMount, untrack, type Snippet } from 'svelte';
   import {
     addStyles,
-    ATTR_BONES,
+    ATTR_LAYER,
     ATTR_GHOST,
     ATTR_LOADING,
     ATTR_OWN,
@@ -185,7 +185,7 @@
         >
           <div {...{ [ATTR_GHOST]: '' }}>{@render render(shown)}</div>
           <div {...{ [ATTR_SNAPSHOT]: '' }}></div>
-          <div {...{ [ATTR_BONES]: '' }}></div>
+          <div {...{ [ATTR_LAYER]: '' }}></div>
         </div>
         {@html scriptTag()}
       {/if}

@@ -1,7 +1,7 @@
 import {
   ATTR_BAR,
   ATTR_BLOCK,
-  ATTR_BONES,
+  ATTR_LAYER,
   ATTR_COVERED,
   ATTR_GHOST,
   ATTR_INACTIVE,
@@ -40,7 +40,7 @@ export const SKULLET_CSS = `
   display: none !important;
 }
 
-[${ATTR_BONES}] {
+[${ATTR_LAYER}] {
   position: absolute;
   inset: 0;
   overflow: visible;
@@ -53,7 +53,7 @@ export const SKULLET_CSS = `
 }
 
 /* Containers keep their surface; what they hold is drawn by bones, measured before the first paint */
-@scope ([${ATTR_LOADING}]) to ([${ATTR_OWN}], [${ATTR_BONES}]) {
+@scope ([${ATTR_LOADING}]) to ([${ATTR_OWN}], [${ATTR_LAYER}]) {
   :scope,
   :scope * {
     color: transparent !important;

@@ -1,4 +1,4 @@
-import { ATTR_BONES, ATTR_EXITING } from "./constants";
+import { ATTR_LAYER, ATTR_EXITING } from "./constants";
 import { prefersReducedTransparency } from "./motion";
 import {
   BATCH_WINDOW,
@@ -43,7 +43,7 @@ let wave = { start: -Infinity, origin: 0, speed: 1 };
 /** When the shared front reaches `reveal`, and how long it takes across — null without a shimmer to match. */
 function timing(reveal: HTMLElement) {
   const layer = reveal.querySelector(
-    `:scope > [${ATTR_EXITING}] [${ATTR_BONES}]`,
+    `:scope > [${ATTR_EXITING}] [${ATTR_LAYER}]`,
   );
   const pace = layer && paceOf(layer);
   if (!pace) return null;

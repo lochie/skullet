@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { measureBones } from "..";
+import { measureSkeleton } from "..";
 
 const mount = (markup: string) => {
   const root = document.body.appendChild(document.createElement("div"));
@@ -8,7 +8,8 @@ const mount = (markup: string) => {
   return root;
 };
 
-const bones = (root: HTMLElement) => measureBones(root, root, { mark: false });
+const bones = (root: HTMLElement) =>
+  measureSkeleton(root, root, { mark: false });
 
 afterEach(() => document.body.replaceChildren());
 

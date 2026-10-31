@@ -15,7 +15,7 @@ import {
 import {
   addStyles,
   ATTR_BAR,
-  ATTR_BONES,
+  ATTR_LAYER,
   ATTR_GHOST,
   ATTR_LOADING,
   ATTR_OWN,
@@ -107,7 +107,7 @@ const Loading = defineComponent({
         [
           h("div", { [ATTR_GHOST]: "" }, slots.default?.()),
           h("div", { [ATTR_SNAPSHOT]: "" }),
-          h("div", { [ATTR_BONES]: "" }),
+          h("div", { [ATTR_LAYER]: "" }),
         ],
       ),
       h("script", { nonce: config.nonce, innerHTML: script }),

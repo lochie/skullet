@@ -1,6 +1,6 @@
 # Skullet
 
-Smart Skeleton States for React, Vue, Svelte, and vanilla JavaScript.
+Smart skeleton states for React, Vue, Svelte, and vanilla JavaScript.
 
 ## Installation
 

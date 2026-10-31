@@ -27,10 +27,14 @@ it("keeps a server-rendered skeleton's shape, but recalls one made on the client
   new Ghost(fromClient, { id: "served" });
 
   expect(
-    fromServer.querySelector("[skullet-ghost]")!.hasAttribute("skullet-inactive"),
+    fromServer
+      .querySelector("[skullet-ghost]")!
+      .hasAttribute("skullet-inactive"),
   ).toBe(false);
   expect(
-    fromClient.querySelector("[skullet-ghost]")!.hasAttribute("skullet-inactive"),
+    fromClient
+      .querySelector("[skullet-ghost]")!
+      .hasAttribute("skullet-inactive"),
   ).toBe(true);
 });
 
@@ -39,7 +43,7 @@ it("hides a painted chip's own colour from the first paint, without touching its
   addStyles();
   const sheets = document.adoptedStyleSheets.length;
   const host = document.body.appendChild(document.createElement("div"));
-  host.innerHTML = `<div skullet-loading><div skullet-ghost><span class="chip" style="display: inline-block; padding: 4px 8px; background: rgb(47 111 237)"><span>On</span></span></div><div skullet-bones></div></div>`;
+  host.innerHTML = `<div skullet-loading><div skullet-ghost><span class="chip" style="display: inline-block; padding: 4px 8px; background: rgb(47 111 237)"><span>On</span></span></div><div skullet-layer></div></div>`;
   const root = host.firstElementChild as HTMLElement;
   const script = document.createElement("script");
   script.textContent = INLINE_SCRIPT;

@@ -13,7 +13,7 @@ const TEXT_LEAVES =
 
 /** Every bone drawn under `root` — they live in each layer's shadow root. */
 export const bonesIn = (root: ParentNode): Element[] =>
-  [...root.querySelectorAll("[skullet-bones]")].flatMap((layer) =>
+  [...root.querySelectorAll("[skullet-layer]")].flatMap((layer) =>
     layer.shadowRoot ? [...layer.shadowRoot.children] : [],
   );
 

@@ -1,15 +1,15 @@
 [
   {
     "name": "core",
-    "raw": 52906,
-    "gzip": 18704,
+    "raw": 52912,
+    "gzip": 18698,
     "publishedRaw": null,
     "publishedGzip": null
   },
   {
     "name": "react",
     "raw": 5852,
-    "gzip": 2554,
+    "gzip": 2553,
     "publishedRaw": null,
     "publishedGzip": null
   },

@@ -326,7 +326,7 @@ describe("Reveal", () => {
         return opacity;
       };
       const standIn = () =>
-        root.querySelector<HTMLElement>(":scope > [skullet-bone]");
+        root.querySelector<HTMLElement>(":scope > [skullet-rect]");
 
       // Past the old caps — 600ms, and 2s for smart's image bones
       await new Promise((resolve) => setTimeout(resolve, 2500));

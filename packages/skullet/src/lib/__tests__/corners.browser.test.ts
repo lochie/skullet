@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { measureBones } from "..";
+import { measureSkeleton } from "..";
 
 const mount = (markup: string) => {
   const root = document.body.appendChild(document.createElement("div"));
@@ -9,7 +9,9 @@ const mount = (markup: string) => {
 };
 
 const imageBone = (root: HTMLElement) =>
-  measureBones(root, root, { mark: false }).find((bone) => bone.height > 50)!;
+  measureSkeleton(root, root, { mark: false }).find(
+    (bone) => bone.height > 50,
+  )!;
 
 afterEach(() => document.body.replaceChildren());
 

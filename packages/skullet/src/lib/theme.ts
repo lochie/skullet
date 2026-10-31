@@ -18,19 +18,19 @@ export type SkulletAnimation = "shimmer" | "group-shimmer" | "pulse" | "none";
 export type SkulletSpeed = "slow" | "fast";
 
 /** How much of each line of text is drawn: from the font's `top` line down to its `bottom` line. */
-export type SkeleText = { top?: TextTop; bottom?: TextBottom };
+export type SkulletText = { top?: TextTop; bottom?: TextBottom };
 
 /** `system` follows `prefers-color-scheme`; the others pin one set of colours. */
 export type SkulletMode = "light" | "dark" | "system";
 
-export type SkeleTheme = {
+export type SkulletTheme = {
   light?: SkulletColors;
   dark?: SkulletColors;
   /** How round each line of text, and any other single bar, is drawn — any CSS length; `999px` for pills. Images and chips keep their own. */
   radius?: string;
   animation?: SkulletAnimation;
   speed?: SkulletSpeed;
-  text?: SkeleText;
+  text?: SkulletText;
 };
 
 export const DEFAULT_COLORS: { light: SkulletColors; dark: SkulletColors } = {
@@ -46,14 +46,14 @@ export const DEFAULT_THEME = {
   animation: "shimmer",
   speed: "slow",
   text: { top: "ascender", bottom: "descender" },
-} as const satisfies SkeleTheme;
+} as const satisfies SkulletTheme;
 
 /**
  * The custom properties a theme sets, for one set of colours — ready for a
  * style attribute, so a theme can apply to one part of a page.
  */
 export function themeVariables(
-  theme: SkeleTheme = {},
+  theme: SkulletTheme = {},
   mode: "light" | "dark" | null = null,
 ): Record<string, string> {
   const variables: Record<string, string> = {};
@@ -87,9 +87,9 @@ export function skulletCSS({
   text,
   selector = ":root",
 }: {
-  theme?: SkeleTheme;
+  theme?: SkulletTheme;
   mode?: SkulletMode;
-  text?: SkeleText;
+  text?: SkulletText;
   selector?: string;
 }): string {
   const resolved = { ...theme, text: { ...theme.text, ...text } };
@@ -116,7 +116,7 @@ let themeEl: HTMLStyleElement | null = null;
 
 /** Sets a theme for the whole page, for setups without a provider. */
 export function applyTheme(
-  theme?: SkeleTheme,
+  theme?: SkulletTheme,
   mode?: SkulletMode,
   { nonce }: { nonce?: string } = {},
 ) {
@@ -127,7 +127,7 @@ export function applyTheme(
 
 /** The same CSS as a whole element, for templates that can only render HTML strings. */
 export const themeStyleTag = (
-  config: { theme?: SkeleTheme; mode?: SkulletMode; text?: SkeleText },
+  config: { theme?: SkulletTheme; mode?: SkulletMode; text?: SkulletText },
   nonce?: string,
 ) => {
   const css = skulletCSS(config);

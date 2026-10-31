@@ -4,18 +4,18 @@
     setDebug,
     themeStyleTag,
     type SkulletMode,
-    type SkeleText,
-    type SkeleTheme,
+    type SkulletText,
+    type SkulletTheme,
     type RevealMode,
   } from '../lib';
 
   type Props = {
     /** Set on the inline script and stylesheets skullet renders, for a Content Security Policy. */
     nonce?: string;
-    theme?: SkeleTheme;
+    theme?: SkulletTheme;
     mode?: SkulletMode;
     /** Where text bars run: from `top` (ascender, cap-height, x-height) down to `bottom` (baseline, descender). */
-    text?: SkeleText;
+    text?: SkulletText;
     /** How content replaces its skeleton: `smart` (the default), `together`, `sequence`, `sweep`, or a `RevealSpec` of your own. */
     reveal?: RevealMode;
     /** Outlines every reveal with where its skeleton came from and whether anything moved. */
