@@ -1,5 +1,5 @@
 ---
-"skullet": minor
+"skullet": patch
 ---
 
 The first release: skeletons measured from your own content, so nothing moves when it loads.

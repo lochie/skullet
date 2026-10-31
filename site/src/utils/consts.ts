@@ -1,6 +1,6 @@
 export const SITE_URL = "https://skullet.lochie.me";
 export const GITHUB_URL = "https://github.com/lochie/skullet";
-export const CHANGELOG_URL = `${GITHUB_URL}/releases`;
+export const CHANGELOG_URL = `${GITHUB_URL}/blob/main/packages/skullet/CHANGELOG.md`;
 export const TWITTER_URL = "https://twitter.com/lochieaxon";
 export const TWITTER_INTENT =
   "https://x.com/intent/user?screen_name=lochieaxon";

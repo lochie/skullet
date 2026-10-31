@@ -372,12 +372,13 @@ export const Docs = ({ downloads }: { downloads?: number }) => (
       </Callout>
     </Section>
 
-    <Section id="data" title="From data">
+    <Section id="component" title="From your component">
       <p>
-        Before data arrives there’s nothing to measure. Pass a{" "}
-        <code>sample</code> of the same shape: while <code>data</code> is{" "}
-        <code>null</code>, the sample is rendered unseen and measured in its
-        place. Your function only ever receives real data.
+        The skeleton is your own component. Wrap it and pass a{" "}
+        <code>sample</code> of its data: while <code>data</code> is{" "}
+        <code>null</code>, your component renders the sample unseen, and that is
+        measured in its place. There’s no second skeleton to write or keep in
+        step, and your component only ever receives real data.
       </p>
       <Demo hint="Click to reload">
         <ProfileDemo />
@@ -854,7 +855,7 @@ await screen.findByRole("heading", { name: "Ada Lovelace" });`}
           <table className={styles.table}>
             <tbody>
               {rows.map(([name, type, description]) => (
-                <tr key={name}>
+                <tr key={`row-${name}-${type}-${description}`}>
                   <td>
                     <code>{name}</code>
                   </td>

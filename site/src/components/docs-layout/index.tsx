@@ -9,7 +9,7 @@ const NAV = [
   [
     "Skeletons",
     [
-      ["/docs#data", "From data"],
+      ["/docs#component", "From your component"],
       ["/docs#plain", "Plain children"],
       ["/docs#custom", "Your own skeleton"],
       ["/docs#hints", "Hints"],
