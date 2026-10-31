@@ -2,22 +2,24 @@ import { useState } from "react";
 
 import styles from "./styles.module.scss";
 
-/** A live demo: a click remounts it, or runs `onClick`; with `controls` (under it) and no `onClick`, it's still. */
+/** A live demo: a click remounts it, or runs `onClick`; `still`, or `controls` (under it) without `onClick`, and it isn't clickable. */
 export const Demo = ({
   children,
   hint,
   controls,
   onClick,
   disabled,
+  still,
 }: {
   children: React.ReactNode;
   hint?: string;
   controls?: React.ReactNode;
   onClick?: () => void;
   disabled?: boolean;
+  still?: boolean;
 }) => {
   const [loads, setLoads] = useState(0);
-  const clickable = !!onClick || !controls;
+  const clickable = !still && (!!onClick || !controls);
   const reload = () => {
     if (disabled) return;
     if (onClick) onClick();

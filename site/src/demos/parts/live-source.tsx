@@ -58,7 +58,7 @@ export function LiveSource<T>({
     request(next);
   };
 
-  // The first load; the buttons start their own from the click
+  // The first load; later ones start from the click
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => request(0), []);
 
@@ -110,11 +110,11 @@ export function LiveSource<T>({
 
   return (
     <Demo
+      hint="Click to load another"
+      onClick={() => start(round + 1, false)}
+      disabled={loading}
       controls={
         <>
-          <Button onClick={() => start(round + 1, false)} disabled={loading}>
-            Load another
-          </Button>
           <Button onClick={() => start(round, true)} disabled={loading}>
             Refetch, keeping data
           </Button>

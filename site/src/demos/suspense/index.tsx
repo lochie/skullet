@@ -4,7 +4,7 @@ import { Skeleton, SkeletonSuspense } from "skullet/react";
 import styles from "./styles.module.scss";
 import { Demo } from "@/components/demo";
 import { SegmentedControl } from "@/components/segmented-control";
-import { Button, Field } from "../parts";
+import { Field } from "../parts";
 
 type Quote = { text: string; author: string };
 
@@ -70,19 +70,18 @@ export const SuspenseDemo = () => {
 
   return (
     <Demo
+      hint="Click to suspend again"
+      onClick={() => setRound(round + 1)}
       controls={
-        <>
-          <Field label="Fallback">
-            <SegmentedControl
-              label="Fallback"
-              options={FALLBACKS}
-              value={fallback}
-              onChange={setFallback}
-              format={(option) => FALLBACK_LABELS[option]}
-            />
-          </Field>
-          <Button onClick={() => setRound(round + 1)}>Suspend again</Button>
-        </>
+        <Field label="Fallback">
+          <SegmentedControl
+            label="Fallback"
+            options={FALLBACKS}
+            value={fallback}
+            onChange={setFallback}
+            format={(option) => FALLBACK_LABELS[option]}
+          />
+        </Field>
       }
     >
       <div className={styles.frame}>

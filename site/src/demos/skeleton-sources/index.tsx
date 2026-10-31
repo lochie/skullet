@@ -7,6 +7,7 @@ import { Demo } from "@/components/demo";
 import { SegmentedControl } from "@/components/segmented-control";
 import {
   Button,
+  Field,
   ProfileCard,
   PROFILES,
   SAMPLE_PROFILE,
@@ -131,18 +132,20 @@ export const SkeletonSourcesDemo = () => {
 
   return (
     <Demo
+      hint="Click to reload"
+      onClick={load}
+      disabled={loading}
       controls={
         <>
-          <SegmentedControl
-            label="Source"
-            options={SOURCES.map((s) => s.key)}
-            value={source}
-            onChange={setSource}
-            format={(key) => SOURCES.find((s) => s.key === key)!.title}
-          />
-          <Button onClick={load} disabled={loading}>
-            Load again
-          </Button>
+          <Field label="Source">
+            <SegmentedControl
+              label="Source"
+              options={SOURCES.map((s) => s.key)}
+              value={source}
+              onChange={setSource}
+              format={(key) => SOURCES.find((s) => s.key === key)!.title}
+            />
+          </Field>
           <Button
             onClick={() => {
               forgetShapes();

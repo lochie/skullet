@@ -5,7 +5,7 @@ import { Skeleton } from "skullet/react";
 import styles from "./styles.module.scss";
 import { Demo } from "@/components/demo";
 import { SegmentedControl } from "@/components/segmented-control";
-import { ProfileCard, PROFILES } from "../parts";
+import { Field, ProfileCard, PROFILES } from "../parts";
 
 const SCOPES = [
   {
@@ -51,13 +51,15 @@ export const ScopedThemesDemo = () => {
   return (
     <Demo
       controls={
-        <SegmentedControl
-          label="Theme"
-          options={SCOPES.map((_, i) => i)}
-          value={index}
-          onChange={setIndex}
-          format={(i) => SCOPES[i]!.title}
-        />
+        <Field label="Theme">
+          <SegmentedControl
+            label="Theme"
+            options={SCOPES.map((_, i) => i)}
+            value={index}
+            onChange={setIndex}
+            format={(i) => SCOPES[i]!.title}
+          />
+        </Field>
       }
     >
       <p className={styles.demoNote}>{scope.detail}</p>

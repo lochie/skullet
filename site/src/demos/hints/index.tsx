@@ -5,7 +5,7 @@ import styles from "./styles.module.scss";
 import { Avatar } from "@/components/avatar";
 import { Demo } from "@/components/demo";
 import { SegmentedControl } from "@/components/segmented-control";
-import { PROFILES } from "../parts";
+import { Field, PROFILES } from "../parts";
 
 const TAGS = ["Motion", "Type", "Systems"];
 
@@ -49,13 +49,15 @@ export const HintsDemo = () => {
   return (
     <Demo
       controls={
-        <SegmentedControl
-          label="Hint"
-          options={HINTS.map((_, i) => i)}
-          value={index}
-          onChange={setIndex}
-          format={(i) => HINTS[i]!.title}
-        />
+        <Field label="Hint">
+          <SegmentedControl
+            label="Hint"
+            options={HINTS.map((_, i) => i)}
+            value={index}
+            onChange={setIndex}
+            format={(i) => HINTS[i]!.title}
+          />
+        </Field>
       }
     >
       <p className={styles.demoNote}>{detail}</p>

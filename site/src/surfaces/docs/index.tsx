@@ -235,7 +235,7 @@ export const Docs = ({ downloads }: { downloads?: number }) => (
         <code>null</code>, the sample is rendered unseen and measured in its
         place. Your function only ever receives real data.
       </p>
-      <Demo>
+      <Demo hint="Click to reload">
         <ProfileDemo />
       </Demo>
       <CodeBlock
@@ -274,7 +274,7 @@ export const Docs = ({ downloads }: { downloads?: number }) => (
 
 Avatar.Skeleton = () => <SkeletonBox width={40} height={40} radius="50%" />;`}
       />
-      <Demo>
+      <Demo still>
         <SkeletonBox width={40} height={40} radius="50%" />
         <SkeletonBox width="70%" />
         <SkeletonBox width="45%" />
@@ -282,10 +282,10 @@ Avatar.Skeleton = () => <SkeletonBox width={40} height={40} radius="50%" />;`}
       <Callout>
         <p>
           Build your skeleton from Skullet’s exported{" "}
-          <code>&lt;SkeletonBox&gt;</code> rather than a grey box of your own. Each
-          bar joins the page’s one shimmer, in step with every other skeleton
-          however late it mounts, and follows the theme’s colours, animation and
-          reduced motion.
+          <code>&lt;SkeletonBox&gt;</code> rather than a grey box of your own.
+          Each bar joins the page’s one shimmer, in step with every other
+          skeleton however late it mounts, and follows the theme’s colours,
+          animation and reduced motion.
         </p>
       </Callout>
     </Section>
