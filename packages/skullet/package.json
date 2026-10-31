@@ -94,7 +94,8 @@
     "./dist/element/*"
   ],
   "files": [
-    "dist/*"
+    "dist",
+    "!**/.DS_Store"
   ],
   "peerDependencies": {
     "react": ">=18",
