@@ -1,5 +1,14 @@
 # skullet
 
+## 0.0.3
+
+### Patch Changes
+
+- b9e9d15: Fixes a component's own skeleton vanishing in a sequenced reveal.
+
+  #### Fixed
+  - A component's own skeleton, like a static `.Skeleton`, now fades out with the rest in a sequenced reveal.
+
 ## 0.0.2
 
 ### Patch Changes
