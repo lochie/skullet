@@ -22,7 +22,7 @@ import {
   type WipePlan,
 } from "./plan";
 import { revealSpec } from "./reveals";
-import { rectsOf, shimmer } from "./shimmer";
+import { rectsOf, sheenOf, shimmer } from "./shimmer";
 
 export { prefersReducedMotion };
 
@@ -381,10 +381,16 @@ function sequenceOut(element: HTMLElement, plan: SequencePlan) {
   ].filter((part) => !part.parentElement?.closest(`[${ATTR_OWN}]`));
   for (const part of own) part.style.visibility = "visible";
 
-  const bones = [
-    ...[...element.querySelectorAll(`[${ATTR_LAYER}]`)].flatMap(rectsOf),
-    ...own,
-  ];
+  const layers = [...element.querySelectorAll(`[${ATTR_LAYER}]`)];
+  const bones = [...layers.flatMap(rectsOf), ...own];
+  // The highlight spans every bone, so it goes as the first of them does
+  for (const sheen of layers.map(sheenOf)) {
+    sheen?.animate([{ opacity: 1 }, { opacity: 0 }], {
+      duration: plan.duration,
+      easing: "ease",
+      fill: "forwards",
+    });
+  }
   // Every delay read before any bone animates, so layout is read once, not again after each write
   const delays = bones.map((bone) =>
     plan.boneDelay(bone.getBoundingClientRect()),

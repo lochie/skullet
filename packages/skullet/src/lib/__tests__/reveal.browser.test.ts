@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { FADE_DURATION } from "../constants";
 import { bonesIn } from "@skullet/test-cases";
 import { fadeIn, forgetShapes, Reveal } from "..";
+import { sheenOf } from "../shimmer";
 
 const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
 const settle = () =>
@@ -291,8 +292,8 @@ describe("Reveal", () => {
     const second = new Reveal(root.appendChild(document.createElement("div")));
     second.load(html(`<p>Second</p>`));
 
-    const animations = bones(root).map(
-      (bone) => (bone as HTMLElement).getAnimations()[0]!,
+    const animations = [...root.querySelectorAll("[skullet-layer]")].map(
+      (layer) => sheenOf(layer)!.firstElementChild!.getAnimations()[0]!,
     );
     expect(animations).toHaveLength(2);
     expect(animations.map((a) => a.startTime)).toEqual([0, 0]);
@@ -355,6 +356,7 @@ describe("Reveal", () => {
     reveal.load(html(`<p>Still</p>`));
 
     expect((bones(root)[0] as HTMLElement).getAnimations()).toHaveLength(0);
+    expect(sheenOf(root.querySelector("[skullet-layer]")!)).toBeNull();
     reveal.destroy();
   });
 });
