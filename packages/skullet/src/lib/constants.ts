@@ -5,6 +5,7 @@ export const ATTR_GHOST = "skullet-ghost"; // The framework's render of the cont
 export const ATTR_SNAPSHOT = "skullet-snapshot"; // A remembered or fallback shape, standing in for the ghost
 export const ATTR_LAYER = "skullet-layer";
 export const ATTR_RECT = "skullet-rect";
+export const ATTR_SHEEN = "skullet-sheen";
 export const ATTR_BAR = "skullet-bar";
 export const ATTR_INACTIVE = "skullet-inactive";
 export const ATTR_EXITING = "skullet-exiting"; // On a pane fading out — its skeleton holds still

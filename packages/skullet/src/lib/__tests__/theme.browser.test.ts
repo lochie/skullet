@@ -7,7 +7,7 @@ import {
   Ghost,
   removeStyles,
 } from "..";
-import { PEAK, SLANT_TAN } from "../shimmer";
+import { PEAK, sheenOf, SLANT_TAN } from "../shimmer";
 
 // Held for the file, as a mounted component would: each Ghost here is destroyed straight away
 beforeAll(addStyles);
@@ -29,6 +29,7 @@ function skeleton(
 }
 
 const animation = (element: Element) => element.getAnimations()[0];
+const sheenIn = (root: Element) => sheenOf(root.querySelector("[skullet-layer]")!);
 
 describe("animation", () => {
   it("pulses softly, every bone in one phase", () => {
@@ -46,56 +47,70 @@ describe("animation", () => {
   });
 
   it("holds still with none", () => {
-    const { bones } = skeleton("--skullet-animation: none");
+    const { root, bones } = skeleton("--skullet-animation: none");
     expect(bones[0]!.getAnimations()).toHaveLength(0);
+    expect(sheenIn(root)).toBeNull();
   });
 
-  // Keyframe positions are the tile's left edge, in the bone's own terms
-  const sweep = (bone: HTMLElement) => {
-    const frames = (animation(bone)!.effect as KeyframeEffect).getKeyframes();
+  it("leaves the bones still, with one highlight sweeping them all", () => {
+    const { root, bones } = skeleton(
+      "",
+      `<p style="margin: 0">First line</p><p style="margin: 40px 0 0">Lower line</p>`,
+    );
+    expect(bones.every((bone) => bone.getAnimations().length === 0)).toBe(true);
+    const sheen = sheenIn(root)!;
+    const mask = decodeURIComponent(sheen.style.maskImage);
+    expect(mask.match(/M[\d.]/g)).toHaveLength(bones.length);
+    const keyframes = (
+      animation(sheen.firstElementChild!)!.effect as KeyframeEffect
+    ).getKeyframes();
+    expect(keyframes.every((frame) => frame.transform)).toBe(true);
+  });
+
+  const sweep = (root: Element) => {
+    const band = sheenIn(root)!.firstElementChild as HTMLElement;
+    const effect = animation(band)!.effect as KeyframeEffect;
+    const [start, end] = effect.getKeyframes();
+    const shift = (frame: Keyframe | undefined) =>
+      parseFloat(String(frame!.transform).replace("translateX(", "")) || 0;
     return {
-      from: parseFloat(String(frames[0]!.backgroundPosition)),
-      to: parseFloat(String(frames[1]!.backgroundPosition)),
-      tile: parseFloat(bone.style.backgroundSize),
+      offset: parseFloat(band.style.backgroundPosition),
+      travel: shift(end) - shift(start),
+      tile: parseFloat(band.style.backgroundSize),
+      duration: Number(effect.getTiming().duration),
+      image: band.style.backgroundImage,
     };
   };
 
-  // Where along the stream a bone starts, wrapped into one period
-  const phase = (bone: HTMLElement) => {
-    const { from, tile } = sweep(bone);
-    return ((-from % tile) + tile) % tile;
+  const phase = (root: Element) => {
+    const { offset, tile } = sweep(root);
+    return ((-offset % tile) + tile) % tile;
   };
 
-  it("runs one stream across the page — a bone further right is further along it", () => {
-    const { bones } = skeleton(
-      "",
-      `<p style="display: flex; gap: 100px; margin: 0"><span>Left</span><span>Right</span></p>`,
-    );
-    const [left, right] = bones as [HTMLElement, HTMLElement];
+  it("runs one stream across the page — a layer further right is further along it", () => {
+    const left = skeleton("").root;
+    const right = skeleton("padding-left: 140px").root;
     const { tile } = sweep(left);
-    const apart =
-      right.getBoundingClientRect().left - left.getBoundingClientRect().left;
+    const a = left.querySelector("[skullet-layer]")!.getBoundingClientRect();
+    const b = right.querySelector("[skullet-layer]")!.getBoundingClientRect();
+    const apart = b.left - a.left + (b.top - a.top) * SLANT_TAN;
     // How far off one stream they are, either way round the period
     const off = (((phase(right) - phase(left) - apart) % tile) + tile) % tile;
     expect(Math.min(off, tile - off)).toBeCloseTo(0, 1);
     // Each loop moves the stream on by exactly one period, so it repeats seamlessly
-    expect(sweep(left).to - sweep(left).from).toBeCloseTo(tile, 1);
+    expect(sweep(left).travel).toBeCloseTo(tile, 1);
   });
 
   it("runs each group's stream from its own corner with group-shimmer", () => {
-    const { root, bones } = skeleton("--skullet-animation: group-shimmer");
-    const layer = root
-      .querySelector("[skullet-layer]")!
-      .getBoundingClientRect();
-    const bone = bones[0]!.getBoundingClientRect();
-    const { tile } = sweep(bones[0]!);
-    const along = bone.left - layer.left + (bone.top - layer.top) * SLANT_TAN;
-    expect(phase(bones[0]!)).toBeCloseTo(((along % tile) + tile) % tile, 1);
+    const { root } = skeleton("--skullet-animation: group-shimmer");
+    const { tile } = sweep(root);
+    const off = phase(root);
+    expect(Math.min(off, tile - off)).toBeCloseTo(0, 1);
   });
 
   it("draws a diagonal stream of scrimmed highlights, each peaking at PEAK", () => {
-    const { bones } = skeleton("");
-    const image = bones[0]!.style.backgroundImage;
+    const { root } = skeleton("");
+    const { image } = sweep(root);
     expect(image).toMatch(/^repeating-linear-gradient\(110deg/);
 
     // Opacity at each stop, along one band
@@ -112,38 +127,22 @@ describe("animation", () => {
     expect(period).toBeGreaterThan(last);
   });
 
-  it("lags the band for bones lower down, so the sweep is one diagonal", () => {
-    const { bones } = skeleton(
-      "",
-      `<p style="margin: 0">First line</p><p style="margin: 40px 0 0">Lower line</p>`,
-    );
-    const upper = sweep(bones[0]!);
-    const lower = sweep(bones[1]!);
-    // Same left edge, so a lower bone's tile starts further left at the same moment
-    expect(lower.from).toBeLessThan(upper.from);
-  });
-
   it("sweeps at one pace, however wide its span", () => {
     const pace = (width: number) => {
-      const { bones } = skeleton(
+      const { root } = skeleton(
         `--skullet-animation: group-shimmer; width: ${width}px`,
       );
-      const effect = animation(bones[0]!)!.effect as KeyframeEffect;
-      const [start, end] = effect.getKeyframes();
-      const travel =
-        parseFloat(String(end!.backgroundPosition)) -
-        parseFloat(String(start!.backgroundPosition));
-      return (
-        travel / (Number(effect.getTiming().duration) * end!.computedOffset)
-      );
+      const { travel, duration } = sweep(root);
+      return travel / duration;
     };
     expect(pace(200)).toBeCloseTo(pace(600), 3);
   });
 
   it("takes each animation's own slow and fast", () => {
     const loop = (variables: string) => {
-      const { bones } = skeleton(variables);
-      return Number(animation(bones[0]!)!.effect!.getTiming().duration);
+      const { root, bones } = skeleton(variables);
+      const animated = sheenIn(root)?.firstElementChild ?? bones[0]!;
+      return Number(animation(animated)!.effect!.getTiming().duration);
     };
     expect(loop("--skullet-animation: pulse")).toBe(DURATIONS.pulse.slow);
     expect(loop("--skullet-animation: pulse; --skullet-speed: fast")).toBe(

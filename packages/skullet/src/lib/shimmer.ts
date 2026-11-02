@@ -1,6 +1,12 @@
-import { ATTR_RECT, BASE, DURATIONS, HIGHLIGHT } from "./constants";
+import {
+  ATTR_RECT,
+  ATTR_SHEEN,
+  BASE,
+  DURATIONS,
+  HIGHLIGHT,
+} from "./constants";
 import type { SkulletAnimation, SkulletSpeed } from "./theme";
-import { animationsOf, prefersReducedMotion } from "./motion";
+import { prefersReducedMotion } from "./motion";
 import type { SkeletonRect } from "./measure";
 
 const SWEEP = 0.7; // of a duration a sweep takes at the reference width — sweeps run back to back, so this sets the pace
@@ -70,13 +76,20 @@ function highlights(band: number) {
   };
 }
 
+const NO_MOTION: Motion = { animation: "none", duration: 0 };
+
+const running = new WeakMap<Element, Animation>();
+
 /** Animates `element` as its slice of one sweep, on the document clock, so however late it mounts it joins the sweep under way. */
 export function shimmer(
   element: HTMLElement,
   group?: Span,
   motion: Motion = motionOf(element),
+  box?: Span,
+  pageWidth?: number,
 ) {
-  for (const animation of animationsOf(element)) animation.cancel();
+  running.get(element)?.cancel();
+  running.delete(element);
   element.style.backgroundImage = "";
   element.style.backgroundRepeat = "";
   if (prefersReducedMotion() || typeof element.animate !== "function") return;
@@ -85,18 +98,20 @@ export function shimmer(
   const timing = { duration: motion.duration, iterations: Infinity };
 
   if (motion.animation === "pulse") {
-    element.animate(
+    const pulse = element.animate(
       [
         { opacity: 1, easing: "ease-in-out" },
         { opacity: PULSE_LOW, easing: "ease-in-out" },
         { opacity: 1 },
       ],
       timing,
-    ).startTime = 0;
+    );
+    pulse.startTime = 0;
+    running.set(element, pulse);
     return;
   }
 
-  const rect = element.getBoundingClientRect();
+  const rect = box ?? element.getBoundingClientRect();
   const x = rect.left + scrollX;
   const area: Span =
     motion.animation === "group-shimmer"
@@ -109,7 +124,8 @@ export function shimmer(
       : {
           left: 0,
           top: 0,
-          width: document.documentElement.clientWidth || innerWidth,
+          width:
+            pageWidth ?? (document.documentElement.clientWidth || innerWidth),
           height: innerHeight,
         };
   const band = Math.min(Math.max(area.width * 0.4, 80), MAX_BAND);
@@ -123,13 +139,15 @@ export function shimmer(
   element.style.backgroundImage = image;
   element.style.backgroundSize = `${tile}px 100%`;
   element.style.backgroundRepeat = "repeat-x";
-  element.animate(
+  const sweep = element.animate(
     [
       { backgroundPosition: `${-along}px 0` },
       { backgroundPosition: `${tile - along}px 0` },
     ],
     { duration: tile * pace, iterations: Infinity },
-  ).startTime = 0;
+  );
+  sweep.startTime = 0;
+  running.set(element, sweep);
 }
 
 /** ms per px of the band in `element`'s shimmer; null when it has no band. */
@@ -147,7 +165,112 @@ const shadow = (layer: HTMLElement) =>
 
 /** The rect elements drawn into `layer`. */
 export const rectsOf = (layer: Element): HTMLElement[] =>
-  layer.shadowRoot ? ([...layer.shadowRoot.children] as HTMLElement[]) : [];
+  layer.shadowRoot
+    ? ([...layer.shadowRoot.children].filter((element) =>
+        element.hasAttribute(ATTR_RECT),
+      ) as HTMLElement[])
+    : [];
+
+export const sheenOf = (layer: Element): HTMLElement | null =>
+  layer.shadowRoot?.querySelector<HTMLElement>(`[${ATTR_SHEEN}]`) ?? null;
+
+const px = (value: number) => Math.round(value * 100) / 100;
+
+function cornersOf({ width, height, radius }: SkeletonRect) {
+  const size = Math.min(width, height);
+  const values = (radius.split("/")[0] ?? "")
+    .trim()
+    .split(/\s+/)
+    .map((value) =>
+      value.endsWith("%")
+        ? (parseFloat(value) / 100) * size
+        : parseFloat(value) || 0,
+    );
+  const [tl = 0, tr = tl, br = tl, bl = tr] = values;
+  return [tl, tr, br, bl].map((r) => Math.min(Math.max(r, 0), size / 2)) as [
+    number,
+    number,
+    number,
+    number,
+  ];
+}
+
+function pathOf(part: SkeletonRect) {
+  const { x, y, width: w, height: h } = part;
+  const [tl, tr, br, bl] = cornersOf(part).map(px) as [
+    number,
+    number,
+    number,
+    number,
+  ];
+  return (
+    `M${px(x + tl)} ${px(y)}H${px(x + w - tr)}A${tr} ${tr} 0 0 1 ${px(x + w)} ${px(y + tr)}` +
+    `V${px(y + h - br)}A${br} ${br} 0 0 1 ${px(x + w - br)} ${px(y + h)}` +
+    `H${px(x + bl)}A${bl} ${bl} 0 0 1 ${px(x)} ${px(y + h - bl)}` +
+    `V${px(y + tl)}A${tl} ${tl} 0 0 1 ${px(x + tl)} ${px(y)}Z`
+  );
+}
+
+function maskOf(rects: SkeletonRect[], width: number, height: number) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${px(width)}" height="${px(height)}"><path d="${rects.map(pathOf).join("")}"/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+
+type Sheen = {
+  group: Span;
+  motion: Motion;
+  pageWidth: number;
+  width: number;
+  height: number;
+};
+
+function drawSheen(
+  root: ShadowRoot,
+  rects: SkeletonRect[],
+  { group, motion, pageWidth, width, height }: Sheen,
+) {
+  let sheen = root.querySelector<HTMLElement>(`[${ATTR_SHEEN}]`);
+  if (!sheen) {
+    sheen = document.createElement("div");
+    sheen.setAttribute(ATTR_SHEEN, "");
+    sheen.style.cssText =
+      "position:absolute;left:0;top:0;overflow:hidden;pointer-events:none;mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat";
+    sheen.append(document.createElement("div"));
+    root.append(sheen);
+  }
+  const band = sheen.firstElementChild as HTMLElement;
+
+  const mask = maskOf(rects, width, height);
+  if (sheen.dataset.mask !== mask) {
+    sheen.dataset.mask = mask;
+    sheen.style.width = `${width}px`;
+    sheen.style.height = `${height}px`;
+    sheen.style.maskImage = mask;
+    sheen.style.setProperty("-webkit-mask-image", mask);
+  }
+
+  const area: Span =
+    motion.animation === "group-shimmer"
+      ? group
+      : { left: 0, top: 0, width: pageWidth, height: innerHeight };
+  const bandWidth = Math.min(Math.max(area.width * 0.4, 80), MAX_BAND);
+  const { width: tile, image } = highlights(bandWidth);
+  const along = group.left - area.left + (group.top - area.top) * SLANT_TAN;
+  const pace = (motion.duration * SWEEP) / (REFERENCE_WIDTH + MAX_BAND);
+
+  const key = `${px(tile)}|${px(along % tile)}|${motion.duration}`;
+  if (band.dataset.motion === key) return;
+  band.dataset.motion = key;
+
+  running.get(band)?.cancel();
+  band.style.cssText = `position:absolute;top:0;bottom:0;left:${-px(tile)}px;width:calc(100% + ${px(tile)}px);background-image:${image};background-size:${px(tile)}px 100%;background-repeat:repeat-x;background-position:${px(-along)}px 0;will-change:transform`;
+  const sweep = band.animate(
+    [{ transform: "translateX(0)" }, { transform: `translateX(${px(tile)}px)` }],
+    { duration: tile * pace, iterations: Infinity },
+  );
+  sweep.startTime = 0;
+  running.set(band, sweep);
+}
 
 /** Draws `rects` into `layer`, reusing the elements already there. */
 export function drawSkeleton(layer: HTMLElement, rects: SkeletonRect[]) {
@@ -161,15 +284,26 @@ export function drawSkeleton(layer: HTMLElement, rects: SkeletonRect[]) {
   };
   // Read once for the layer: every rect in it inherits the same theme
   const motion = motionOf(layer);
+  const width = layer.offsetWidth;
+  const height = layer.offsetHeight;
+  const scaleX = width ? rect.width / width : 1;
+  const scaleY = height ? rect.height / height : 1;
+  const pageWidth = document.documentElement.clientWidth || innerWidth;
+  const sheen =
+    (motion.animation === "shimmer" || motion.animation === "group-shimmer") &&
+    !prefersReducedMotion() &&
+    typeof layer.animate === "function";
 
+  const bones = rectsOf(layer);
+  const before = sheenOf(layer);
   rects.forEach((part, index) => {
-    let element = root.children[index] as HTMLElement | undefined;
+    let element = bones[index];
     if (!element) {
       element = document.createElement("div");
       element.setAttribute(ATTR_RECT, "");
       // Inline: no page stylesheet reaches into the shadow root
       element.style.cssText = `position:absolute;display:block;pointer-events:none;background-color:${BASE};background-repeat:no-repeat`;
-      root.append(element);
+      root.insertBefore(element, before);
     }
 
     Object.assign(element.style, {
@@ -181,12 +315,26 @@ export function drawSkeleton(layer: HTMLElement, rects: SkeletonRect[]) {
     });
 
     // Restarted only when its place, group, the page's width or the motion changes
-    const key = `${Math.round(group.left + part.x)}|${Math.round(part.y)}|${Math.round(part.height)}|${Math.round(group.left)}|${Math.round(group.width)}|${Math.round(group.height)}|${document.documentElement.clientWidth}|${motion.animation}|${motion.duration}`;
+    const key = sheen
+      ? "sheen"
+      : `${Math.round(group.left + part.x)}|${Math.round(part.y)}|${Math.round(part.height)}|${Math.round(group.left)}|${Math.round(group.width)}|${Math.round(group.height)}|${pageWidth}|${motion.animation}|${motion.duration}`;
     if (element.dataset.motion !== key) {
       element.dataset.motion = key;
-      shimmer(element, group, motion);
+      const box = {
+        left: rect.left + part.x * scaleX,
+        top: rect.top + part.y * scaleY,
+        width: part.width * scaleX,
+        height: part.height * scaleY,
+      };
+      shimmer(element, group, sheen ? NO_MOTION : motion, box, pageWidth);
     }
   });
 
-  while (root.children.length > rects.length) root.lastElementChild!.remove();
+  for (const extra of bones.slice(rects.length)) extra.remove();
+
+  if (sheen) {
+    drawSheen(root, rects, { group, motion, pageWidth, width, height });
+  } else {
+    before?.remove();
+  }
 }
