@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import {
   addStyles,
   FADE_DURATION,
@@ -53,10 +53,12 @@ describe("smart reveal", () => {
     const reveal = stage();
     const content = reveal.show(html(`<p>Shown</p>`));
     const skeleton = reveal.load(html(`<p>Shown</p>`));
-    await wait(0);
 
-    expect(timing(skeleton)?.delay).toBe(SKELETON_DELAY);
-    expect(timing(content)?.delay).toBe(SKELETON_DELAY);
+    // The outgoing fade-out is planned a microtask after the incoming one - wait for the pair, not a tick
+    await vi.waitFor(() => {
+      expect(timing(skeleton)?.delay).toBe(SKELETON_DELAY);
+      expect(timing(content)?.delay).toBe(SKELETON_DELAY);
+    });
   });
 
   it("swaps at once when the data beats the hold-back — no skeleton ever shows", async () => {
