@@ -78,7 +78,6 @@ function highlights(band: number) {
 
 const NO_MOTION: Motion = { animation: "none", duration: 0 };
 
-// The shimmer each element runs: `getAnimations()` would flush style, once per bone after every write
 const running = new WeakMap<Element, Animation>();
 
 /** Animates `element` as its slice of one sweep, on the document clock, so however late it mounts it joins the sweep under way. */
@@ -86,7 +85,6 @@ export function shimmer(
   element: HTMLElement,
   group?: Span,
   motion: Motion = motionOf(element),
-  /** Its box on screen and the page's width, when the caller knows them — read here, each forces a layout after every write. */
   box?: Span,
   pageWidth?: number,
 ) {
@@ -173,13 +171,11 @@ export const rectsOf = (layer: Element): HTMLElement[] =>
       ) as HTMLElement[])
     : [];
 
-/** The highlight sweeping `layer`'s rects, when its motion is a shimmer. */
 export const sheenOf = (layer: Element): HTMLElement | null =>
   layer.shadowRoot?.querySelector<HTMLElement>(`[${ATTR_SHEEN}]`) ?? null;
 
 const px = (value: number) => Math.round(value * 100) / 100;
 
-// Each corner of a CSS `border-radius` in px, clamped as the browser would
 function cornersOf({ width, height, radius }: SkeletonRect) {
   const size = Math.min(width, height);
   const values = (radius.split("/")[0] ?? "")
@@ -215,7 +211,6 @@ function pathOf(part: SkeletonRect) {
   );
 }
 
-/** The rects as a mask: what the highlight shows through. */
 function maskOf(rects: SkeletonRect[], width: number, height: number) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${px(width)}" height="${px(height)}"><path d="${rects.map(pathOf).join("")}"/></svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
@@ -229,10 +224,6 @@ type Sheen = {
   height: number;
 };
 
-/**
- * The shimmer as one highlight over all of a layer's rects, masked to them and moved by `transform`, so
- * the compositor runs it: a background-position sweep on every rect would repaint each of them every frame.
- */
 function drawSheen(
   root: ShadowRoot,
   rects: SkeletonRect[],
@@ -258,7 +249,6 @@ function drawSheen(
     sheen.style.setProperty("-webkit-mask-image", mask);
   }
 
-  // The same stream the rects would each draw: one sweep across the page, or across the group
   const area: Span =
     motion.animation === "group-shimmer"
       ? group
@@ -273,7 +263,6 @@ function drawSheen(
   band.dataset.motion = key;
 
   running.get(band)?.cancel();
-  // A tile wider on the left, so translating by one tile never uncovers an edge
   band.style.cssText = `position:absolute;top:0;bottom:0;left:${-px(tile)}px;width:calc(100% + ${px(tile)}px);background-image:${image};background-size:${px(tile)}px 100%;background-repeat:repeat-x;background-position:${px(-along)}px 0;will-change:transform`;
   const sweep = band.animate(
     [{ transform: "translateX(0)" }, { transform: `translateX(${px(tile)}px)` }],
@@ -295,7 +284,6 @@ export function drawSkeleton(layer: HTMLElement, rects: SkeletonRect[]) {
   };
   // Read once for the layer: every rect in it inherits the same theme
   const motion = motionOf(layer);
-  // Rects are local to the layer; on screen they scale with any transform on it
   const width = layer.offsetWidth;
   const height = layer.offsetHeight;
   const scaleX = width ? rect.width / width : 1;

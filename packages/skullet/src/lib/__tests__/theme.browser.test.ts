@@ -59,17 +59,14 @@ describe("animation", () => {
     );
     expect(bones.every((bone) => bone.getAnimations().length === 0)).toBe(true);
     const sheen = sheenIn(root)!;
-    // A path per bone in the mask it shows through
     const mask = decodeURIComponent(sheen.style.maskImage);
     expect(mask.match(/M[\d.]/g)).toHaveLength(bones.length);
-    // Moved by transform, which the compositor runs without repainting
     const keyframes = (
       animation(sheen.firstElementChild!)!.effect as KeyframeEffect
     ).getKeyframes();
     expect(keyframes.every((frame) => frame.transform)).toBe(true);
   });
 
-  // The band's background offset and how far it travels per loop, in the layer's own terms
   const sweep = (root: Element) => {
     const band = sheenIn(root)!.firstElementChild as HTMLElement;
     const effect = animation(band)!.effect as KeyframeEffect;
@@ -85,7 +82,6 @@ describe("animation", () => {
     };
   };
 
-  // Where along the stream a layer's corner starts, wrapped into one period
   const phase = (root: Element) => {
     const { offset, tile } = sweep(root);
     return ((-offset % tile) + tile) % tile;

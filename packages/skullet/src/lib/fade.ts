@@ -135,7 +135,6 @@ function holdImages(element: HTMLElement, root: HTMLElement) {
 
 function sequenceIn(element: HTMLElement, plan: SequencePlan) {
   if (prefersReducedMotion()) return Promise.resolve();
-  // Every delay read before any piece animates, so layout is read once, not again after each write
   const timed = pieces(element).map(
     (piece) => [piece, plan.pieceDelay(piece)] as const,
   );
@@ -383,7 +382,6 @@ function sequenceOut(element: HTMLElement, plan: SequencePlan) {
 
   const layers = [...element.querySelectorAll(`[${ATTR_LAYER}]`)];
   const bones = [...layers.flatMap(rectsOf), ...own];
-  // The highlight spans every bone, so it goes as the first of them does
   for (const sheen of layers.map(sheenOf)) {
     sheen?.animate([{ opacity: 1 }, { opacity: 0 }], {
       duration: plan.duration,
@@ -391,7 +389,6 @@ function sequenceOut(element: HTMLElement, plan: SequencePlan) {
       fill: "forwards",
     });
   }
-  // Every delay read before any bone animates, so layout is read once, not again after each write
   const delays = bones.map((bone) =>
     plan.boneDelay(bone.getBoundingClientRect()),
   );
