@@ -135,9 +135,12 @@ function holdImages(element: HTMLElement, root: HTMLElement) {
 
 function sequenceIn(element: HTMLElement, plan: SequencePlan) {
   if (prefersReducedMotion()) return Promise.resolve();
+  // Every delay read before any piece animates, so layout is read once, not again after each write
+  const timed = pieces(element).map(
+    (piece) => [piece, plan.pieceDelay(piece)] as const,
+  );
   return Promise.all(
-    pieces(element).map((piece) => {
-      const delay = plan.pieceDelay(piece);
+    timed.map(([piece, delay]) => {
       if (delay === null) return;
       return appear(piece, delay, plan.duration, 0, plan.enter);
     }),
@@ -382,9 +385,12 @@ function sequenceOut(element: HTMLElement, plan: SequencePlan) {
     ...[...element.querySelectorAll(`[${ATTR_LAYER}]`)].flatMap(rectsOf),
     ...own,
   ];
+  // Every delay read before any bone animates, so layout is read once, not again after each write
+  const delays = bones.map((bone) =>
+    plan.boneDelay(bone.getBoundingClientRect()),
+  );
   return Promise.all(
-    bones.map((bone) => {
-      const rect = bone.getBoundingClientRect();
+    bones.map((bone, index) => {
       const go = (delay: number) =>
         settle(
           bone.animate([{ opacity: 1 }, { opacity: 0 }], {
@@ -394,8 +400,8 @@ function sequenceOut(element: HTMLElement, plan: SequencePlan) {
             fill: "forwards",
           }),
         );
-      const delay = plan.boneDelay(rect);
-      if (delay === null) {
+      const delay = delays[index];
+      if (delay === null || delay === undefined) {
         bone.style.opacity = "0";
         return;
       }

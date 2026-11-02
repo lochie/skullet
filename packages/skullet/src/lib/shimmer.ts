@@ -1,6 +1,6 @@
 import { ATTR_RECT, BASE, DURATIONS, HIGHLIGHT } from "./constants";
 import type { SkulletAnimation, SkulletSpeed } from "./theme";
-import { animationsOf, prefersReducedMotion } from "./motion";
+import { prefersReducedMotion } from "./motion";
 import type { SkeletonRect } from "./measure";
 
 const SWEEP = 0.7; // of a duration a sweep takes at the reference width — sweeps run back to back, so this sets the pace
@@ -70,13 +70,20 @@ function highlights(band: number) {
   };
 }
 
+// The shimmer each element runs: `getAnimations()` would flush style, once per bone after every write
+const running = new WeakMap<Element, Animation>();
+
 /** Animates `element` as its slice of one sweep, on the document clock, so however late it mounts it joins the sweep under way. */
 export function shimmer(
   element: HTMLElement,
   group?: Span,
   motion: Motion = motionOf(element),
+  /** Its box on screen and the page's width, when the caller knows them — read here, each forces a layout after every write. */
+  box?: Span,
+  pageWidth?: number,
 ) {
-  for (const animation of animationsOf(element)) animation.cancel();
+  running.get(element)?.cancel();
+  running.delete(element);
   element.style.backgroundImage = "";
   element.style.backgroundRepeat = "";
   if (prefersReducedMotion() || typeof element.animate !== "function") return;
@@ -85,18 +92,20 @@ export function shimmer(
   const timing = { duration: motion.duration, iterations: Infinity };
 
   if (motion.animation === "pulse") {
-    element.animate(
+    const pulse = element.animate(
       [
         { opacity: 1, easing: "ease-in-out" },
         { opacity: PULSE_LOW, easing: "ease-in-out" },
         { opacity: 1 },
       ],
       timing,
-    ).startTime = 0;
+    );
+    pulse.startTime = 0;
+    running.set(element, pulse);
     return;
   }
 
-  const rect = element.getBoundingClientRect();
+  const rect = box ?? element.getBoundingClientRect();
   const x = rect.left + scrollX;
   const area: Span =
     motion.animation === "group-shimmer"
@@ -109,7 +118,8 @@ export function shimmer(
       : {
           left: 0,
           top: 0,
-          width: document.documentElement.clientWidth || innerWidth,
+          width:
+            pageWidth ?? (document.documentElement.clientWidth || innerWidth),
           height: innerHeight,
         };
   const band = Math.min(Math.max(area.width * 0.4, 80), MAX_BAND);
@@ -123,13 +133,15 @@ export function shimmer(
   element.style.backgroundImage = image;
   element.style.backgroundSize = `${tile}px 100%`;
   element.style.backgroundRepeat = "repeat-x";
-  element.animate(
+  const sweep = element.animate(
     [
       { backgroundPosition: `${-along}px 0` },
       { backgroundPosition: `${tile - along}px 0` },
     ],
     { duration: tile * pace, iterations: Infinity },
-  ).startTime = 0;
+  );
+  sweep.startTime = 0;
+  running.set(element, sweep);
 }
 
 /** ms per px of the band in `element`'s shimmer; null when it has no band. */
@@ -161,6 +173,10 @@ export function drawSkeleton(layer: HTMLElement, rects: SkeletonRect[]) {
   };
   // Read once for the layer: every rect in it inherits the same theme
   const motion = motionOf(layer);
+  // Rects are local to the layer; on screen they scale with any transform on it
+  const scaleX = layer.offsetWidth ? rect.width / layer.offsetWidth : 1;
+  const scaleY = layer.offsetHeight ? rect.height / layer.offsetHeight : 1;
+  const pageWidth = document.documentElement.clientWidth || innerWidth;
 
   rects.forEach((part, index) => {
     let element = root.children[index] as HTMLElement | undefined;
@@ -181,10 +197,16 @@ export function drawSkeleton(layer: HTMLElement, rects: SkeletonRect[]) {
     });
 
     // Restarted only when its place, group, the page's width or the motion changes
-    const key = `${Math.round(group.left + part.x)}|${Math.round(part.y)}|${Math.round(part.height)}|${Math.round(group.left)}|${Math.round(group.width)}|${Math.round(group.height)}|${document.documentElement.clientWidth}|${motion.animation}|${motion.duration}`;
+    const key = `${Math.round(group.left + part.x)}|${Math.round(part.y)}|${Math.round(part.height)}|${Math.round(group.left)}|${Math.round(group.width)}|${Math.round(group.height)}|${pageWidth}|${motion.animation}|${motion.duration}`;
     if (element.dataset.motion !== key) {
       element.dataset.motion = key;
-      shimmer(element, group, motion);
+      const box = {
+        left: rect.left + part.x * scaleX,
+        top: rect.top + part.y * scaleY,
+        width: part.width * scaleX,
+        height: part.height * scaleY,
+      };
+      shimmer(element, group, motion, box, pageWidth);
     }
   });
 
