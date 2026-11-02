@@ -81,15 +81,21 @@ describe("Skeleton", () => {
     render(custom(true));
     await settle();
     render(custom(false));
-    // Mid-fade: the skeleton is still leaving, the content still arriving
-    await act(
-      () => new Promise((resolve) => setTimeout(resolve, FADE_DURATION / 3)),
-    );
+    // Both panes exist the moment the content lands: the skeleton leaves over the fade
     expect(panes()).toHaveLength(2);
     const content = [...panes()].find(
       (pane) => pane.textContent === "Hello there",
     )!;
-    expect(+getComputedStyle(content).opacity).toBeLessThan(1);
+    // Mid-fade, read from the animation rather than the clock: a stalled frame must not decide this
+    expect(
+      content
+        .getAnimations()
+        .some(
+          (animation) =>
+            (animation.effect as KeyframeEffect)?.getTiming().duration ===
+            FADE_DURATION,
+        ),
+    ).toBe(true);
     await settle();
     expect(panes()).toHaveLength(1);
   });
@@ -155,26 +161,53 @@ describe("Skeleton", () => {
       </Skeleton>
     );
     vi.spyOn(console, "warn").mockImplementation(() => {});
-    const wait = () =>
-      act(() => new Promise((resolve) => setTimeout(resolve, 600)));
-    const arriving = () =>
-      container
-        .querySelector("[skullet-pane]:not([skullet-exiting])")!
-        .getAnimations()
-        .map((animation) => animation.effect!.getTiming().duration);
+    // Captured at call time: on a busy machine a finished fade can be removed before the test reads it
+    const fades: { element: Element; duration?: number }[] = [];
+    const animate = Element.prototype.animate;
+    vi.spyOn(Element.prototype, "animate").mockImplementation(function (
+      this: Element,
+      keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
+      options?: number | KeyframeAnimationOptions,
+    ) {
+      fades.push({
+        element: this,
+        duration:
+          typeof options === "number" ? options : (options?.duration as number),
+      });
+      return animate.call(this, keyframes, options);
+    });
+    const skeletonShown = () =>
+      vi.waitFor(() => {
+        const pane = container.querySelector<HTMLElement>(
+          "[skullet-pane]:not([skullet-exiting])",
+        );
+        expect(pane).not.toBeNull();
+        // Past the hold-back: the skeleton has faded in, so the next data is a reveal, not an instant swap
+        expect(+getComputedStyle(pane!).opacity).toBe(1);
+      });
+    const arrivingDurations = () => {
+      const pane = container.querySelector(
+        "[skullet-pane]:not([skullet-exiting])",
+      );
+      return fades
+        .filter((fade) => fade.element === pane)
+        .map((fade) => fade.duration);
+    };
 
     render(ui(ADA));
     await settle();
     render(ui(null));
-    await wait();
+    await skeletonShown();
+    fades.length = 0;
     render(ui(ADA));
-    expect(arriving()).toEqual([FADE_DURATION]);
+    expect(arrivingDurations()).toEqual([FADE_DURATION]);
 
     await settle();
     render(ui(ADA, true));
-    await wait();
+    await skeletonShown();
+    fades.length = 0;
     render(ui(ADA));
-    expect(arriving()[0]).toBeLessThan(FADE_DURATION);
+    expect(arrivingDurations()[0]).toBeLessThan(FADE_DURATION);
   });
 
   it("draws from the last data only for the same id", () => {

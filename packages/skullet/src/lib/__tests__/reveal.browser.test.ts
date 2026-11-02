@@ -108,10 +108,11 @@ describe("Reveal", () => {
     expect(heights).toEqual(["40px", "120px"]);
     expect(getComputedStyle(root).overflow).toBe("clip");
 
-    await vi.waitFor(() => {
-      expect(root.getBoundingClientRect().height).toBe(120);
-      expect(root.style.overflow).toBe("");
-    });
+    await Promise.all(
+      root.getAnimations().map((animation) => animation.finished.catch(() => {})),
+    );
+    expect(root.getBoundingClientRect().height).toBe(120);
+    expect(root.style.overflow).toBe("");
     reveal.destroy();
   });
 
