@@ -1,4 +1,4 @@
-import { act, StrictMode, type ReactNode } from "react";
+import { act, Children, StrictMode, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { bonesIn } from "@skullet/test-cases";
@@ -300,6 +300,21 @@ describe("Skeleton", () => {
       container.querySelector("[skullet-own] [skullet-bar]"),
     ).not.toBeNull();
     expect(container.querySelector("img")).toBeNull();
+  });
+
+  it("passes a lone child on as one element, as Radix Slot and `asChild` need", () => {
+    const Slot = (props: { children: ReactNode }) =>
+      Children.only(props.children);
+
+    render(
+      <Skeleton loading>
+        <Slot>
+          <a href="/example">Example</a>
+        </Slot>
+      </Skeleton>,
+    );
+
+    expect(container.querySelector("[skullet-ghost] a")).not.toBeNull();
   });
 
   it("keeps a child's own skeleton over a remembered shape", async () => {
