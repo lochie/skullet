@@ -16,6 +16,8 @@ export type SkulletConfig = {
   /** Colours for light and dark; `mode` picks between them. */
   theme?: SkulletTheme;
   mode?: SkulletMode;
+  /** Dark colours where this selector matches, like `.dark`, rather than by the system setting. */
+  darkSelector?: string;
   /** Where text bars run: from `top` (ascender, cap-height, x-height) down to `bottom` (baseline, descender). */
   text?: SkulletText;
   /** How content replaces its skeleton: `smart` (the default), `together`, `sequence`, `sweep`, or a `RevealSpec` of your own. */
@@ -41,8 +43,8 @@ export function SkulletProvider({
   children,
   ...config
 }: SkulletConfig & { children: React.ReactNode }) {
-  const { debug, theme, mode, text, nonce } = config;
-  const css = skulletCSS({ theme, mode, text });
+  const { debug, theme, mode, darkSelector, text, nonce } = config;
+  const css = skulletCSS({ theme, mode, darkSelector, text });
   const [boot] = React.useState<BootRecord>(() => ({ sent: false }));
 
   React.useEffect(() => {

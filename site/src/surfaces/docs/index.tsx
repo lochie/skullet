@@ -126,6 +126,11 @@ const API: [title: string, rows: Row[]][] = [
       ["theme", "SkulletTheme", "Colours, animation, speed, radius and text."],
       ["mode", '"light" | "dark" | "system"', "Which colours to use."],
       [
+        "darkSelector",
+        "string",
+        "Dark colours under a class like .dark, not by the system setting.",
+      ],
+      [
         "text",
         "SkulletText",
         "How much of each line of text is drawn; overrides the theme’s.",

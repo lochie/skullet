@@ -75,14 +75,18 @@ export function skulletCSS({
   mode,
   text,
   selector = ":root",
+  darkSelector,
 }: {
   theme?: SkulletTheme;
   mode?: SkulletMode;
   text?: SkulletText;
   selector?: string;
+  /** In `system` mode, dark colours where this matches, like `.dark`, rather than by `prefers-color-scheme`. */
+  darkSelector?: string;
 }): string {
   const resolved = { ...theme, text: { ...theme.text, ...text } };
-  const colored = mode ?? (theme.light || theme.dark ? "system" : null);
+  const colored =
+    mode ?? (theme.light || theme.dark || darkSelector ? "system" : null);
   const base = themeVariables(
     resolved,
     colored === "dark" ? "dark" : colored ? "light" : null,
@@ -94,8 +98,11 @@ export function skulletCSS({
   }
   if (colored === "system") {
     const dark = themeVariables({ dark: theme.dark }, "dark");
+    // On the dark element itself too, so a `.dark` on <body> or a section counts, not only one on <html>
     rules.push(
-      `@media (prefers-color-scheme: dark) { ${selector} { ${declarations(dark)} } }`,
+      darkSelector
+        ? `:is(${darkSelector}), :is(${darkSelector}) :is(${selector}) { ${declarations(dark)} }`
+        : `@media (prefers-color-scheme: dark) { ${selector} { ${declarations(dark)} } }`,
     );
   }
   return rules.join("\n");
@@ -107,16 +114,21 @@ let themeEl: HTMLStyleElement | null = null;
 export function applyTheme(
   theme?: SkulletTheme,
   mode?: SkulletMode,
-  { nonce }: { nonce?: string } = {},
+  { nonce, darkSelector }: { nonce?: string; darkSelector?: string } = {},
 ) {
   themeEl ??= document.head.appendChild(document.createElement("style"));
   if (nonce) themeEl.nonce = nonce;
-  themeEl.textContent = skulletCSS({ theme, mode });
+  themeEl.textContent = skulletCSS({ theme, mode, darkSelector });
 }
 
 /** The same CSS as a whole element, for templates that can only render HTML strings. */
 export const themeStyleTag = (
-  config: { theme?: SkulletTheme; mode?: SkulletMode; text?: SkulletText },
+  config: {
+    theme?: SkulletTheme;
+    mode?: SkulletMode;
+    text?: SkulletText;
+    darkSelector?: string;
+  },
   nonce?: string,
 ) => {
   const css = skulletCSS(config);
