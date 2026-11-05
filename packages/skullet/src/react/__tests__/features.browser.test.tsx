@@ -47,6 +47,7 @@ afterEach(() => {
   forgetShapes();
   document.body.replaceChildren();
   document.documentElement.removeAttribute("skullet-xray");
+  document.documentElement.classList.remove("dark");
 });
 
 type User = { name: string; bio: string };
@@ -145,6 +146,27 @@ describe("theme", () => {
     );
 
     const bone = bonesIn(container)[0]!;
+    expect(getComputedStyle(bone).backgroundColor).toBe("rgb(10, 20, 30)");
+  });
+
+  it("follows a class-based theme as it switches, given darkSelector", () => {
+    render(
+      <SkulletProvider
+        darkSelector=".dark"
+        theme={{
+          light: { base: "rgb(1, 2, 3)", highlight: "white" },
+          dark: { base: "rgb(10, 20, 30)", highlight: "white" },
+        }}
+      >
+        <Skeleton loading>
+          <Card user={ADA} />
+        </Skeleton>
+      </SkulletProvider>,
+    );
+
+    const bone = bonesIn(container)[0]!;
+    expect(getComputedStyle(bone).backgroundColor).toBe("rgb(1, 2, 3)");
+    document.documentElement.classList.add("dark");
     expect(getComputedStyle(bone).backgroundColor).toBe("rgb(10, 20, 30)");
   });
 });

@@ -14,6 +14,8 @@
     nonce?: string;
     theme?: SkulletTheme;
     mode?: SkulletMode;
+    /** Dark colours where this selector matches, like `.dark`, rather than by the system setting. */
+    darkSelector?: string;
     /** Where text bars run: from `top` (ascender, cap-height, x-height) down to `bottom` (baseline, descender). */
     text?: SkulletText;
     /** How content replaces its skeleton: `smart` (the default), `together`, `sequence`, `sweep`, or a `RevealSpec` of your own. */

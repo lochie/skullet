@@ -162,6 +162,7 @@ import { SkulletProvider } from "skullet/react";
 <SkulletProvider
   nonce={nonce} // on the inline script and stylesheets, for a Content Security Policy
   mode="system" // or "light" / "dark"
+  darkSelector=".dark" // dark colours under this class, not by the system setting
   theme={theme} // below
   text={{ top: "ascender", bottom: "descender" }} // where each line of text is drawn
   reveal="smart" // or "together" / "sequence" / "sweep"
@@ -195,6 +196,9 @@ const theme = {
 - `shimmer` sweeps one highlight across the whole page; `group-shimmer` gives
   each skeleton a sweep of its own; `pulse` fades every skeleton softly in and out.
   Each keeps one phase across the page.
+- `system` mode follows `prefers-color-scheme`. For a theme switched by a class,
+  like Tailwind's or shadcn's `.dark`, pass `darkSelector=".dark"`: dark colours
+  then apply wherever it matches, whatever the system setting.
 - Every option is a custom property underneath — `--skullet-base`,
   `--skullet-highlight`, `--skullet-radius`, `--skullet-animation`, `--skullet-speed`,
   `--skullet-text-top` and `--skullet-text-bottom` — so any part of a page can set

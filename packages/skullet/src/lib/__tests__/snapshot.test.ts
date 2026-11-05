@@ -119,6 +119,15 @@ describe("skulletCSS", () => {
     );
   });
 
+  it("switches colours with a dark selector in place of the system", async () => {
+    const { skulletCSS } = await import("../theme");
+    const css = skulletCSS({ darkSelector: ".dark" });
+    expect(css).toContain(
+      ":is(.dark), :is(.dark) :is(:root) { --skullet-base: rgb(255 255 255 / 0.08);",
+    );
+    expect(css).not.toContain("prefers-color-scheme");
+  });
+
   it("leaves the page's colours alone when given none", async () => {
     const { skulletCSS } = await import("../theme");
     expect(skulletCSS({ theme: { radius: "2px" } })).not.toContain(
