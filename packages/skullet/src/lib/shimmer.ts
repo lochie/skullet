@@ -8,6 +8,7 @@ const REFERENCE_WIDTH = 1280; // A shimmer's duration is one loop across this; a
 const MAX_BAND = 320; // The highlight's width, so it doesn't grow heavier on a wide screen
 const SPACING = 2.5; // bands follow each other this many band-widths apart, start to start — the gap between sweeps
 const PULSE_LOW = 0.45; // opacity at the bottom of a pulse
+const REAP_EVERY = 1000; // ms between checks for looping elements that have left the document
 
 const ANIMATIONS: readonly SkulletAnimation[] = [
   "shimmer",
@@ -70,6 +71,36 @@ function highlights(band: number) {
   };
 }
 
+// Browsers run an infinite animation after its element is removed, pinning the detached tree to the timeline
+const loops = new Map<HTMLElement, Animation>();
+let reaper: ReturnType<typeof setTimeout> | undefined;
+
+function reap() {
+  for (const [element, animation] of loops) {
+    if (element.isConnected) continue;
+    animation.cancel();
+    loops.delete(element);
+    // So a skeleton put back in the document is redrawn with its motion
+    delete element.dataset.motion;
+  }
+  reaper = loops.size ? setTimeout(reap, REAP_EVERY) : undefined;
+}
+
+// On the document clock, until `element` leaves the document — a removal no wrapper can time, as bones shimmer through their fade-out
+function loop(
+  element: HTMLElement,
+  keyframes: Keyframe[],
+  options: KeyframeAnimationOptions,
+) {
+  const animation = element.animate(keyframes, {
+    ...options,
+    iterations: Infinity,
+  });
+  animation.startTime = 0;
+  loops.set(element, animation);
+  reaper ??= setTimeout(reap, REAP_EVERY);
+}
+
 /** Animates `element` as its slice of one sweep, on the document clock, so however late it mounts it joins the sweep under way. */
 export function shimmer(
   element: HTMLElement,
@@ -77,22 +108,22 @@ export function shimmer(
   motion: Motion = motionOf(element),
 ) {
   for (const animation of animationsOf(element)) animation.cancel();
+  loops.delete(element);
   element.style.backgroundImage = "";
   element.style.backgroundRepeat = "";
   if (prefersReducedMotion() || typeof element.animate !== "function") return;
   if (motion.animation === "none") return;
 
-  const timing = { duration: motion.duration, iterations: Infinity };
-
   if (motion.animation === "pulse") {
-    element.animate(
+    loop(
+      element,
       [
         { opacity: 1, easing: "ease-in-out" },
         { opacity: PULSE_LOW, easing: "ease-in-out" },
         { opacity: 1 },
       ],
-      timing,
-    ).startTime = 0;
+      { duration: motion.duration },
+    );
     return;
   }
 
@@ -123,13 +154,14 @@ export function shimmer(
   element.style.backgroundImage = image;
   element.style.backgroundSize = `${tile}px 100%`;
   element.style.backgroundRepeat = "repeat-x";
-  element.animate(
+  loop(
+    element,
     [
       { backgroundPosition: `${-along}px 0` },
       { backgroundPosition: `${tile - along}px 0` },
     ],
-    { duration: tile * pace, iterations: Infinity },
-  ).startTime = 0;
+    { duration: tile * pace },
+  );
 }
 
 /** ms per px of the band in `element`'s shimmer; null when it has no band. */

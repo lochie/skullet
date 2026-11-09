@@ -1,7 +1,17 @@
 // Real localStorage: under Node 25, happy-dom's is shadowed by Node's own
 import { afterEach, describe, expect, it } from "vitest";
+import { commands, server } from "vitest/browser";
 import { forgetShapes, recallShape, rememberShape } from "../shapes";
 import { restore } from "../snapshot";
+
+declare module "vitest/browser" {
+  interface BrowserCommands {
+    liveNodes: () => Promise<number>;
+  }
+}
+
+const PIXEL =
+  "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 
 const mount = (html: string) => {
   const element = document.body.appendChild(document.createElement("div"));
@@ -15,6 +25,28 @@ afterEach(() => {
 });
 
 describe("shapes", () => {
+  it.runIf(server.browser === "chromium")(
+    "keeps no copy of the images it remembers alive",
+    async () => {
+      const remember = async () => {
+        const element = mount(
+          `<img src="${PIXEL}" width="20" height="20">`.repeat(10),
+        );
+        await Promise.all(
+          [...element.querySelectorAll("img")].map((image) => image.decode()),
+        );
+        rememberShape("gallery", element);
+        element.remove();
+      };
+
+      await remember();
+      const before = await commands.liveNodes();
+      for (let i = 0; i < 20; i++) await remember();
+
+      expect((await commands.liveNodes()) - before).toBeLessThan(200);
+    },
+  );
+
   it("recalls real text within a visit and filler across visits", () => {
     rememberShape("profile", mount(`<p>Ada Lovelace</p>`));
     expect(recallShape("profile")).toContain("Ada Lovelace");

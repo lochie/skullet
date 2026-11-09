@@ -79,9 +79,13 @@ function sanitize(root: ParentNode) {
   }
 }
 
+// Chromium never frees an <img> cloned into the live document and then stripped of its src
+let inert: Document | undefined;
+
 /** The markup in `root`, safe to keep: no scripts, handlers or media sources; `filler` replaces its text too. */
 export function serialize(root: HTMLElement, filler: boolean): string {
-  const clone = root.cloneNode(true) as HTMLElement;
+  inert ??= document.implementation.createHTMLDocument("");
+  const clone = inert.importNode(root, true);
   const show = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT;
   const original = document.createTreeWalker(root, show);
   const copy = document.createTreeWalker(clone, show);
