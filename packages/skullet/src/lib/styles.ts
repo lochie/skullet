@@ -75,7 +75,7 @@ skullet-reveal[loading]:not(:defined) {
   }
 
   /* A line to measure in empty text; content only, never a size, or a dot-sized span would grow round it */
-  :scope :is(${text}):empty:not(svg *)::before {
+  :scope :is(${text}):empty:not(svg *, [aria-hidden="true"], [${ATTR_BLOCK}])::before {
     content: "000000";
   }
 
