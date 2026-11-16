@@ -28,7 +28,10 @@ function skeleton(
   return { root, bones: bonesIn(root) as HTMLElement[] };
 }
 
-const animation = (element: Element) => element.getAnimations()[0];
+const animation = (element: Element) =>
+  element.getAnimations({ subtree: true })[0];
+const sweepOf = (bone: Element) =>
+  bone.querySelector<HTMLElement>("[skullet-sweep]")!;
 
 describe("animation", () => {
   it("pulses softly, every bone in one phase", () => {
@@ -50,13 +53,18 @@ describe("animation", () => {
     expect(bones[0]!.getAnimations()).toHaveLength(0);
   });
 
-  // Keyframe positions are the tile's left edge, in the bone's own terms
+  // The tile's left edge at each keyframe, in the bone's own terms
   const sweep = (bone: HTMLElement) => {
+    const band = sweepOf(bone);
     const frames = (animation(bone)!.effect as KeyframeEffect).getKeyframes();
+    const tile = parseFloat(band.style.backgroundSize);
+    const origin = parseFloat(band.style.backgroundPosition) - tile;
+    const shift = (frame: ComputedKeyframe) =>
+      new DOMMatrix(String(frame.transform)).m41;
     return {
-      from: parseFloat(String(frames[0]!.backgroundPosition)),
-      to: parseFloat(String(frames[1]!.backgroundPosition)),
-      tile: parseFloat(bone.style.backgroundSize),
+      from: origin + shift(frames[0]!),
+      to: origin + shift(frames[1]!),
+      tile,
     };
   };
 
@@ -65,6 +73,16 @@ describe("animation", () => {
     const { from, tile } = sweep(bone);
     return ((-from % tile) + tile) % tile;
   };
+
+  it("moves the highlight by transform, never repainting the bone", () => {
+    const { bones } = skeleton("");
+    expect(bones[0]!.getAnimations()).toHaveLength(0);
+    const frames = (
+      animation(bones[0]!)!.effect as KeyframeEffect
+    ).getKeyframes();
+    expect(frames.every((frame) => frame.transform)).toBe(true);
+    expect(frames.some((frame) => frame.backgroundPosition)).toBe(false);
+  });
 
   it("runs one stream across the page — a bone further right is further along it", () => {
     const { bones } = skeleton(
@@ -95,7 +113,7 @@ describe("animation", () => {
 
   it("draws a diagonal stream of scrimmed highlights, each peaking at PEAK", () => {
     const { bones } = skeleton("");
-    const image = bones[0]!.style.backgroundImage;
+    const image = sweepOf(bones[0]!).style.backgroundImage;
     expect(image).toMatch(/^repeating-linear-gradient\(110deg/);
 
     // Opacity at each stop, along one band
@@ -129,13 +147,8 @@ describe("animation", () => {
         `--skullet-animation: group-shimmer; width: ${width}px`,
       );
       const effect = animation(bones[0]!)!.effect as KeyframeEffect;
-      const [start, end] = effect.getKeyframes();
-      const travel =
-        parseFloat(String(end!.backgroundPosition)) -
-        parseFloat(String(start!.backgroundPosition));
-      return (
-        travel / (Number(effect.getTiming().duration) * end!.computedOffset)
-      );
+      const { from, to } = sweep(bones[0]!);
+      return (to - from) / Number(effect.getTiming().duration);
     };
     expect(pace(200)).toBeCloseTo(pace(600), 3);
   });
@@ -182,5 +195,18 @@ describe("radius", () => {
     const bar = document.body.appendChild(createSkeletonBox());
     expect(getComputedStyle(bar).borderTopLeftRadius).toBe("6px");
     document.body.style.removeProperty("--skullet-radius");
+  });
+});
+
+describe("SkeletonBox", () => {
+  it("starts every box queued in a frame together, joining the sweep", async () => {
+    const boxes = [1, 2, 3].map(() =>
+      document.body.appendChild(createSkeletonBox()),
+    );
+    await new Promise(requestAnimationFrame);
+    for (const box of boxes) {
+      expect(box.querySelectorAll("[skullet-sweep]")).toHaveLength(1);
+      expect(animation(box)!.startTime).toBe(0);
+    }
   });
 });

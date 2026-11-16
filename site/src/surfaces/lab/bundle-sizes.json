@@ -1,30 +1,30 @@
 [
   {
     "name": "core",
-    "raw": 53511,
-    "gzip": 18832,
-    "publishedRaw": null,
-    "publishedGzip": null
+    "raw": 54677,
+    "gzip": 19227,
+    "publishedRaw": 53659,
+    "publishedGzip": 18877
   },
   {
     "name": "react",
-    "raw": 6085,
-    "gzip": 2632,
-    "publishedRaw": null,
-    "publishedGzip": null
+    "raw": 6090,
+    "gzip": 2635,
+    "publishedRaw": 6085,
+    "publishedGzip": 2632
   },
   {
     "name": "vue",
-    "raw": 5188,
-    "gzip": 1982,
-    "publishedRaw": null,
-    "publishedGzip": null
+    "raw": 5198,
+    "gzip": 1986,
+    "publishedRaw": 5188,
+    "publishedGzip": 1982
   },
   {
     "name": "svelte",
     "raw": 191,
     "gzip": 104,
-    "publishedRaw": null,
-    "publishedGzip": null
+    "publishedRaw": 191,
+    "publishedGzip": 104
   }
 ]

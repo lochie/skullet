@@ -6,6 +6,7 @@ export const ATTR_SNAPSHOT = "skullet-snapshot"; // A remembered or fallback sha
 export const ATTR_LAYER = "skullet-layer";
 export const ATTR_RECT = "skullet-rect";
 export const ATTR_BAR = "skullet-bar";
+export const ATTR_SWEEP = "skullet-sweep";
 export const ATTR_INACTIVE = "skullet-inactive";
 export const ATTR_EXITING = "skullet-exiting"; // On a pane fading out — its skeleton holds still
 export const ATTR_COVERED = "skullet-covered"; // Drawn as one block by a bone, so its own paint is hidden

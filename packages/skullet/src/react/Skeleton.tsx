@@ -5,7 +5,7 @@ import {
   ATTR_BAR,
   ATTR_OWN,
   ATTR_REVEAL,
-  shimmer,
+  queueShimmer,
   skeletonBoxStyle,
   type MemoryOptions,
   type SkeletonBoxOptions,
@@ -36,7 +36,7 @@ export const SkeletonBox = ({
   useStyles();
 
   useIsomorphicLayoutEffect(() => {
-    if (ref.current) shimmer(ref.current);
+    if (ref.current) queueShimmer(ref.current);
   }, []);
 
   return (

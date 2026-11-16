@@ -292,7 +292,7 @@ describe("Reveal", () => {
     second.load(html(`<p>Second</p>`));
 
     const animations = bones(root).map(
-      (bone) => (bone as HTMLElement).getAnimations()[0]!,
+      (bone) => bone.getAnimations({ subtree: true })[0]!,
     );
     expect(animations).toHaveLength(2);
     expect(animations.map((a) => a.startTime)).toEqual([0, 0]);
@@ -354,7 +354,7 @@ describe("Reveal", () => {
     const reveal = new Reveal(root);
     reveal.load(html(`<p>Still</p>`));
 
-    expect((bones(root)[0] as HTMLElement).getAnimations()).toHaveLength(0);
+    expect(bones(root)[0]!.getAnimations({ subtree: true })).toHaveLength(0);
     reveal.destroy();
   });
 });

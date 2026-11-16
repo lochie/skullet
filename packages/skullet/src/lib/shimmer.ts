@@ -1,4 +1,4 @@
-import { ATTR_RECT, BASE, DURATIONS, HIGHLIGHT } from "./constants";
+import { ATTR_RECT, ATTR_SWEEP, BASE, DURATIONS, HIGHLIGHT } from "./constants";
 import type { SkulletAnimation, SkulletSpeed } from "./theme";
 import { animationsOf, prefersReducedMotion } from "./motion";
 import type { SkeletonRect } from "./measure";
@@ -51,8 +51,12 @@ export const STEPS = 12; // stops per ramp — enough for an eased curve to read
 // Every gradient ramps on this (a scrim), so no stop shows as a hard line
 export const ease = (t: number) => (1 - Math.cos(Math.PI * t)) / 2;
 
+const streams = new Map<number, { width: number; image: string }>();
+
 /** Highlights `SPACING` band-widths apart, in px from the box's corner, so every rect draws the same stream. */
 function highlights(band: number) {
+  const cached = streams.get(band);
+  if (cached) return cached;
   const period = band * SPACING;
   const stop = (at: number, alpha: number) =>
     `color-mix(in srgb, ${HIGHLIGHT} ${(alpha * 100).toFixed(1)}%, transparent) ${(at * band).toFixed(2)}px`;
@@ -63,73 +67,115 @@ function highlights(band: number) {
     stops.push(stop(PEAK + (i / STEPS) * (1 - PEAK), ease(1 - i / STEPS)));
   }
 
-  return {
+  const stream = {
     // Across, the stream repeats every `period` along the slant
     width: period / COS,
     image: `repeating-linear-gradient(${SLANT_ANGLE}, ${stops.join(", ")}, transparent ${period.toFixed(2)}px)`,
   };
+  streams.set(band, stream);
+  return stream;
 }
 
-/** Animates `element` as its slice of one sweep, on the document clock, so however late it mounts it joins the sweep under way. */
-export function shimmer(
+const sweepOf = (element: HTMLElement) =>
+  element.querySelector<HTMLElement>(`:scope > [${ATTR_SWEEP}]`);
+
+type Start = () => void;
+
+/** Reads what `element`'s shimmer needs and returns its writes, which return its start — so a batch reads, writes, then starts. */
+function prepare(
   element: HTMLElement,
   group?: Span,
   motion: Motion = motionOf(element),
-) {
-  for (const animation of animationsOf(element)) animation.cancel();
-  element.style.backgroundImage = "";
-  element.style.backgroundRepeat = "";
-  if (prefersReducedMotion() || typeof element.animate !== "function") return;
-  if (motion.animation === "none") return;
+): () => Start | void {
+  const old = sweepOf(element);
+  const running = [...animationsOf(element), ...(old ? animationsOf(old) : [])];
+  const still =
+    prefersReducedMotion() ||
+    typeof element.animate !== "function" ||
+    motion.animation === "none";
+  const rect =
+    still || motion.animation === "pulse"
+      ? null
+      : element.getBoundingClientRect();
+  const page = document.documentElement.clientWidth || innerWidth;
+  const height = innerHeight;
+  const x = (rect?.left ?? 0) + scrollX;
 
-  const timing = { duration: motion.duration, iterations: Infinity };
+  return () => {
+    for (const animation of running) animation.cancel();
+    old?.remove();
+    if (still) return;
 
-  if (motion.animation === "pulse") {
-    element.animate(
-      [
-        { opacity: 1, easing: "ease-in-out" },
-        { opacity: PULSE_LOW, easing: "ease-in-out" },
-        { opacity: 1 },
-      ],
-      timing,
-    ).startTime = 0;
-    return;
-  }
+    const timing = { duration: motion.duration, iterations: Infinity };
 
-  const rect = element.getBoundingClientRect();
-  const x = rect.left + scrollX;
-  const area: Span =
-    motion.animation === "group-shimmer"
-      ? (group ?? {
-          left: x,
-          top: rect.top,
-          width: rect.width,
-          height: rect.height,
-        })
-      : {
-          left: 0,
-          top: 0,
-          width: document.documentElement.clientWidth || innerWidth,
-          height: innerHeight,
-        };
-  const band = Math.min(Math.max(area.width * 0.4, 80), MAX_BAND);
-  const { width: tile, image } = highlights(band);
+    if (!rect) {
+      element.animate(
+        [
+          { opacity: 1, easing: "ease-in-out" },
+          { opacity: PULSE_LOW, easing: "ease-in-out" },
+          { opacity: 1 },
+        ],
+        timing,
+      ).startTime = 0;
+      return;
+    }
 
-  // Where this bone sits in the area's one stream: further right, and lower down the slant, is further along it
-  const along = x - area.left + (rect.top - area.top) * SLANT_TAN;
-  // One pace on any screen, as a sweep across the reference width took
-  const pace = (motion.duration * SWEEP) / (REFERENCE_WIDTH + MAX_BAND);
+    const area: Span =
+      motion.animation === "group-shimmer"
+        ? (group ?? {
+            left: x,
+            top: rect.top,
+            width: rect.width,
+            height: rect.height,
+          })
+        : { left: 0, top: 0, width: page, height };
+    const band = Math.min(Math.max(area.width * 0.4, 80), MAX_BAND);
+    const { width: tile, image } = highlights(band);
 
-  element.style.backgroundImage = image;
-  element.style.backgroundSize = `${tile}px 100%`;
-  element.style.backgroundRepeat = "repeat-x";
-  element.animate(
-    [
-      { backgroundPosition: `${-along}px 0` },
-      { backgroundPosition: `${tile - along}px 0` },
-    ],
-    { duration: tile * pace, iterations: Infinity },
-  ).startTime = 0;
+    // Where this bone sits in the area's one stream: further right, and lower down the slant, is further along it
+    const along = x - area.left + (rect.top - area.top) * SLANT_TAN;
+    // One pace on any screen, as a sweep across the reference width took
+    const pace = (motion.duration * SWEEP) / (REFERENCE_WIDTH + MAX_BAND);
+
+    // A tile wider than the element, moved by transform so the compositor runs it: a moving background repaints every frame
+    const sweep = document.createElement("span");
+    sweep.setAttribute(ATTR_SWEEP, "");
+    sweep.style.cssText = `position:absolute;top:0;bottom:0;left:${-tile}px;width:calc(100% + ${tile}px);pointer-events:none;background-image:${image};background-size:${tile}px 100%;background-repeat:repeat-x;background-position:${tile - along}px 0`;
+    element.style.overflow = "hidden";
+    element.append(sweep);
+    // Started after every write in a batch: animating a node with no style yet forces a recalc
+    return () => {
+      sweep.animate(
+        [
+          { transform: "translateX(0)" },
+          { transform: `translateX(${tile}px)` },
+        ],
+        { duration: tile * pace, iterations: Infinity },
+      ).startTime = 0;
+    };
+  };
+}
+
+/** Animates `element` as its slice of one sweep, on the document clock, so however late it mounts it joins the sweep under way. */
+export function shimmer(element: HTMLElement, group?: Span, motion?: Motion) {
+  prepare(element, group, motion)()?.();
+}
+
+const queued = new Set<HTMLElement>();
+
+function flush() {
+  const writes = [...queued]
+    .filter((element) => element.isConnected)
+    .map((element) => prepare(element));
+  queued.clear();
+  const starts = writes.map((write) => write());
+  for (const start of starts) start?.();
+}
+
+/** Shimmers `element` next frame, with every other one queued by then, so mounting many forces one style recalc rather than one each. */
+export function queueShimmer(element: HTMLElement) {
+  if (!queued.size) requestAnimationFrame(flush);
+  queued.add(element);
 }
 
 /** ms per px of the band in `element`'s shimmer; null when it has no band. */

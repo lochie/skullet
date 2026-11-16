@@ -4,7 +4,7 @@
     addStyles,
     ATTR_BAR,
     removeStyles,
-    shimmer,
+    queueShimmer,
     skeletonBoxStyle,
     type SkeletonBoxOptions,
   } from '../lib';
@@ -21,7 +21,7 @@
 
   onMount(() => {
     addStyles();
-    shimmer(element);
+    queueShimmer(element);
     return removeStyles;
   });
 </script>

@@ -1,5 +1,5 @@
 import { ATTR_BAR } from "./constants";
-import { shimmer } from "./shimmer";
+import { queueShimmer } from "./shimmer";
 import { addStyles } from "./styles";
 
 type Length = string | number;
@@ -39,8 +39,6 @@ export function createSkeletonBox(
   const element = document.createElement("span");
   element.setAttribute(ATTR_BAR, "");
   Object.assign(element.style, skeletonBoxStyle(options));
-  requestAnimationFrame(() => {
-    if (element.isConnected) shimmer(element);
-  });
+  queueShimmer(element);
   return element;
 }

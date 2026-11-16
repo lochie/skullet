@@ -30,7 +30,7 @@ import {
   INLINE_STUB,
   Memory,
   removeStyles,
-  shimmer,
+  queueShimmer,
   skeletonBoxStyle,
   type MemoryOptions,
 } from "../lib";
@@ -54,7 +54,7 @@ export const SkeletonBox = defineComponent({
     const element = ref<HTMLElement | null>(null);
     useStyles();
     onMounted(() => {
-      if (element.value) shimmer(element.value);
+      if (element.value) queueShimmer(element.value);
     });
     return () =>
       h("span", {

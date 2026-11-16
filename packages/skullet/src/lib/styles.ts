@@ -55,6 +55,7 @@ skullet-reveal[loading]:not(:defined) {
 }
 
 [${ATTR_BAR}] {
+  position: relative;
   display: block;
   background-color: ${BASE};
   background-repeat: no-repeat;
