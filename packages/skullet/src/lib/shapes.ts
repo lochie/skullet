@@ -1,7 +1,7 @@
 import { serialize } from "./snapshot";
 
 const STORAGE_KEY = "skullet:shapes";
-const VERSION = 2; // Bumped whenever the stored markup changes meaning
+const VERSION = 3; // Bumped whenever the stored markup changes meaning — 3 drops href/title/id/aria-*/data-*
 const MAX_SHAPES = 50;
 const MAX_LENGTH = 20_000;
 
@@ -10,6 +10,13 @@ type Stored = Record<string, string>; // Oldest first
 // Real text, kept in memory only — exact for a reload within the same visit
 const session = new Map<string, string>();
 const shown = new Map<string, Set<() => void>>();
+
+// Bumped by forgetShapes(); a Memory created before the bump skips any save after it, so a tree
+// that's mid-unmount when sign-out forgets shapes can't write the departing person's shape back.
+let epoch = 0;
+export function currentEpoch() {
+  return epoch;
+}
 
 /** Registers a save for content on screen under `key`; returns its unregister. */
 export function trackShape(key: string, save: () => void) {
@@ -63,6 +70,7 @@ export function recallShape(key: string): string | null {
 
 /** Forgets remembered shapes — call it on sign-out. */
 export function forgetShapes({ persisted = true } = {}) {
+  epoch++;
   session.clear();
   if (!persisted) return;
   try {

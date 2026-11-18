@@ -39,6 +39,20 @@ describe("serialize", () => {
     const html = serialize(mount(`<input value="secret">`), false);
     expect(html).not.toContain("secret");
   });
+
+  it("keeps layout only, not who was signed in", () => {
+    const html = serialize(
+      mount(
+        `<a id="profile-link" href="https://instagram.com/alice" aria-label="Open @alice" title="alice" data-user-id="42" class="card">alice</a>`,
+      ),
+      true,
+    );
+    expect(html).not.toContain("instagram.com");
+    expect(html).not.toContain("alice");
+    expect(html).not.toContain("profile-link");
+    expect(html).not.toContain("42");
+    expect(html).toContain('class="card"');
+  });
 });
 
 describe("restore", () => {
