@@ -792,6 +792,98 @@ const { data } = useLazyFetch("/api/user");
         <code>skullet/styles.css</code> in the page’s head too, so a skeleton
         waiting for the script stays blank rather than showing sample content.
       </p>
+      <div className={styles.recipe}>
+        <h3>SolidJS</h3>
+        <p>
+          In a client-rendered Solid 2 app, give each list a stable{" "}
+          <code>id</code> and mount the JSX in a container that the web
+          component can move between panes. Pass a copy to <code>load()</code>{" "}
+          and the live container to <code>show()</code> so Solid keeps control
+          of reactive content.
+        </p>
+        <CodeBlock
+          code={`import { For, Show, createEffect, onCleanup } from "solid-js";
+import { render } from "@solidjs/web";
+import "skullet/element";
+
+function ResultList(props) {
+  return (
+    <ul>
+      <For each={props.items} fallback={<li>No results.</li>}>
+        {(item) => (
+          <li>
+            <strong>{item.title}</strong>
+            <p>{item.detail}</p>
+          </li>
+        )}
+      </For>
+    </ul>
+  );
+}
+
+export function Results(props) {
+  let host;
+  let content;
+  let dispose;
+  const sample = (
+    <div>
+      <ul>
+        <li>
+          <strong>Result title</strong>
+          <p>A short description.</p>
+        </li>
+      </ul>
+    </div>
+  );
+
+  createEffect(
+    () => props.loading,
+    (loading) => {
+      if (!content) {
+        content = document.createElement("div");
+        dispose = render(
+          () => (
+            <Show when={props.items}>
+              <ResultList items={props.items} />
+            </Show>
+          ),
+          content,
+        );
+      }
+
+      if (loading) {
+        const shape = props.items == null ? sample : content;
+        host.load(shape.cloneNode(true));
+      } else {
+        host.show(content);
+      }
+    },
+  );
+  onCleanup(() => dispose?.());
+
+  return (
+    <section>
+      <button type="button" disabled={props.loading} onClick={props.onReload}>
+        {props.error ? "Retry" : "Reload"}
+      </button>
+      <Show when={props.error}>
+        <p role="alert">Could not load results.</p>
+      </Show>
+      <skullet-reveal id={props.id} ref={host} label="Loading results" />
+    </section>
+  );
+}`}
+        />
+        <p>
+          Start with <code>loading</code> set and no <code>items</code>. Have{" "}
+          <code>onReload</code> start the request. On success, pass an array of
+          items with a <code>title</code> and <code>detail</code>, then clear{" "}
+          <code>loading</code>. Keep the previous items during a reload so the
+          skeleton can reuse their shape. On failure, set <code>error</code>{" "}
+          and clear <code>loading</code> so the reader can retry. Match the
+          sample to the expected number and shape of results.
+        </p>
+      </div>
     </Section>
 
     <Section id="testing" title="Testing">
