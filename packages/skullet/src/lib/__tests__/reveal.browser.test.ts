@@ -109,7 +109,9 @@ describe("Reveal", () => {
     expect(getComputedStyle(root).overflow).toBe("clip");
 
     await Promise.all(
-      root.getAnimations().map((animation) => animation.finished.catch(() => {})),
+      root
+        .getAnimations()
+        .map((animation) => animation.finished.catch(() => {})),
     );
     expect(root.getBoundingClientRect().height).toBe(120);
     expect(root.style.overflow).toBe("");

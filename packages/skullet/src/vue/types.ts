@@ -11,6 +11,8 @@ export interface SkeletonProps<T = unknown> {
   data?: T | null;
   sample?: T;
   id?: string;
+  /** Set to `false` to neither store this shape nor draw from a stored one. */
+  persistence?: boolean;
   /** Read to screen readers while loading, in place of the skeleton — "Loading profile". */
   label?: string;
   empty?: boolean;
@@ -24,6 +26,8 @@ export interface SkeletonProps<T = unknown> {
 /** Slots: `default`, the content that suspends; `skeleton`, the content rendered from sample data. */
 export interface SkeletonSuspenseProps {
   id?: string;
+  /** Set to `false` to neither store this shape nor draw from a stored one. */
+  persistence?: boolean;
   /** Read to screen readers while suspended, in place of the skeleton. */
   label?: string;
   /** Called once content has come in over the skeleton; `@reveal` in a template. */

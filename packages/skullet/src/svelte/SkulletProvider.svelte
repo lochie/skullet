@@ -20,6 +20,8 @@
     reveal?: RevealMode;
     /** Outlines every reveal with where its skeleton came from and whether anything moved. */
     debug?: boolean;
+    /** Set to `false` to store no shapes and draw from none, for everything inside. */
+    persistence?: boolean;
     children?: Snippet;
   };
 
@@ -34,6 +36,9 @@
     },
     get reveal() {
       return props.reveal;
+    },
+    get persistence() {
+      return props.persistence;
     },
   });
 

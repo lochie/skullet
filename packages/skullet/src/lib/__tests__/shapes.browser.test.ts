@@ -1,5 +1,7 @@
 // Real localStorage: under Node 25, happy-dom's is shadowed by Node's own
 import { afterEach, describe, expect, it } from "vitest";
+import { bonesIn } from "@skullet/test-cases";
+import { Reveal } from "../reveal";
 import { forgetShapes, recallShape, rememberShape } from "../shapes";
 import { restore } from "../snapshot";
 
@@ -12,6 +14,45 @@ const mount = (html: string) => {
 afterEach(() => {
   document.body.replaceChildren();
   forgetShapes();
+});
+
+const html = (markup: string) => {
+  const template = document.createElement("template");
+  template.innerHTML = markup;
+  return template.content;
+};
+
+describe("persistence off", () => {
+  it("stores nothing", () => {
+    const reveal = new Reveal(mount(""), { id: "profile", persistence: false });
+    reveal.load(html(`<p>Sample</p>`));
+    reveal.show(html(`<p>Ada</p>`));
+    reveal.destroy();
+
+    expect(recallShape("profile")).toBeNull();
+    expect(localStorage.getItem("skullet:shapes")).toBeNull();
+  });
+
+  it("forgets the shape stored before it was turned off, and no other", () => {
+    rememberShape("profile", mount(`<p>Earlier</p>`));
+    rememberShape("inbox", mount(`<p>Messages</p>`));
+    const reveal = new Reveal(mount(""), { id: "profile", persistence: false });
+    reveal.load(html(`<p>Sample</p>`));
+    reveal.destroy();
+
+    forgetShapes({ persisted: false });
+    expect(recallShape("profile")).toBeNull();
+    expect(recallShape("inbox")).not.toBeNull();
+  });
+
+  it("draws from no remembered shape", () => {
+    rememberShape("profile", mount(`<p>Earlier</p>`));
+    const root = mount("");
+    const reveal = new Reveal(root, { id: "profile", persistence: false });
+    reveal.load(html(`<p>Mine</p><p>Mine</p>`));
+    expect(bonesIn(root)).toHaveLength(2);
+    reveal.destroy();
+  });
 });
 
 describe("shapes", () => {

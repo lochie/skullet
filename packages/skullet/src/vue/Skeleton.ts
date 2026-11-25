@@ -71,6 +71,7 @@ export const Loading = defineComponent({
     id: String,
     exact: Boolean,
     refetch: Boolean,
+    persistence: { type: Boolean, default: undefined },
     label: String,
   },
   setup(props, { slots }) {
@@ -86,11 +87,15 @@ export const Loading = defineComponent({
           id: props.id,
           exact: props.exact,
           refetch: props.refetch,
+          persistence: props.persistence,
         });
       }
     };
     onMounted(attach);
-    watch(() => [props.id, props.exact, props.refetch], attach);
+    watch(
+      () => [props.id, props.exact, props.refetch, props.persistence],
+      attach,
+    );
     onBeforeUnmount(() => ghost?.destroy());
 
     // Snapshot and bones are Ghost's to fill, never Vue's
@@ -144,6 +149,8 @@ export const Skeleton = defineComponent({
     sample: { type: null as unknown as PropType<unknown>, required: false },
     /** Remembers the shape under this key across visits. */
     id: String,
+    /** Set to `false` to neither store this shape nor draw from a stored one. */
+    persistence: { type: Boolean, default: undefined },
     /** Read to screen readers while loading, in place of the skeleton — "Loading profile". */
     label: String,
     empty: Boolean,
@@ -165,6 +172,7 @@ export const Skeleton = defineComponent({
       // Data-driven when `data` is bound at all, even to null
       const driven = !!instance?.vnode.props && "data" in instance.vnode.props;
       const data = props.data;
+      const persistence = props.persistence ?? config.persistence;
       if (data != null) last = { id: props.id, data };
 
       const show = (value: unknown): VNodeChild =>
@@ -199,6 +207,7 @@ export const Skeleton = defineComponent({
                 id: props.id,
                 exact: real != null,
                 refetch: data != null,
+                persistence,
                 label: props.label,
               },
               () => show(real ?? props.sample),
@@ -219,6 +228,7 @@ export const Skeleton = defineComponent({
               data,
               rendered: driven,
               sample: props.sample !== undefined,
+              persistence,
             },
           },
           () => show(data),

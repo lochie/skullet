@@ -19,6 +19,7 @@ import {
   useIsomorphicLayoutEffect,
   useStyles,
 } from "./parts";
+import { usePersistence } from "./config";
 
 export type SkeletonBoxProps = SkeletonBoxOptions & {
   className?: string;
@@ -61,6 +62,8 @@ type SharedProps = {
   loading?: boolean;
   /** Remembers the shape under this key across visits. */
   id?: string;
+  /** Set to `false` to neither store this shape nor draw from a stored one. */
+  persistence?: boolean;
   /** Read to screen readers while loading, in place of the skeleton — "Loading profile". */
   label?: string;
   /** Shown while loading instead of the measured skeleton. */
@@ -94,6 +97,7 @@ export function Skeleton<T>(props: SkeletonProps<T>) {
   const { id, label, skeleton, empty, emptyMessage, error, className, style } =
     props;
   useStyles();
+  const persistence = usePersistence(props.persistence);
 
   const render =
     typeof props.children === "function"
@@ -135,6 +139,7 @@ export function Skeleton<T>(props: SkeletonProps<T>) {
         id={id}
         exact={real != null}
         refetch={data != null}
+        persistence={persistence}
         label={label}
       >
         {show(real ?? sample)}
@@ -149,7 +154,13 @@ export function Skeleton<T>(props: SkeletonProps<T>) {
   } else {
     key = "content";
     node = show(data);
-    memory = { id, data, rendered: !!render, sample: sample !== undefined };
+    memory = {
+      id,
+      data,
+      rendered: !!render,
+      sample: sample !== undefined,
+      persistence,
+    };
   }
 
   const [current, setCurrent] = React.useState<{

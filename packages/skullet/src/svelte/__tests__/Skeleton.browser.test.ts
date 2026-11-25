@@ -4,6 +4,7 @@ import { bonesIn } from "@skullet/test-cases";
 import Harness from "./Harness.svelte";
 import Provided from "./Provided.svelte";
 import Promised from "./Promised.svelte";
+import Unremembered from "./Unremembered.svelte";
 import {
   CASCADE_SPREAD,
   FADE_DURATION,
@@ -97,6 +98,13 @@ describe("Svelte Skeleton", () => {
 });
 
 describe("Svelte Skeleton with a promise", () => {
+  it("stores nothing inside a provider that turns persistence off", async () => {
+    const target = document.body.appendChild(document.createElement("div"));
+    app = mount(Unremembered, { target, props: {} });
+    await settle();
+    expect(localStorage.getItem("skullet:shapes")).toBeNull();
+  });
+
   it("loads while it's pending, then shows its value and calls onreveal", async () => {
     let resolve!: (user: typeof ADA) => void;
     const data = new Promise<typeof ADA>((done) => (resolve = done));

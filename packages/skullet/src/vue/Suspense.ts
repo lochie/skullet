@@ -25,7 +25,12 @@ const state = { type: Object as PropType<State>, required: true } as const;
 
 const Fallback = defineComponent({
   name: "SkeletonFallback",
-  props: { id: String, label: String, state },
+  props: {
+    id: String,
+    persistence: { type: Boolean, default: undefined },
+    label: String,
+    state,
+  },
   setup(props, { slots }) {
     const element = ref<HTMLElement | null>(null);
     const config = useSkullet();
@@ -59,8 +64,10 @@ const Fallback = defineComponent({
 
         // A clone leaves its skeleton's shadow root behind; draw it again
         const loading = copy.querySelector<HTMLElement>(`[${ATTR_LOADING}]`);
-        if (loading)
-          new Ghost(loading, { id: props.id, exact: true }).destroy();
+        if (loading) {
+          const { id, persistence } = props;
+          new Ghost(loading, { id, exact: true, persistence }).destroy();
+        }
         fadeOut(copy, box).then(() => copy.remove());
       };
     });
@@ -70,7 +77,12 @@ const Fallback = defineComponent({
       h("div", { ref: element, [ATTR_PANE]: "" }, [
         h(
           Loading,
-          { id: props.id, exact: !!slots.default, label: props.label },
+          {
+            id: props.id,
+            exact: !!slots.default,
+            persistence: props.persistence,
+            label: props.label,
+          },
           slots.default,
         ),
       ]);
@@ -79,7 +91,11 @@ const Fallback = defineComponent({
 
 const Content = defineComponent({
   name: "SkeletonSuspenseContent",
-  props: { id: String, state },
+  props: {
+    id: String,
+    persistence: { type: Boolean, default: undefined },
+    state,
+  },
   emits: ["reveal"],
   setup(props, { slots, emit }) {
     const element = ref<HTMLElement | null>(null);
@@ -94,7 +110,8 @@ const Content = defineComponent({
       if (waited) arrival.then(() => emit("reveal"));
       props.state.exit?.();
       props.state.exit = null;
-      memory = new Memory(pane, { id: props.id });
+      const { id, persistence } = props;
+      memory = new Memory(pane, { id, persistence });
     });
     onBeforeUnmount(() => memory?.destroy());
 
@@ -108,6 +125,8 @@ export const SkeletonSuspense = defineComponent({
   props: {
     /** Remembers the shape under this key across visits. */
     id: String,
+    /** Set to `false` to neither store this shape nor draw from a stored one. */
+    persistence: { type: Boolean, default: undefined },
     /** Read to screen readers while suspended, in place of the skeleton. */
     label: String,
   },
@@ -115,24 +134,32 @@ export const SkeletonSuspense = defineComponent({
   emits: ["reveal"],
   setup(props, { slots, emit }) {
     useStyles();
+    const config = useSkullet();
     const shared: State = { waited: false, exit: null };
 
-    return () =>
-      h("div", { [ATTR_REVEAL]: "" }, [
+    return () => {
+      const persistence = props.persistence ?? config.persistence;
+      return h("div", { [ATTR_REVEAL]: "" }, [
         h(Suspense, null, {
           default: () =>
             h(
               Content,
-              { id: props.id, state: shared, onReveal: () => emit("reveal") },
+              {
+                id: props.id,
+                persistence,
+                state: shared,
+                onReveal: () => emit("reveal"),
+              },
               slots.default,
             ),
           fallback: () =>
             h(
               Fallback,
-              { id: props.id, label: props.label, state: shared },
+              { id: props.id, persistence, label: props.label, state: shared },
               slots.skeleton,
             ),
         }),
       ]);
+    };
   },
 });

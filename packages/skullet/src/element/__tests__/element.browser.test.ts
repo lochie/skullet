@@ -41,4 +41,13 @@ describe("<skullet-reveal>", () => {
     expect(reveal.hasAttribute("aria-busy")).toBe(false);
     expect(reveal.textContent).toContain("Hello there");
   });
+
+  it("stores nothing with persistence off", async () => {
+    const reveal = document.createElement("skullet-reveal");
+    reveal.setAttribute("persistence", "false");
+    reveal.innerHTML = `<p>Hello</p>`;
+    document.body.append(reveal);
+    await settle();
+    expect(localStorage.getItem("skullet:shapes")).toBeNull();
+  });
 });

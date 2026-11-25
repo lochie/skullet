@@ -47,6 +47,21 @@ afterEach(() => {
   document.body.replaceChildren();
 });
 
+describe("persistence", () => {
+  it("stores nothing when turned off", () => {
+    mount(() =>
+      h(
+        Skeleton,
+        { id: "profile", data: { name: "Ada" }, persistence: false },
+        {
+          default: ({ data }: { data: { name: string } }) => h("p", data.name),
+        },
+      ),
+    );
+    expect(localStorage.getItem("skullet:shapes")).toBeNull();
+  });
+});
+
 describe("Vue Skeleton", () => {
   it("crossfades from a measured skeleton to content without moving", async () => {
     const user: Ref<User | null> = ref(null);
