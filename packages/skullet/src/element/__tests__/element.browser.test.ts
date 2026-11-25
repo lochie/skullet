@@ -1,10 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { bonesIn } from "@skullet/test-cases";
+import { bonesIn, settle as settled } from "@skullet/test-cases";
 import { FADE_DURATION, forgetShapes } from "../../lib";
 import "..";
 
-const settle = () =>
-  new Promise((resolve) => setTimeout(resolve, FADE_DURATION + 50));
+const settle = () => settled(FADE_DURATION + 50);
 
 const element = (markup: string, loading: boolean) => {
   const reveal = document.createElement("skullet-reveal");

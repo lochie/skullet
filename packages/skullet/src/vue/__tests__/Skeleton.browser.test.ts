@@ -8,7 +8,7 @@ import {
   type Ref,
 } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { bonesIn } from "@skullet/test-cases";
+import { bonesIn, settle as settled } from "@skullet/test-cases";
 import { Skeleton } from "../Skeleton";
 import { SkeletonSuspense } from "../Suspense";
 import { FADE_DURATION, forgetShapes } from "../../lib";
@@ -36,8 +36,7 @@ function mount(render: () => ReturnType<typeof h>) {
   return container;
 }
 
-const settle = () =>
-  new Promise((resolve) => setTimeout(resolve, FADE_DURATION + 50));
+const settle = () => settled(FADE_DURATION + 50);
 
 afterEach(() => {
   app?.unmount();

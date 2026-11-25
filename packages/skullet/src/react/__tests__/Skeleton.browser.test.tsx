@@ -1,7 +1,7 @@
 import { act, StrictMode, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { bonesIn } from "@skullet/test-cases";
+import { bonesIn, settle as settled } from "@skullet/test-cases";
 import { Skeleton, SkeletonBox } from "../Skeleton";
 import { FADE_DURATION, forgetShapes } from "../../lib";
 
@@ -26,8 +26,7 @@ function unmount() {
   root = null;
 }
 
-const settle = () =>
-  act(() => new Promise((resolve) => setTimeout(resolve, FADE_DURATION + 50)));
+const settle = () => act(() => settled(FADE_DURATION + 50));
 
 const reveal = () => container.querySelector<HTMLElement>("[skullet-reveal]")!;
 const panes = () => container.querySelectorAll("[skullet-pane]");

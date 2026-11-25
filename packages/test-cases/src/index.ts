@@ -7,4 +7,5 @@ export {
   verifyNoJump,
   verifyRecall,
 } from "./verify";
+export { settle } from "./settle";
 export type { SkulletApi, GeometryCase, Result } from "./types";

@@ -1,6 +1,6 @@
 import { flushSync, mount, unmount } from "svelte";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { bonesIn } from "@skullet/test-cases";
+import { bonesIn, settle as settled } from "@skullet/test-cases";
 import Harness from "./Harness.svelte";
 import Provided from "./Provided.svelte";
 import Promised from "./Promised.svelte";
@@ -21,9 +21,7 @@ let app: ReturnType<typeof mount> | null = null;
 
 // Svelte holds an outgoing pane for the longest a smart reveal without images might take
 const settle = () =>
-  new Promise((resolve) =>
-    setTimeout(resolve, SKELETON_DELAY + CASCADE_SPREAD + FADE_DURATION + 50),
-  );
+  settled(SKELETON_DELAY + CASCADE_SPREAD + FADE_DURATION + 50);
 
 afterEach(() => {
   if (app) unmount(app);
