@@ -14,6 +14,8 @@ export type RevealOptions = {
   label?: string;
   /** Called once content has come in over a skeleton. */
   onReveal?: () => void;
+  /** Set to `false` to neither store this shape nor draw from a stored one. */
+  remember?: boolean;
 };
 
 /** Shows a skeleton of content while it loads, then crossfades to the content itself. */
@@ -48,7 +50,8 @@ export class Reveal {
       pane.prepend(status);
     }
     this.element.setAttribute("aria-busy", "true");
-    this.ghost = new Ghost(loading, { id: this.options.id });
+    const { id, remember } = this.options;
+    this.ghost = new Ghost(loading, { id, remember });
     return pane;
   }
 
@@ -58,7 +61,8 @@ export class Reveal {
     if (loading && this.options.onReveal)
       this.arrival.then(this.options.onReveal);
     this.element.removeAttribute("aria-busy");
-    this.memory = new Memory(pane, { id: this.options.id });
+    const { id, remember } = this.options;
+    this.memory = new Memory(pane, { id, remember });
     return pane;
   }
 

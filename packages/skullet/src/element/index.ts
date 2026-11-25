@@ -20,6 +20,7 @@ export class SkulletReveal extends Base {
       id: this.id || undefined,
       reveal: (this.getAttribute("reveal") as RevealMode | null) ?? undefined,
       label: this.getAttribute("label") ?? undefined,
+      remember: this.getAttribute("remember") !== "false",
       onReveal: () => this.dispatchEvent(new Event("reveal")),
     });
     if (this.hasAttribute("loading")) this.reveal.load(content);

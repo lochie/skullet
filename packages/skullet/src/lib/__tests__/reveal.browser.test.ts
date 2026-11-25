@@ -1,11 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { FADE_DURATION } from "../constants";
-import { bonesIn } from "@skullet/test-cases";
+import { bonesIn, settle as settled } from "@skullet/test-cases";
 import { fadeIn, forgetShapes, Reveal } from "..";
 
 const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
-const settle = () =>
-  new Promise((resolve) => setTimeout(resolve, FADE_DURATION + 50));
+const settle = () => settled(FADE_DURATION + 50);
 
 const html = (markup: string) => {
   const template = document.createElement("template");
@@ -108,10 +107,13 @@ describe("Reveal", () => {
     expect(heights).toEqual(["40px", "120px"]);
     expect(getComputedStyle(root).overflow).toBe("clip");
 
-    await vi.waitFor(() => {
-      expect(root.getBoundingClientRect().height).toBe(120);
-      expect(root.style.overflow).toBe("");
-    });
+    await Promise.all(
+      root
+        .getAnimations()
+        .map((animation) => animation.finished.catch(() => {})),
+    );
+    expect(root.getBoundingClientRect().height).toBe(120);
+    expect(root.style.overflow).toBe("");
     reveal.destroy();
   });
 

@@ -23,6 +23,8 @@ export type SkulletConfig = {
   mode?: SkulletMode;
   /** Dark colours where this selector matches, like `.dark`, rather than by the system setting. */
   darkSelector?: string;
+  /** Set to `false` to store no shapes and draw from none, for everything inside. */
+  remember?: boolean;
   /** Where text bars run: from `top` (ascender, cap-height, x-height) down to `bottom` (baseline, descender). */
   text?: SkulletText;
   /** How content replaces its skeleton: `smart` (the default), `together`, `sequence`, `sweep`, or a `RevealSpec` of your own. */
@@ -57,6 +59,7 @@ export const SkulletProvider = defineComponent({
     text: Object as PropType<SkulletText>,
     reveal: [String, Object] as PropType<RevealMode>,
     debug: { type: Boolean, default: undefined },
+    remember: { type: Boolean, default: undefined },
   },
   setup(props, { slots }) {
     // The props object itself, so components inside read every change

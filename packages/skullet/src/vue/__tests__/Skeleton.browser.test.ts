@@ -8,7 +8,7 @@ import {
   type Ref,
 } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { bonesIn } from "@skullet/test-cases";
+import { bonesIn, settle as settled } from "@skullet/test-cases";
 import { Skeleton } from "../Skeleton";
 import { SkeletonSuspense } from "../Suspense";
 import { FADE_DURATION, forgetShapes } from "../../lib";
@@ -36,8 +36,7 @@ function mount(render: () => ReturnType<typeof h>) {
   return container;
 }
 
-const settle = () =>
-  new Promise((resolve) => setTimeout(resolve, FADE_DURATION + 50));
+const settle = () => settled(FADE_DURATION + 50);
 
 afterEach(() => {
   app?.unmount();
@@ -45,6 +44,21 @@ afterEach(() => {
   vi.restoreAllMocks();
   forgetShapes();
   document.body.replaceChildren();
+});
+
+describe("remember", () => {
+  it("stores nothing when turned off", () => {
+    mount(() =>
+      h(
+        Skeleton,
+        { id: "profile", data: { name: "Ada" }, remember: false },
+        {
+          default: ({ data }: { data: { name: string } }) => h("p", data.name),
+        },
+      ),
+    );
+    expect(localStorage.getItem("skullet:shapes")).toBeNull();
+  });
 });
 
 describe("Vue Skeleton", () => {

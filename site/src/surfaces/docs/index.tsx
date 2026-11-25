@@ -86,6 +86,7 @@ const API: [title: string, rows: Row[]][] = [
       ["sample", "T", "Stands in for data to draw the first skeleton."],
       ["loading", "boolean", "Shows the skeleton, even over data."],
       ["id", "string", "Remembers the shape under this key."],
+      ["remember", "boolean", "false stores no shape and reads none."],
       ["label", "string", "Read to screen readers while loading."],
       ["skeleton", "ReactNode", "Shown instead of the measured skeleton."],
       ["empty", "boolean", "Shows emptyMessage in place of the content."],
@@ -107,6 +108,7 @@ const API: [title: string, rows: Row[]][] = [
     [
       ["skeleton", "ReactNode", "The content, rendered from sample data."],
       ["id", "string", "Remembers the shape under this key."],
+      ["remember", "boolean", "false stores no shape and reads none."],
       ["label", "string", "Read to screen readers while suspended."],
       [
         "onReveal",
@@ -124,6 +126,7 @@ const API: [title: string, rows: Row[]][] = [
         "How content replaces its skeleton.",
       ],
       ["theme", "SkulletTheme", "Colours, animation, speed, radius and text."],
+      ["remember", "boolean", "false stores no shapes, for everything inside."],
       ["mode", '"light" | "dark" | "system"', "Which colours to use."],
       [
         "darkSelector",
@@ -152,6 +155,7 @@ const API: [title: string, rows: Row[]][] = [
     [
       ["element", "HTMLElement", "Where the skeleton and content go."],
       ["id", "string", "Remembers the shape under this key."],
+      ["remember", "boolean", "false stores no shape and reads none."],
       ["reveal", "RevealMode", "How content replaces its skeleton."],
       ["label", "string", "Read to screen readers while loading."],
       [
@@ -172,6 +176,7 @@ const API: [title: string, rows: Row[]][] = [
     "skullet-reveal",
     [
       ["id", "attribute", "Remembers the shape under this key."],
+      ["remember", "attribute", '"false" stores no shape and reads none.'],
       ["loading", "attribute", "Starts with its children as a skeleton."],
       ["reveal", "attribute", "How content replaces its skeleton."],
       ["label", "attribute", "Read to screen readers while loading."],
@@ -473,7 +478,9 @@ Avatar.Skeleton = () => <SkeletonBox width={40} height={40} radius="50%" />;`}
         <p>
           Shapes stay in <code>localStorage</code> after sign-out, so the next
           person on the device would see the outline of the last one’s inbox.
-          Call <code>forgetShapes()</code> on sign-out to clear them.
+          Call <code>forgetShapes()</code> on sign-out to clear them. To
+          remember nothing, set <code>remember={"{false}"}</code> on the
+          provider or a skeleton.
         </p>
       </Callout>
     </Section>

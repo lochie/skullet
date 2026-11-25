@@ -65,6 +65,27 @@ const Card = ({ user }: { user: User }) => (
 
 const reveal = () => container.querySelector<HTMLElement>("[skullet-reveal]")!;
 
+describe("remember", () => {
+  const stored = () => localStorage.getItem("skullet:shapes");
+  const ui = (provided: boolean, own?: boolean) => (
+    <SkulletProvider remember={provided}>
+      <Skeleton id="profile" data={ADA} remember={own}>
+        {(u) => <Card user={u} />}
+      </Skeleton>
+    </SkulletProvider>
+  );
+
+  it("stores nothing inside a provider that turns it off", () => {
+    render(ui(false));
+    expect(stored()).toBeNull();
+  });
+
+  it("lets a skeleton overrule its provider", () => {
+    render(ui(false, true));
+    expect(stored()).not.toBeNull();
+  });
+});
+
 describe("accessibility", () => {
   it("is busy while loading, with its label read in the skeleton's place", async () => {
     const ui = (user: User | null) => (

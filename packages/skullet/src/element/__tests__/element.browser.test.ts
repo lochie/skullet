@@ -1,10 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { bonesIn } from "@skullet/test-cases";
+import { bonesIn, settle as settled } from "@skullet/test-cases";
 import { FADE_DURATION, forgetShapes } from "../../lib";
 import "..";
 
-const settle = () =>
-  new Promise((resolve) => setTimeout(resolve, FADE_DURATION + 50));
+const settle = () => settled(FADE_DURATION + 50);
 
 const element = (markup: string, loading: boolean) => {
   const reveal = document.createElement("skullet-reveal");
@@ -40,5 +39,14 @@ describe("<skullet-reveal>", () => {
     expect(bonesIn(reveal)).toHaveLength(0);
     expect(reveal.hasAttribute("aria-busy")).toBe(false);
     expect(reveal.textContent).toContain("Hello there");
+  });
+
+  it('stores nothing with remember="false"', async () => {
+    const reveal = document.createElement("skullet-reveal");
+    reveal.setAttribute("remember", "false");
+    reveal.innerHTML = `<p>Hello</p>`;
+    document.body.append(reveal);
+    await settle();
+    expect(localStorage.getItem("skullet:shapes")).toBeNull();
   });
 });

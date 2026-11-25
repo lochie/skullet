@@ -53,7 +53,13 @@
   // Set by SkulletProvider, when there is one
   const config =
     getContext<
-      { nonce?: string; reveal?: RevealMode; boot?: { sent: boolean } } | undefined
+      | {
+          nonce?: string;
+          reveal?: RevealMode;
+          remember?: boolean;
+          boot?: { sent: boolean };
+        }
+      | undefined
     >('skullet') ?? {};
 
   // The full script once a page where a provider keeps count — claimed when first rendered, the skeletons after it send a stub
@@ -91,6 +97,8 @@
     (pending(props.data) ? (ours?.value ?? null) : props.data) as T | null | undefined,
   );
   const error = $derived(props.error ?? ours?.error);
+
+  const remember = $derived(props.remember ?? config.remember);
 
   // The last data shown, so a reload's skeleton has its exact shape — of the same `id` only
   let last: { id?: string; data: T } | null = null;
@@ -214,7 +222,12 @@
           {...{ [ATTR_LOADING]: '' }}
           aria-hidden="true"
           inert
-          use:ghost={{ id: props.id, exact: real != null, refetch: data != null }}
+          use:ghost={{
+            id: props.id,
+            exact: real != null,
+            refetch: data != null,
+            remember,
+          }}
         >
           <div {...{ [ATTR_GHOST]: '' }}>{@render render(shown)}</div>
           <div {...{ [ATTR_SNAPSHOT]: '' }}></div>
@@ -243,6 +256,7 @@
           data,
           rendered: driven,
           sample: props.sample !== undefined,
+          remember,
         }}
       >
         {@render render(data)}

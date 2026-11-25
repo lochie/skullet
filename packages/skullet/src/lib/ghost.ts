@@ -15,7 +15,7 @@ import { reportLoading } from "./debug";
 import { noteSkeleton } from "./plan";
 import { warnOnce } from "./dev";
 import { measureSkeleton } from "./measure";
-import { flushShapes, recallShape } from "./shapes";
+import { flushShapes, forgetShape, recallShape } from "./shapes";
 import { drawSkeleton } from "./shimmer";
 import { autoKey, restore } from "./snapshot";
 import { addStyles, removeStyles } from "./styles";
@@ -27,6 +27,8 @@ export type GhostOptions = {
   exact?: boolean;
   /** Its data is still set: a refetch over what's on screen, not a new load. */
   refetch?: boolean;
+  /** `false` draws from no remembered shape. */
+  remember?: boolean;
 };
 
 type Source = "ghost" | "recall" | "fallback";
@@ -104,6 +106,12 @@ export class Ghost {
 
     this.hadContent = hasContent(this.ghost);
 
+    // Turned off after a shape was stored: what was kept goes too, not just what's next
+    if (options.remember === false) {
+      const key = options.id ?? autoKey(this.ghost);
+      if (key) forgetShape(key);
+    }
+
     const reveal = root.closest(`[${ATTR_REVEAL}]`);
     if (reveal) {
       noteSkeleton(reveal, {
@@ -159,7 +167,9 @@ export class Ghost {
     if ((settled || own) && this.hadContent) {
       next = "ghost";
     } else {
-      const key = this.options.id ?? autoKey(this.ghost);
+      const key =
+        this.options.remember !== false &&
+        (this.options.id ?? autoKey(this.ghost));
       if (key) {
         flushShapes(key);
         html = recallShape(key);

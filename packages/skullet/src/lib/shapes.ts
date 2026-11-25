@@ -61,6 +61,15 @@ export function recallShape(key: string): string | null {
   return session.get(key) ?? read()[key] ?? null;
 }
 
+/** Forgets the one shape under `key`, from this visit and from storage. */
+export function forgetShape(key: string) {
+  session.delete(key);
+  const shapes = read();
+  if (!(key in shapes)) return;
+  delete shapes[key];
+  write(shapes);
+}
+
 /** Forgets remembered shapes — call it on sign-out. */
 export function forgetShapes({ persisted = true } = {}) {
   session.clear();

@@ -1,9 +1,10 @@
 import { flushSync, mount, unmount } from "svelte";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { bonesIn } from "@skullet/test-cases";
+import { bonesIn, settle as settled } from "@skullet/test-cases";
 import Harness from "./Harness.svelte";
 import Provided from "./Provided.svelte";
 import Promised from "./Promised.svelte";
+import Unremembered from "./Unremembered.svelte";
 import {
   CASCADE_SPREAD,
   FADE_DURATION,
@@ -20,9 +21,7 @@ let app: ReturnType<typeof mount> | null = null;
 
 // Svelte holds an outgoing pane for the longest a smart reveal without images might take
 const settle = () =>
-  new Promise((resolve) =>
-    setTimeout(resolve, SKELETON_DELAY + CASCADE_SPREAD + FADE_DURATION + 50),
-  );
+  settled(SKELETON_DELAY + CASCADE_SPREAD + FADE_DURATION + 50);
 
 afterEach(() => {
   if (app) unmount(app);
@@ -97,6 +96,13 @@ describe("Svelte Skeleton", () => {
 });
 
 describe("Svelte Skeleton with a promise", () => {
+  it("stores nothing inside a provider set to remember nothing", async () => {
+    const target = document.body.appendChild(document.createElement("div"));
+    app = mount(Unremembered, { target, props: {} });
+    await settle();
+    expect(localStorage.getItem("skullet:shapes")).toBeNull();
+  });
+
   it("loads while it's pending, then shows its value and calls onreveal", async () => {
     let resolve!: (user: typeof ADA) => void;
     const data = new Promise<typeof ADA>((done) => (resolve = done));
