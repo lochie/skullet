@@ -51,7 +51,8 @@ jobs:
         run: pnpm --filter=skullet exec vitest run --project browser --browser.name=${{ matrix.browser }}
 
   site:
-    runs-on: ubuntu-latest
+    # Safari 18's Playwright (1.50) can't install WebKit on anything newer
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
