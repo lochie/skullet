@@ -10,6 +10,7 @@ import {
   ATTR_PANE,
   ATTR_REVEAL,
   ATTR_STATUS,
+  ATTR_SNAPSHOT,
   ATTR_XRAY,
   BASE,
   MEDIA_TAGS,
@@ -46,6 +47,11 @@ skullet-reveal[loading]:not(:defined) {
 
 [${ATTR_INACTIVE}] {
   display: none !important;
+}
+
+/* Keep positioned descendants below the later sibling bones layer. */
+[${ATTR_LOADING}] > :is([${ATTR_GHOST}], [${ATTR_SNAPSHOT}]) {
+  isolation: isolate;
 }
 
 [${ATTR_LAYER}] {
