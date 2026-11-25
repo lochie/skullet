@@ -22,7 +22,7 @@ export interface SkeletonProps<T = unknown> {
   /** Remembers the shape under this key across visits. */
   id?: string;
   /** Set to `false` to neither store this shape nor draw from a stored one. */
-  persistence?: boolean;
+  remember?: boolean;
   /** Read to screen readers while loading, in place of the skeleton — "Loading profile". */
   label?: string;
   empty?: boolean;
@@ -43,7 +43,7 @@ export interface SkulletProviderProps {
   theme?: SkulletTheme;
   mode?: SkulletMode;
   /** Set to `false` to store no shapes and draw from none, for everything inside. */
-  persistence?: boolean;
+  remember?: boolean;
   /** How much of each line of text is drawn: from `top` (ascender, cap-height, x-height) down to `bottom` (baseline, descender). */
   text?: SkulletText;
   /** How content replaces its skeleton: `smart` (the default), `together`, `sequence`, `sweep`, or a `RevealSpec` of your own. */

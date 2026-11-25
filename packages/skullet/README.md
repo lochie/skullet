@@ -41,7 +41,7 @@ Or toggle it yourself, with plain children:
 | `sample`       | `T`                      | Stands in for `data` to draw the very first skeleton.         |
 | `loading`      | `boolean`                | Shows the skeleton, even over `data` — say, while refetching. |
 | `id`           | `string`                 | Remembers the skeleton's shape across visits under this key.  |
-| `persistence`  | `boolean`                | `false` stores no shape and reads none.                       |
+| `remember`     | `boolean`                | `false` stores no shape and reads none.                       |
 | `label`        | `string`                 | Read to screen readers while loading.                         |
 | `skeleton`     | `ReactNode`              | Shown while loading instead of the measured skeleton.         |
 | `error`        | `ReactNode`              | Shown instead of the content when set.                        |
@@ -281,10 +281,10 @@ import { forgetShapes } from "skullet";
 forgetShapes();
 ```
 
-To remember nothing, set `persistence={false}` on `SkulletProvider`, or on one
+To remember nothing, set `remember={false}` on `SkulletProvider`, or on one
 `Skeleton` or `SkeletonSuspense`, where it wins over the provider. A shape
 stored before it was turned off is forgotten too. `Reveal` takes it as an
-option and `<skullet-reveal>` as `persistence="false"`.
+option and `<skullet-reveal>` as `remember="false"`.
 
 ## Hints
 

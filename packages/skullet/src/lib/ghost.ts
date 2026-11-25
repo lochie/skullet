@@ -28,7 +28,7 @@ export type GhostOptions = {
   /** Its data is still set: a refetch over what's on screen, not a new load. */
   refetch?: boolean;
   /** `false` draws from no remembered shape. */
-  persistence?: boolean;
+  remember?: boolean;
 };
 
 type Source = "ghost" | "recall" | "fallback";
@@ -107,7 +107,7 @@ export class Ghost {
     this.hadContent = hasContent(this.ghost);
 
     // Turned off after a shape was stored: what was kept goes too, not just what's next
-    if (options.persistence === false) {
+    if (options.remember === false) {
       const key = options.id ?? autoKey(this.ghost);
       if (key) forgetShape(key);
     }
@@ -168,7 +168,7 @@ export class Ghost {
       next = "ghost";
     } else {
       const key =
-        this.options.persistence !== false &&
+        this.options.remember !== false &&
         (this.options.id ?? autoKey(this.ghost));
       if (key) {
         flushShapes(key);

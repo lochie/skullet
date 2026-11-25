@@ -47,12 +47,12 @@ afterEach(() => {
   document.body.replaceChildren();
 });
 
-describe("persistence", () => {
+describe("remember", () => {
   it("stores nothing when turned off", () => {
     mount(() =>
       h(
         Skeleton,
-        { id: "profile", data: { name: "Ada" }, persistence: false },
+        { id: "profile", data: { name: "Ada" }, remember: false },
         {
           default: ({ data }: { data: { name: string } }) => h("p", data.name),
         },

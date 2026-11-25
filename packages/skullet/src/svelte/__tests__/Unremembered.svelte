@@ -3,7 +3,7 @@
   import Skeleton from '../Skeleton.svelte';
 </script>
 
-<SkulletProvider persistence={false}>
+<SkulletProvider remember={false}>
   <Skeleton id="profile" data={{ name: 'Ada' }}>
     {#snippet children(u)}
       <p>{u.name}</p>

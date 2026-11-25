@@ -98,7 +98,7 @@ describe("Svelte Skeleton", () => {
 });
 
 describe("Svelte Skeleton with a promise", () => {
-  it("stores nothing inside a provider that turns persistence off", async () => {
+  it("stores nothing inside a provider set to remember nothing", async () => {
     const target = document.body.appendChild(document.createElement("div"));
     app = mount(Unremembered, { target, props: {} });
     await settle();

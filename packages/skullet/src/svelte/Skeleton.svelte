@@ -56,7 +56,7 @@
       | {
           nonce?: string;
           reveal?: RevealMode;
-          persistence?: boolean;
+          remember?: boolean;
           boot?: { sent: boolean };
         }
       | undefined
@@ -98,7 +98,7 @@
   );
   const error = $derived(props.error ?? ours?.error);
 
-  const persistence = $derived(props.persistence ?? config.persistence);
+  const remember = $derived(props.remember ?? config.remember);
 
   // The last data shown, so a reload's skeleton has its exact shape — of the same `id` only
   let last: { id?: string; data: T } | null = null;
@@ -226,7 +226,7 @@
             id: props.id,
             exact: real != null,
             refetch: data != null,
-            persistence,
+            remember,
           }}
         >
           <div {...{ [ATTR_GHOST]: '' }}>{@render render(shown)}</div>
@@ -256,7 +256,7 @@
           data,
           rendered: driven,
           sample: props.sample !== undefined,
-          persistence,
+          remember,
         }}
       >
         {@render render(data)}

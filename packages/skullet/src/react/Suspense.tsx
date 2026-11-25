@@ -11,7 +11,7 @@ import {
   Ghost,
   Memory,
 } from "../lib";
-import { usePersistence, useReveal } from "./config";
+import { useRemember, useReveal } from "./config";
 import { Loading, Styles, useIsomorphicLayoutEffect, useStyles } from "./parts";
 
 type Waited = React.MutableRefObject<boolean>;
@@ -19,13 +19,13 @@ type Waited = React.MutableRefObject<boolean>;
 const Fallback = ({
   children,
   id,
-  persistence,
+  remember,
   label,
   waited,
 }: {
   children: React.ReactNode;
   id?: string;
-  persistence?: boolean;
+  remember?: boolean;
   label?: string;
   waited: Waited;
 }) => {
@@ -60,7 +60,7 @@ const Fallback = ({
         // A clone leaves its bones' shadow root behind; draw them again
         const loading = copy.querySelector<HTMLElement>(`[${ATTR_LOADING}]`);
         if (loading)
-          new Ghost(loading, { id, exact: true, persistence }).destroy();
+          new Ghost(loading, { id, exact: true, remember }).destroy();
         fadeOut(copy, box).then(() => copy.remove());
       });
     };
@@ -73,7 +73,7 @@ const Fallback = ({
       <Loading
         id={id}
         exact={children != null}
-        persistence={persistence}
+        remember={remember}
         label={label}
       >
         {children}
@@ -85,13 +85,13 @@ const Fallback = ({
 const Content = ({
   children,
   id,
-  persistence,
+  remember,
   waited,
   onReveal,
 }: {
   children: React.ReactNode;
   id?: string;
-  persistence?: boolean;
+  remember?: boolean;
   waited: Waited;
   onReveal?: () => void;
 }) => {
@@ -102,7 +102,7 @@ const Content = ({
     if (!ref.current) return;
     const arrival = fadeIn(ref.current, mode, { initial: !waited.current });
     if (waited.current && onReveal) arrival.then(onReveal);
-    const memory = new Memory(ref.current, { id, persistence });
+    const memory = new Memory(ref.current, { id, remember });
     return () => memory.destroy();
     // Mount only — React keeps resolved content mounted, hiding it if it suspends again
   }, []);
@@ -121,7 +121,7 @@ export type SkeletonSuspenseProps = {
   /** Remembers the shape under this key across visits. */
   id?: string;
   /** Set to `false` to neither store this shape nor draw from a stored one. */
-  persistence?: boolean;
+  remember?: boolean;
   /** Read to screen readers while suspended, in place of the skeleton. */
   label?: string;
   /** Called once content has come in over the skeleton. */
@@ -135,14 +135,14 @@ export function SkeletonSuspense({
   children,
   skeleton,
   id,
-  persistence: own,
+  remember: own,
   label,
   onReveal,
   className,
   style,
 }: SkeletonSuspenseProps) {
   useStyles();
-  const persistence = usePersistence(own);
+  const remember = useRemember(own);
   const waited = React.useRef(false);
 
   return (
@@ -150,19 +150,14 @@ export function SkeletonSuspense({
       <Styles />
       <React.Suspense
         fallback={
-          <Fallback
-            id={id}
-            persistence={persistence}
-            label={label}
-            waited={waited}
-          >
+          <Fallback id={id} remember={remember} label={label} waited={waited}>
             {skeleton}
           </Fallback>
         }
       >
         <Content
           id={id}
-          persistence={persistence}
+          remember={remember}
           waited={waited}
           onReveal={onReveal}
         >

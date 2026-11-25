@@ -14,7 +14,7 @@ export type MemoryOptions = {
   /** A `sample` was passed. */
   sample?: boolean;
   /** `false` remembers nothing. */
-  persistence?: boolean;
+  remember?: boolean;
 };
 
 const SAVE_DELAY = 250;
@@ -32,7 +32,7 @@ export class Memory {
     private options: MemoryOptions = {},
   ) {
     this.key = options.id ?? autoKey(element);
-    if (options.persistence === false && this.key) forgetShape(this.key);
+    if (options.remember === false && this.key) forgetShape(this.key);
     this.untrack = this.key
       ? trackShape(this.key, () => this.save())
       : () => {};
@@ -63,7 +63,7 @@ export class Memory {
   save() {
     clearTimeout(this.timer);
     if (
-      this.options.persistence !== false &&
+      this.options.remember !== false &&
       this.key &&
       this.element.isConnected &&
       this.element.offsetHeight

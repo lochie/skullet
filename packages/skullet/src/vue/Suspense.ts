@@ -27,7 +27,7 @@ const Fallback = defineComponent({
   name: "SkeletonFallback",
   props: {
     id: String,
-    persistence: { type: Boolean, default: undefined },
+    remember: { type: Boolean, default: undefined },
     label: String,
     state,
   },
@@ -65,8 +65,8 @@ const Fallback = defineComponent({
         // A clone leaves its skeleton's shadow root behind; draw it again
         const loading = copy.querySelector<HTMLElement>(`[${ATTR_LOADING}]`);
         if (loading) {
-          const { id, persistence } = props;
-          new Ghost(loading, { id, exact: true, persistence }).destroy();
+          const { id, remember } = props;
+          new Ghost(loading, { id, exact: true, remember }).destroy();
         }
         fadeOut(copy, box).then(() => copy.remove());
       };
@@ -80,7 +80,7 @@ const Fallback = defineComponent({
           {
             id: props.id,
             exact: !!slots.default,
-            persistence: props.persistence,
+            remember: props.remember,
             label: props.label,
           },
           slots.default,
@@ -93,7 +93,7 @@ const Content = defineComponent({
   name: "SkeletonSuspenseContent",
   props: {
     id: String,
-    persistence: { type: Boolean, default: undefined },
+    remember: { type: Boolean, default: undefined },
     state,
   },
   emits: ["reveal"],
@@ -110,8 +110,8 @@ const Content = defineComponent({
       if (waited) arrival.then(() => emit("reveal"));
       props.state.exit?.();
       props.state.exit = null;
-      const { id, persistence } = props;
-      memory = new Memory(pane, { id, persistence });
+      const { id, remember } = props;
+      memory = new Memory(pane, { id, remember });
     });
     onBeforeUnmount(() => memory?.destroy());
 
@@ -126,7 +126,7 @@ export const SkeletonSuspense = defineComponent({
     /** Remembers the shape under this key across visits. */
     id: String,
     /** Set to `false` to neither store this shape nor draw from a stored one. */
-    persistence: { type: Boolean, default: undefined },
+    remember: { type: Boolean, default: undefined },
     /** Read to screen readers while suspended, in place of the skeleton. */
     label: String,
   },
@@ -138,7 +138,7 @@ export const SkeletonSuspense = defineComponent({
     const shared: State = { waited: false, exit: null };
 
     return () => {
-      const persistence = props.persistence ?? config.persistence;
+      const remember = props.remember ?? config.remember;
       return h("div", { [ATTR_REVEAL]: "" }, [
         h(Suspense, null, {
           default: () =>
@@ -146,7 +146,7 @@ export const SkeletonSuspense = defineComponent({
               Content,
               {
                 id: props.id,
-                persistence,
+                remember,
                 state: shared,
                 onReveal: () => emit("reveal"),
               },
@@ -155,7 +155,7 @@ export const SkeletonSuspense = defineComponent({
           fallback: () =>
             h(
               Fallback,
-              { id: props.id, persistence, label: props.label, state: shared },
+              { id: props.id, remember, label: props.label, state: shared },
               slots.skeleton,
             ),
         }),

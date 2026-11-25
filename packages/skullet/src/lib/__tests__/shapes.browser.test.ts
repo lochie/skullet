@@ -22,9 +22,9 @@ const html = (markup: string) => {
   return template.content;
 };
 
-describe("persistence off", () => {
+describe("remember: false", () => {
   it("stores nothing", () => {
-    const reveal = new Reveal(mount(""), { id: "profile", persistence: false });
+    const reveal = new Reveal(mount(""), { id: "profile", remember: false });
     reveal.load(html(`<p>Sample</p>`));
     reveal.show(html(`<p>Ada</p>`));
     reveal.destroy();
@@ -36,7 +36,7 @@ describe("persistence off", () => {
   it("forgets the shape stored before it was turned off, and no other", () => {
     rememberShape("profile", mount(`<p>Earlier</p>`));
     rememberShape("inbox", mount(`<p>Messages</p>`));
-    const reveal = new Reveal(mount(""), { id: "profile", persistence: false });
+    const reveal = new Reveal(mount(""), { id: "profile", remember: false });
     reveal.load(html(`<p>Sample</p>`));
     reveal.destroy();
 
@@ -48,7 +48,7 @@ describe("persistence off", () => {
   it("draws from no remembered shape", () => {
     rememberShape("profile", mount(`<p>Earlier</p>`));
     const root = mount("");
-    const reveal = new Reveal(root, { id: "profile", persistence: false });
+    const reveal = new Reveal(root, { id: "profile", remember: false });
     reveal.load(html(`<p>Mine</p><p>Mine</p>`));
     expect(bonesIn(root)).toHaveLength(2);
     reveal.destroy();

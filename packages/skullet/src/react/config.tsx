@@ -23,7 +23,7 @@ export type SkulletConfig = {
   /** Outlines every reveal with where its skeleton came from and whether anything moved. */
   debug?: boolean;
   /** Set to `false` to store no shapes and draw from none, for everything inside. */
-  persistence?: boolean;
+  remember?: boolean;
 };
 
 const Config = React.createContext<SkulletConfig>({});
@@ -36,9 +36,9 @@ export const useSkullet = () => React.useContext(Config);
 export const useBoot = () => React.useContext(Boot);
 
 /** Whether a component inside remembers shapes: its own say, then the provider's. */
-export const usePersistence = (own?: boolean) => {
-  const { persistence } = useSkullet();
-  return own ?? persistence;
+export const useRemember = (own?: boolean) => {
+  const { remember } = useSkullet();
+  return own ?? remember;
 };
 
 /** The reveal a component inside should use. */

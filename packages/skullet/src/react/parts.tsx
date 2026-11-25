@@ -92,7 +92,7 @@ type LoadingProps = {
   id?: string;
   exact: boolean;
   refetch?: boolean;
-  persistence?: boolean;
+  remember?: boolean;
   /** Read to screen readers in the skeleton's place. */
   label?: string;
 };
@@ -102,7 +102,7 @@ export const Loading = ({
   id,
   exact,
   refetch,
-  persistence,
+  remember,
   label,
 }: LoadingProps) => {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -119,9 +119,9 @@ export const Loading = ({
 
   useIsomorphicLayoutEffect(() => {
     if (!ref.current) return;
-    const ghost = new Ghost(ref.current, { id, exact, refetch, persistence });
+    const ghost = new Ghost(ref.current, { id, exact, refetch, remember });
     return () => ghost.destroy();
-  }, [id, exact, refetch, persistence]);
+  }, [id, exact, refetch, remember]);
 
   // Snapshot and bones are Ghost's to fill, never React's
   return (

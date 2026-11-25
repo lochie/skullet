@@ -64,11 +64,11 @@ const Card = ({ user }: { user: User }) => (
 
 const reveal = () => container.querySelector<HTMLElement>("[skullet-reveal]")!;
 
-describe("persistence", () => {
+describe("remember", () => {
   const stored = () => localStorage.getItem("skullet:shapes");
   const ui = (provided: boolean, own?: boolean) => (
-    <SkulletProvider persistence={provided}>
-      <Skeleton id="profile" data={ADA} persistence={own}>
+    <SkulletProvider remember={provided}>
+      <Skeleton id="profile" data={ADA} remember={own}>
         {(u) => <Card user={u} />}
       </Skeleton>
     </SkulletProvider>

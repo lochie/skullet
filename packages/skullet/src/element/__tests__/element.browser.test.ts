@@ -42,9 +42,9 @@ describe("<skullet-reveal>", () => {
     expect(reveal.textContent).toContain("Hello there");
   });
 
-  it("stores nothing with persistence off", async () => {
+  it('stores nothing with remember="false"', async () => {
     const reveal = document.createElement("skullet-reveal");
-    reveal.setAttribute("persistence", "false");
+    reveal.setAttribute("remember", "false");
     reveal.innerHTML = `<p>Hello</p>`;
     document.body.append(reveal);
     await settle();
