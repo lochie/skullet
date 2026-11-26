@@ -51,8 +51,8 @@ type WithOwnSkeleton = {
 };
 
 // Only reaches elements passed as children, not what a component renders internally
-const swapOwnSkeletons = (node: React.ReactNode): React.ReactNode =>
-  React.Children.map(node, (child) => {
+const swapOwnSkeletons = (node: React.ReactNode): React.ReactNode => {
+  const swapped = React.Children.map(node, (child) => {
     if (!React.isValidElement<{ children?: React.ReactNode }>(child)) {
       return child;
     }
@@ -76,6 +76,9 @@ const swapOwnSkeletons = (node: React.ReactNode): React.ReactNode =>
 
     return child;
   });
+  // A lone element stays one, not an array of one, which single-child components like Radix `Slot` reject
+  return React.isValidElement(node) ? swapped?.[0] : swapped;
+};
 
 const subscribe = () => () => {};
 
