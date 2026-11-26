@@ -46,7 +46,9 @@ it("draws a server-rendered skeleton's bones as the HTML is parsed, then hydrate
   const after = new ResizeObserver(() => {
     after.disconnect();
     window.atParse = {
-      bones: layer.shadowRoot ? layer.shadowRoot.children.length : 0,
+      bones: layer.shadowRoot
+        ? layer.shadowRoot.querySelectorAll("[skullet-rect]").length
+        : 0,
       chip: getComputedStyle(document.querySelector(".chip")).visibility,
     };
   });
@@ -96,7 +98,10 @@ it("sends the full script once a page under a provider — every skeleton after 
   const after = new ResizeObserver(() => {
     after.disconnect();
     window.atParse = [...document.querySelectorAll("[skullet-layer]")].map(
-      (layer) => (layer.shadowRoot ? layer.shadowRoot.children.length : 0),
+      (layer) =>
+        layer.shadowRoot
+          ? layer.shadowRoot.querySelectorAll("[skullet-rect]").length
+          : 0,
     );
   });
   after.observe(document.querySelectorAll("[skullet-loading]")[2]);
@@ -133,7 +138,8 @@ ${full}
   await vi.waitFor(() =>
     expect(
       [...frame.contentDocument!.querySelectorAll("[skullet-layer]")].map(
-        (layer) => layer.shadowRoot?.children.length ?? 0,
+        (layer) =>
+          layer.shadowRoot?.querySelectorAll("[skullet-rect]").length ?? 0,
       ),
     ).toEqual([2, 2]),
   );

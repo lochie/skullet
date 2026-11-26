@@ -22,7 +22,7 @@ import {
   type WipePlan,
 } from "./plan";
 import { revealSpec } from "./reveals";
-import { rectsOf, shimmer } from "./shimmer";
+import { rectsOf, sheenOf, shimmer } from "./shimmer";
 
 export { prefersReducedMotion };
 
@@ -135,9 +135,11 @@ function holdImages(element: HTMLElement, root: HTMLElement) {
 
 function sequenceIn(element: HTMLElement, plan: SequencePlan) {
   if (prefersReducedMotion()) return Promise.resolve();
+  const timed = pieces(element).map(
+    (piece) => [piece, plan.pieceDelay(piece)] as const,
+  );
   return Promise.all(
-    pieces(element).map((piece) => {
-      const delay = plan.pieceDelay(piece);
+    timed.map(([piece, delay]) => {
       if (delay === null) return;
       return appear(piece, delay, plan.duration, 0, plan.enter);
     }),
@@ -378,13 +380,20 @@ function sequenceOut(element: HTMLElement, plan: SequencePlan) {
   ].filter((part) => !part.parentElement?.closest(`[${ATTR_OWN}]`));
   for (const part of own) part.style.visibility = "visible";
 
-  const bones = [
-    ...[...element.querySelectorAll(`[${ATTR_LAYER}]`)].flatMap(rectsOf),
-    ...own,
-  ];
+  const layers = [...element.querySelectorAll(`[${ATTR_LAYER}]`)];
+  const bones = [...layers.flatMap(rectsOf), ...own];
+  for (const sheen of layers.map(sheenOf)) {
+    sheen?.animate([{ opacity: 1 }, { opacity: 0 }], {
+      duration: plan.duration,
+      easing: "ease",
+      fill: "forwards",
+    });
+  }
+  const delays = bones.map((bone) =>
+    plan.boneDelay(bone.getBoundingClientRect()),
+  );
   return Promise.all(
-    bones.map((bone) => {
-      const rect = bone.getBoundingClientRect();
+    bones.map((bone, index) => {
       const go = (delay: number) =>
         settle(
           bone.animate([{ opacity: 1 }, { opacity: 0 }], {
@@ -394,8 +403,8 @@ function sequenceOut(element: HTMLElement, plan: SequencePlan) {
             fill: "forwards",
           }),
         );
-      const delay = plan.boneDelay(rect);
-      if (delay === null) {
+      const delay = delays[index];
+      if (delay === null || delay === undefined) {
         bone.style.opacity = "0";
         return;
       }
