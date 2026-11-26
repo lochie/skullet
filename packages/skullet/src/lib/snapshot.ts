@@ -62,12 +62,19 @@ function sanitize(root: ParentNode) {
       continue;
     }
 
-    for (const { name, value } of [...element.attributes]) {
+    for (const { name } of [...element.attributes]) {
       const lower = name.toLowerCase();
+      // A remembered shape is layout only — href, title, id, aria-* and data-* can carry who was
+      // signed in (a profile link, a label), and forgetShapes() on sign-out has no way to scrub
+      // them back out of what's already written.
       const unsafe =
         lower.startsWith("on") ||
-        STRIPPED.has(lower) ||
-        (lower.endsWith("href") && /^\s*javascript:/i.test(value));
+        lower.startsWith("data-") ||
+        lower.startsWith("aria-") ||
+        lower.endsWith("href") ||
+        lower === "title" ||
+        lower === "id" ||
+        STRIPPED.has(lower);
       if (unsafe) element.removeAttribute(name);
     }
 

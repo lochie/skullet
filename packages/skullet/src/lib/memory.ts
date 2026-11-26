@@ -2,7 +2,7 @@ import { ATTR_REVEAL } from "./constants";
 import { debugging, reportReveal } from "./debug";
 import { isDev, sampleFrom, warnOnce } from "./dev";
 import { takeLoadingSize } from "./ghost";
-import { forgetShape, rememberShape, trackShape } from "./shapes";
+import { currentEpoch, forgetShape, rememberShape, trackShape } from "./shapes";
 import { autoKey } from "./snapshot";
 
 export type MemoryOptions = {
@@ -22,6 +22,9 @@ const SAVE_DELAY = 250;
 /** Remembers the shape of shown content, so its next skeleton can be drawn from it. */
 export class Memory {
   private key: string | null;
+  // Caught at construction, so a save after forgetShapes() ran (destroy() on an unmount that
+  // follows a sign-out, for the tree that was signed in when it ran) can tell it's stale.
+  private epoch = currentEpoch();
   private timer: ReturnType<typeof setTimeout> | undefined;
   private mutations: MutationObserver;
   private resize: ResizeObserver | null;
@@ -63,6 +66,7 @@ export class Memory {
   save() {
     clearTimeout(this.timer);
     if (
+      this.epoch === currentEpoch() &&
       this.options.remember !== false &&
       this.key &&
       this.element.isConnected &&
