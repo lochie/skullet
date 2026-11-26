@@ -5,6 +5,7 @@ import {
   ATTR_COVERED,
   ATTR_GHOST,
   ATTR_INACTIVE,
+  ATTR_IGNORE,
   ATTR_LOADING,
   ATTR_OWN,
   ATTR_PANE,
@@ -75,8 +76,12 @@ skullet-reveal[loading]:not(:defined) {
   }
 
   /* A line to measure in empty text; content only, never a size, or a dot-sized span would grow round it */
-  :scope :is(${text}):empty:not(svg *)::before {
+  :scope :is(${text}):empty:not(svg *, [${ATTR_IGNORE}])::before {
     content: "000000";
+  }
+
+  :scope [${ATTR_IGNORE}] :is(${text}):empty::before {
+    content: none;
   }
 
   /* Leaves are drawn by bones, so their own paint never shows; visibility, as measuring reads it */

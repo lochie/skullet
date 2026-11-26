@@ -192,6 +192,18 @@ export const GEOMETRY_CASES: GeometryCase[] = [
 </div>`,
   },
   {
+    label: "Ignored table spacer",
+    description:
+      "Intentionally empty table cells retain their spacing when ignored.",
+    tags: ["hints", "table"],
+    width: 320,
+    html: `<table style="width: 100%; border-spacing: 0; font: 16px/24px sans-serif">
+  <thead><tr><th skullet-ignore style="width: 56px; padding: 0"></th><th data-expect="lines">Monday</th></tr></thead>
+  <tbody><tr skullet-ignore style="height: 4px"><td colspan="2" style="height: 4px; padding: 0"></td></tr>
+  <tr><th data-expect="lines">07:00</th><td data-expect="lines" style="padding-left: 24px">Available</td></tr></tbody>
+</table>`,
+  },
+  {
     label: "Hints",
     description: "`skullet-block` forces a block; `skullet-ignore` draws nothing.",
     tags: ["hints"],
