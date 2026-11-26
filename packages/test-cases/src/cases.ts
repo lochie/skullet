@@ -192,6 +192,17 @@ export const GEOMETRY_CASES: GeometryCase[] = [
 </div>`,
   },
   {
+    label: "Baseline activity row",
+    description:
+      "An empty decorative dot keeps the text aligned to its baseline.",
+    tags: ["empty", "align"],
+    width: 320,
+    html: `<div style="display: flex; align-items: baseline; gap: 12px; font: 16px/24px sans-serif">
+  <span aria-hidden="true" data-expect="block" style="width: 10px; height: 10px; flex-shrink: 0; border-radius: 50%; background: #888"></span>
+  <p data-expect="lines" style="margin: 0">Alex updated the settings</p>
+</div>`,
+  },
+  {
     label: "Hints",
     description: "`skullet-block` forces a block; `skullet-ignore` draws nothing.",
     tags: ["hints"],
