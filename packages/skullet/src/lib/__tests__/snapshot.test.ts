@@ -105,7 +105,7 @@ describe("skulletCSS", () => {
     );
   });
 
-  it("switches colours with the system in system mode", async () => {
+  it("follows the page's color-scheme in system mode, and the OS where light-dark() isn't known", async () => {
     const { skulletCSS } = await import("../theme");
     const css = skulletCSS({
       theme: {
@@ -115,7 +115,10 @@ describe("skulletCSS", () => {
     });
     expect(css).toContain(":root { --skullet-base: black;");
     expect(css).toContain(
-      "@media (prefers-color-scheme: dark) { :root { --skullet-base: white;",
+      "@supports (color: light-dark(#000, #fff)) { :root { --skullet-base: light-dark(black, white); --skullet-highlight: light-dark(white, black); } }",
+    );
+    expect(css).toContain(
+      "@supports not (color: light-dark(#000, #fff)) { @media (prefers-color-scheme: dark) { :root { --skullet-base: white;",
     );
   });
 

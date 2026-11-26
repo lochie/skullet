@@ -16,7 +16,7 @@ export type SkulletSpeed = "slow" | "fast";
 /** How much of each line of text is drawn: from the font's `top` line down to its `bottom` line. */
 export type SkulletText = { top?: TextTop; bottom?: TextBottom };
 
-/** `system` follows `prefers-color-scheme`; the others pin one set of colours. */
+/** `system` follows the page's `color-scheme` — set by a class or the OS alike; the others pin one set of colours. */
 export type SkulletMode = "light" | "dark" | "system";
 
 export type SkulletTheme = {
@@ -93,9 +93,19 @@ export function skulletCSS({
     rules.push(`${selector} { ${declarations(base)} }`);
   }
   if (colored === "system") {
+    const light = themeVariables({ light: theme.light }, "light");
     const dark = themeVariables({ dark: theme.dark }, "dark");
+    // Picked where each bone is drawn, by the color-scheme there: a `.dark` class, a dark section or the OS alike
+    const either = Object.fromEntries(
+      Object.entries(light).map(([name, value]) => [
+        name,
+        `light-dark(${value}, ${dark[name]})`,
+      ]),
+    );
     rules.push(
-      `@media (prefers-color-scheme: dark) { ${selector} { ${declarations(dark)} } }`,
+      `@supports (color: light-dark(#000, #fff)) { ${selector} { ${declarations(either)} } }`,
+      // Too old for light-dark(): the OS's setting is all there is to go by
+      `@supports not (color: light-dark(#000, #fff)) { @media (prefers-color-scheme: dark) { ${selector} { ${declarations(dark)} } } }`,
     );
   }
   return rules.join("\n");
