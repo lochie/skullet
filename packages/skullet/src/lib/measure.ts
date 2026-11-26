@@ -219,8 +219,8 @@ const TEXT = new Set(TEXT_TAGS);
 
 const LINE_GAP = 0.4; // of the font size — wider than a space, so one line of text stays one bar
 
-// matches a zero alpha in both `rgba(0, 0, 0, 0)` and `color(srgb 0 0 0 / 0)`
-const TRANSPARENT = /[,/]\s*0\)$/;
+// matches a zero alpha in both `rgba(0, 0, 0, 0)` and `color(srgb 0 0 0 / 0)`, never the last channel of `rgb(0, 0, 0)`
+const TRANSPARENT = /(?:rgba\([^)]*,|\/)\s*0\)/;
 
 // Unset reads as "" outside a browser engine, which is no paint either
 const isSet = (value: string, none: string) => value !== "" && value !== none;
@@ -248,8 +248,12 @@ const isRule = (shadow: string) => {
   );
 };
 
+// A layer in a transparent colour paints nothing, like the `0 0 #0000` ones Tailwind's shadow and ring utilities leave
 const shadowPaints = (boxShadow: string) =>
-  isSet(boxShadow, "none") && !boxShadow.split(/,(?![^(]*\))/).every(isRule);
+  isSet(boxShadow, "none") &&
+  !boxShadow
+    .split(/,(?![^(]*\))/)
+    .every((shadow) => isRule(shadow) || TRANSPARENT.test(shadow));
 
 const isPainted = (style: CSSStyleDeclaration) =>
   (isSet(style.backgroundColor, "transparent") &&

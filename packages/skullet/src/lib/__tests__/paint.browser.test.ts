@@ -39,3 +39,22 @@ describe("what an inset shadow paints", () => {
     expect(bones(root)).toHaveLength(1);
   });
 });
+
+describe("what a transparent colour paints", () => {
+  it("ignores shadow layers in a transparent colour, as Tailwind's utilities leave them", () => {
+    const root = mount(`
+      <span style="display: flex; height: 40px; box-shadow: 0 0 #0000, 0 0 #0000, 0 1px 2px oklch(0 0 0 / 0)">Some name</span>`);
+    const drawn = bones(root);
+    expect(drawn).toHaveLength(1);
+    expect(drawn[0]!.height).toBeLessThan(20);
+  });
+
+  it("reads black as a colour, not as transparent", () => {
+    const root = mount(`
+      <span style="display: inline-block; padding: 4px 10px; box-shadow: 0 0 0 1px black">Ring</span>
+      <span style="display: inline-block; padding: 4px 10px; background: black">Chip</span>`);
+    const drawn = bones(root);
+    expect(drawn).toHaveLength(2);
+    expect(drawn.every((bone) => bone.height > 20)).toBe(true);
+  });
+});
