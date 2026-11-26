@@ -1,4 +1,5 @@
 import { CASCADE_SPREAD, FADE_DURATION } from "./constants";
+import { warnOnce } from "./dev";
 import {
   MAX_DELAY,
   MAX_DURATION,
@@ -12,8 +13,19 @@ import { sweep, SWEEP_SPREAD } from "./sweep";
 
 const NAMED = { together, sequence, smart, sweep };
 
-export const revealSpec = (mode: RevealMode = "smart"): RevealSpec =>
-  typeof mode === "string" ? NAMED[mode] : mode;
+export const revealSpec = (mode: RevealMode = "smart"): RevealSpec => {
+  if (typeof mode !== "string") return mode;
+  const spec = NAMED[mode as keyof typeof NAMED];
+  if (spec) return spec;
+  // An HTML attribute (or any other untyped caller) has nothing checking it ahead of time, the
+  // way TypeScript does for the wrappers — fall back the way an enumerated HTML attribute's own
+  // invalid value does, rather than throw mid-reveal with the sample still on the page.
+  warnOnce(
+    `reveal:${mode}`,
+    `unknown reveal "${mode}" ("together", "sequence", "smart" or "sweep"), falling back to "smart".`,
+  );
+  return smart;
+};
 
 /** Longest a pane can take to leave under `mode`, for a framework that has to know up front. */
 export function exitDuration(mode?: RevealMode) {
