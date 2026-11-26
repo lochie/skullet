@@ -190,6 +190,17 @@ const theme = {
 };
 ```
 
+- In `system` mode, colours follow the page's `color-scheme` where each skeleton
+  is drawn, so a `.dark` class, a dark section or the OS all switch them. A
+  class-based dark mode needs `color-scheme` set with it, which next-themes
+  does for you:
+
+  ```css
+  .dark {
+    color-scheme: dark;
+  }
+  ```
+
 - `speed` is set per animation: a shimmer loops in 4s or 2s, a pulse in 2.4s
   or 1.2s. A shimmer keeps the pace it has across a 1280px screen on any
   width, so a wide monitor doesn't make it race.

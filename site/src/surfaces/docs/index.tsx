@@ -127,7 +127,11 @@ const API: [title: string, rows: Row[]][] = [
       ],
       ["theme", "SkulletTheme", "Colours, animation, speed, radius and text."],
       ["remember", "boolean", "false stores no shapes, for everything inside."],
-      ["mode", '"light" | "dark" | "system"', "Which colours to use."],
+      [
+        "mode",
+        '"light" | "dark" | "system"',
+        "Which colours to use; system follows color-scheme.",
+      ],
       [
         "text",
         "SkulletText",
@@ -609,6 +613,14 @@ const wipeDown: RevealSpec = {
         Each option is also a custom property, like <code>--skullet-base</code>,
         so any part of a page can set its own.
       </p>
+      <p>
+        In <code>system</code> mode, colours follow the page’s{" "}
+        <code>color-scheme</code> where each skeleton is drawn, so a{" "}
+        <code>.dark</code> class, a dark section or the OS all switch them. A
+        class-based dark mode needs <code>color-scheme</code> set with it, which
+        next-themes does for you.
+      </p>
+      <CodeBlock code={`.dark {\n  color-scheme: dark;\n}`} />
     </Section>
 
     <Section id="server" title="Server rendering">

@@ -47,6 +47,7 @@ afterEach(() => {
   forgetShapes();
   document.body.replaceChildren();
   document.documentElement.removeAttribute("skullet-xray");
+  document.documentElement.style.colorScheme = "";
 });
 
 type User = { name: string; bio: string };
@@ -167,6 +168,78 @@ describe("theme", () => {
 
     const bone = bonesIn(container)[0]!;
     expect(getComputedStyle(bone).backgroundColor).toBe("rgb(10, 20, 30)");
+  });
+});
+
+describe("color-scheme", () => {
+  const theme = {
+    light: { base: "rgb(1, 2, 3)", highlight: "white" },
+    dark: { base: "rgb(10, 20, 30)", highlight: "white" },
+  };
+  const base = (bone: Element) => getComputedStyle(bone).backgroundColor;
+
+  it("follows the page's color-scheme as it switches, as a class-based theme sets it", () => {
+    render(
+      <SkulletProvider theme={theme}>
+        <Skeleton loading>
+          <Card user={ADA} />
+        </Skeleton>
+      </SkulletProvider>,
+    );
+    const bone = bonesIn(container)[0]!;
+    document.documentElement.style.colorScheme = "light";
+    expect(base(bone)).toBe("rgb(1, 2, 3)");
+    document.documentElement.style.colorScheme = "dark";
+    expect(base(bone)).toBe("rgb(10, 20, 30)");
+  });
+
+  it("warns in an OS dark mode when the page sets no color-scheme to follow", () => {
+    vi.spyOn(window, "matchMedia").mockReturnValue({
+      matches: true,
+    } as MediaQueryList);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const ui = (
+      <SkulletProvider theme={theme}>
+        <Skeleton loading>
+          <Card user={ADA} />
+        </Skeleton>
+      </SkulletProvider>
+    );
+    const warned = () =>
+      warn.mock.calls.some(([message]) =>
+        String(message).includes("color-scheme"),
+      );
+
+    document.documentElement.style.colorScheme = "dark";
+    render(ui);
+    expect(warned()).toBe(false);
+    act(() => root?.unmount());
+    root = null;
+
+    document.documentElement.style.colorScheme = "";
+    render(ui);
+    expect(warned()).toBe(true);
+  });
+
+  it("follows a section's own color-scheme, dark in light and light in dark", () => {
+    document.documentElement.style.colorScheme = "light";
+    render(
+      <SkulletProvider theme={theme}>
+        <section style={{ colorScheme: "dark" }}>
+          <Skeleton loading>
+            <Card user={ADA} />
+          </Skeleton>
+          <div style={{ colorScheme: "light" }}>
+            <Skeleton loading>
+              <Card user={ADA} />
+            </Skeleton>
+          </div>
+        </section>
+      </SkulletProvider>,
+    );
+    const [outer, inner] = [...container.querySelectorAll("[skullet-loading]")];
+    expect(base(bonesIn(outer!)[0]!)).toBe("rgb(10, 20, 30)");
+    expect(base(bonesIn(inner!)[0]!)).toBe("rgb(1, 2, 3)");
   });
 });
 

@@ -13,7 +13,7 @@ import {
 } from "./constants";
 import { reportLoading } from "./debug";
 import { noteSkeleton } from "./plan";
-import { warnOnce } from "./dev";
+import { isDev, warnOnce } from "./dev";
 import { measureSkeleton } from "./measure";
 import { flushShapes, forgetShape, recallShape } from "./shapes";
 import { drawSkeleton } from "./shimmer";
@@ -80,6 +80,21 @@ const hasContent = (element: Element) =>
   !!element.firstElementChild || !!element.textContent?.trim();
 
 /** Draws a skeleton over content laid out unseen in `root`, so it takes exactly the content's space. */
+// System colours follow color-scheme, which a page dark by a media query alone never sets: its skeletons stay light
+function checkColorScheme(root: HTMLElement) {
+  const style = getComputedStyle(root);
+  if (
+    style.colorScheme === "normal" &&
+    style.getPropertyValue("--skullet-base").includes("light-dark(") &&
+    matchMedia("(prefers-color-scheme: dark)").matches
+  ) {
+    warnOnce(
+      "color-scheme",
+      "This page sets no `color-scheme`, so skeletons use their light colours. If it has a dark mode, set it there — `:root { color-scheme: light dark }` to follow the OS, or `.dark { color-scheme: dark }` for a class.",
+    );
+  }
+}
+
 export class Ghost {
   private ghost: HTMLElement;
   private snapshot: HTMLElement;
@@ -105,6 +120,7 @@ export class Ghost {
     this.layer = child(root, ATTR_LAYER);
 
     this.hadContent = hasContent(this.ghost);
+    if (isDev) checkColorScheme(root);
 
     // Turned off after a shape was stored: what was kept goes too, not just what's next
     if (options.remember === false) {
